@@ -4,11 +4,15 @@ ARG TARGETARCH
 #RUN apk update
 #RUN apk upgrade
 #RUN apk add --update go=1.8.3-r0 gcc=6.3.0-r4 g++=6.3.0-r4
-WORKDIR /ledmatrix
+#RUN apk add --update alpine-sdk
+#RUN apk add --no-cache curl
+#RUN apk add --no-cache build-base
 ENV CGO_ENABLED=0
 #ENV CGO_ENABLED=1 GOOS=linux // go install -a server
-COPY . .
-WORKDIR /demo/emulator
+COPY . ./app
+WORKDIR app/demo/_local
+RUN go mod vendor
+#RUN unset GOPATH
 RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
 
 FROM scratch AS bin-unix

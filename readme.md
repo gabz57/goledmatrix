@@ -43,6 +43,11 @@ The Makefile default behaviour only builds the project, if you wish to publish i
 
 ```sh
 $ make
+OR 
+# this will create a local executable file for RPi
+$ docker buildx build --platform linux/arm/v7 . --output bin/ledmatrix/
+# this will create a local executable file for MacBook
+$ docker buildx build --platform linux/amd64 . --output bin/ledmatrix/
 ```
 
 ### Run

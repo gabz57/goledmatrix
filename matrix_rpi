@@ -1,4 +1,4 @@
-package ledmatrix
+package goledmatrix
 
 /*
 #cgo CFLAGS: -std=c99 -I${SRCDIR}/vendor/rpi-rgb-led-matrix/include -DSHOW_REFRESH_RATE
