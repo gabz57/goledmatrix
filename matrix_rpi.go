@@ -17,11 +17,9 @@ void set_inverse_colors(struct RGBLedMatrixOptions *o, int inverse_colors) {
 o->inverse_colors = inverse_colors != 0 ? 1 : 0;
 }
 */
-
 import "C"
 import (
 	"fmt"
-
 	"unsafe"
 )
 
@@ -107,6 +105,7 @@ func (m *MatrixHardware) Config() *MatrixConfig {
 func (m *MatrixHardware) Geometry() (width, height int) {
 	return m.width, m.height
 }
+
 //
 //// FIXME: DO NOT USE Set method anymore (Canvas concern)
 //// Set set LED at position x,y to the provided 24-bit color value.
@@ -168,9 +167,9 @@ func (m *MatrixHardware) Close() error {
 
 func (m *MatrixHardware) MainThread(canvas *Canvas, done chan struct{}) {
 	select {
-    case <-done:
-        break
-    }
+	case <-done:
+		break
+	}
 }
 
 func (m *MatrixHardware) Send(event interface{}) {
