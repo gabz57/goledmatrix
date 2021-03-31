@@ -113,3 +113,51 @@ We should expect 3 possibles setups :
 - Emulator only on any machine (run via IDE, via building & running manually the Go code, or by building & running the docker image if we can pass $DISPLAY)
 - RPi only -> use docker run ... directly on the RPi
 - on LAN: RPi server + other machine as client (can be your IDE, with or without an emulator) -> the RPi open a RPC server to allow remote control of the canvas, which is then applied to the hardware
+
+
+
+# WIP ZONE
+
+## ℹ️ IMPORTANT
+
+The emulator works on MacBook, but I canno't yet compile the whole code with dependency to the C library, one need to comment the file and switch case for NewRGBLedMatrix in BuildMatrix method.
+
+IDEAL : We should be able to build an image using GOARCH=arm64 and CGO_ENABLED=1, using Docker which can also embed QEMU to allow running code compiled for another target directly by running the docker image
+
+```sh
+
+# What I want to use for building the Go app for ARM64 (later via Docker)
+$ CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o ./out/example/ demo.go
+
+# Next line show how I would like to build for MacBook (AMD64) (only  for starting the emulator or server part, 
+# thus we could exclude the matrix_rpi.go file from compilation, which references the libmatrix C library)
+$ CGO_ENABLED=0 CC=gcc GOOS=linux GOARCH=amd64 go build -o ./out/example/ demo.go
+```
+
+Currently, WHEN commenting Go matrix_rpi.go file, one can build using docker toward ARM64 with CGO_ENABLED=0
+
+But we won't be able to run it for hardware tests, thus losing any interest...
+
+Using :
+```sh
+$ docker buildx build --platform linux/arm64 . --output bin/ledmatrix/
+# which will run in Dockerfile
+# RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
+```
+
+When trying to turn on C compilation with Go application (CGO_ENABLED=1)
+```sh
+$ docker buildx build --platform linux/arm64 . --output bin/ledmatrix/
+# which will run in Dockerfile
+# RUN CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
+
+# OUTPUT
+ => ERROR [builder 8/8] RUN CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .                                                                                            20.1s 
+------                                                                                                                                                                                                                  
+ > [builder 8/8] RUN CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .:                                                                                                        
+#12 19.85 # github.com/gabz57/goledmatrix
+#12 19.85 /usr/lib/gcc-cross/aarch64-linux-gnu/6/../../../../aarch64-linux-gnu/bin/ld: skipping incompatible ../../vendor/rpi-rgb-led-matrix/lib/librgbmatrix.a when searching for -lrgbmatrix
+#12 19.85 /usr/lib/gcc-cross/aarch64-linux-gnu/6/../../../../aarch64-linux-gnu/bin/ld: cannot find -lrgbmatrix
+#12 19.85 collect2: error: ld returned 1 exit status
+
+```
