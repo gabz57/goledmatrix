@@ -1,0 +1,47 @@
+FROM --platform=${BUILDPLATFORM} golang:1.16.2-alpine3.13 AS build
+ARG TARGETOS
+ARG TARGETARCH
+RUN apk update
+RUN apk upgrade
+#RUN apk add --update gcc=6.3.0-r4 g++=6.3.0-r4
+#RUN apk add --update alpine-sdk
+RUN apk add curl git build-base
+#RUN apk add gcc-aarch64-linux-gnu
+
+#RUN apk add --no-cache curl git build-base
+
+COPY . ./app
+# fetch & build C library to drive hardware matrix via GPIO on RPi
+WORKDIR app/vendor/rpi-rgb-led-matrix
+RUN git submodule update --init
+RUN make
+
+# build Go DEMO application
+WORKDIR ../../demo/_local
+#RUN go mod vendor
+ENV CGO_ENABLED=1
+ENV GOOS=${TARGETOS}
+ENV GOARCH=${TARGETARCH}
+ENV CC=gcc
+ENV CC=aarch64-linux-gnu-gcc
+ENV CC_FOR_TARGET=gcc-aarch64-linux-gnu
+#ENV CC=arm-linux-gnueabihf-gcc
+#ENV CXX=arm-linux-gnueabihf-g++
+#ENV CGO_ENABLED=1 GOOS=linux // go install -a server
+#RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go install -a .
+RUN go get -d -v ./...
+RUN go install -v ./...
+
+RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
+########################
+FROM scratch AS bin-unix
+COPY --from=build /out/example /usr/bin/goledmatrix
+
+FROM bin-unix AS bin-linux
+#FROM bin-unix AS bin-darwin
+#FROM scratch AS bin-windows
+#COPY --from=build /out/example /example.exe
+
+FROM bin-${TARGETOS} AS bin
+ENV MATRIX_EMULATOR=1
+CMD [ "/usr/bin/goledmatrix" ]

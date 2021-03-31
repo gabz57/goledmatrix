@@ -4,7 +4,7 @@
 and to Máximo Cuadros for its [Go binding](https://github.com/mcuadros/go-rpi-rgb-led-matrix) from wich this code is inspired**
 
 I decided to start a new project instead of forking Máximo Cuadros project as it required some breaking changes,
-and the need to handle the Emulator UI on the main thread for MacOsX laptop (at least).
+and the need to handle the Emulator UI on the main thread for MacOsX laptop (at least, I also wanted to learn new things starting from scratch)
 
 I also wanted to include some tooling for working/building locally and simply update 
 and run the code from a fresh RPi without having to restart its setup each time, which takes some time and is error prone.
@@ -15,7 +15,8 @@ Starting the hardware matrix also requires to init the panels with a python scri
 
 This project uses Docker BuildX to build and prepare the different targets :
 - **linux/amd64** (for MacBook)
-- **linux/arm/v7** (for RPi)
+- **linux/aarch64** (for RPi 3B+)
+// note I'm note sure about this yet, for RPi 3B+ and GPIO arm/v7 might be needed, arm64 should be written instead of aarch64
 
 ### To do only once : Setup Docker BuildX (⚠️ One must also ensure that experimental mode is enabled in Docker)
 ```sh
@@ -50,8 +51,8 @@ $ docker buildx build --platform linux/arm/v7 . --output bin/ledmatrix/
 $ docker buildx build --platform linux/amd64 . --output bin/ledmatrix/
 ```
 
-### Run
-I can not run it yet on my own macbook via docker run command, as I'm having trouble at running a X11 server with the current security policy, and cannot bypass it...
+### Run on MacBook
+I can not run it yet on my own macbook via docker run command (while compiling C code, Go code in standalone with emulator works fine), as I'm having trouble at running a X11 server with the current security policy, and cannot bypass it...
 Some help at trying to solve this can be found [here](https://gist.github.com/cschiewek/246a244ba23da8b9f0e7b11a68bf3285)
 ```sh
 $ docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:$HOME/.Xauthority gabz57/goledmatrix:demo

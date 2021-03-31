@@ -1,28 +1,28 @@
-FROM --platform=${BUILDPLATFORM} golang:1.16.2-alpine3.13 AS build
+FROM --platform=${BUILDPLATFORM} golang:1.16.2-stretch AS builder
 ARG TARGETOS
 ARG TARGETARCH
-#RUN apk update
-#RUN apk upgrade
-#RUN apk add --update go=1.8.3-r0 gcc=6.3.0-r4 g++=6.3.0-r4
-#RUN apk add --update alpine-sdk
-#RUN apk add --no-cache curl
-#RUN apk add --no-cache build-base
-ENV CGO_ENABLED=0
-#ENV CGO_ENABLED=1 GOOS=linux // go install -a server
-COPY . ./app
-WORKDIR app/demo/_local
-RUN go mod vendor
-#RUN unset GOPATH
-RUN GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
 
-FROM scratch AS bin-unix
-COPY --from=build /out/example /usr/bin/goledmatrix
+RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
 
-FROM bin-unix AS bin-linux
-#FROM bin-unix AS bin-darwin
-#FROM scratch AS bin-windows
-#COPY --from=build /out/example /example.exe
+ADD . /go/src/github.com/gabz57/goledmatrix
 
-FROM bin-${TARGETOS} AS bin
-ENV MATRIX_EMULATOR=1
+
+## fetch & build C library to drive hardware matrix via GPIO on RPi
+WORKDIR /go/src/github.com/gabz57/goledmatrix/vendor/rpi-rgb-led-matrix
+RUN git submodule update --init
+RUN make
+
+#WORKDIR app/vendor/rpi-rgb-led-matrix
+## build Go DEMO application
+#WORKDIR /go/src/github.com/gabz57/goledmatrix
+WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
+
+RUN CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example .
+#RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
+
+# Final stage - pick any old arm64 image you want
+#FROM multiarch/ubuntu-core:arm64-bionic
+FROM scratch
+
+COPY --from=builder /out/example /usr/bin/goledmatrix
 CMD [ "/usr/bin/goledmatrix" ]

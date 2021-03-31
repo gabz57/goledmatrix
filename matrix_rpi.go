@@ -20,7 +20,6 @@ o->inverse_colors = inverse_colors != 0 ? 1 : 0;
 import "C"
 import (
 	"fmt"
-	"unsafe"
 )
 
 func (c *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
@@ -128,16 +127,15 @@ func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 // Render update the display with the data from the LED buffer
 // NOTE: canvas is unused here as data are already set to buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
-	C.led_matrix_swap(
-		m.matrix,
-		m.buffer,
-		C.int(canvas.w), C.int(canvas.h),
-		(*C.uint32_t)(unsafe.Pointer(&canvas.leds[0])),
-	)
-
-	canvas.leds = make([]C.uint32_t, canvas.w*canvas.h)
-
+	//C.led_matrix_swap(
+	//	m.matrix,
+	//	m.buffer,
+	//	C.int(canvas.w), C.int(canvas.h),
+	//	(*C.uint32_t)(unsafe.Pointer(&canvas.leds[0])),
+	//)
 	m.buffer = C.led_matrix_swap_on_vsync(m.matrix, m.buffer)
+	//canvas.leds = make([]color.Color, canvas.w*canvas.h)
+
 	return nil
 }
 
