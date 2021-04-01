@@ -172,7 +172,8 @@ In the Docker ecosystem,
 armhf, armv7, or arm/v7
 - Raspberry 2, 3 si OS en 32-bit
 
-[cross compilation Go](https://connect.ed-diamond.com/GNU-Linux-Magazine/GLMFHS-106/Utiliser-simplement-un-reseau-de-neurones-sur-Raspberry-Pi-grace-a-ONNX-et-Go)
+## Liens divers
+[cross compilation en Go](https://connect.ed-diamond.com/GNU-Linux-Magazine/GLMFHS-106/Utiliser-simplement-un-reseau-de-neurones-sur-Raspberry-Pi-grace-a-ONNX-et-Go)
 
 [buildX multiarch](https://medium.com/nttlabs/buildx-multiarch-2c6c2df00ca2)
 
@@ -184,3 +185,20 @@ https://goreleaser.com/limitations/cgo/
 https://goreleaser.com/cookbooks/cgo-and-crosscompiling
 
 https://github.com/troian/golang-cross
+
+
+## Trying again, using 2 Dockefile for arm32 & arm64
+```sh
+$ docker buildx build --platform linux/arm/v7 . -f armv7.Dockerfile --output bin/ledmatrix/
+$ docker buildx build --platform linux/arm64 . -f arm64.Dockerfile --output bin/ledmatrix/
+```
+
+## Build all locally ℹ️ using 2 Dockerfile
+```sh
+$ make ledmatrix32/build
+$ make ledmatrix64/build
+$ file bin/32/usr/bin/goledmatrix
+# bin/32/usr/bin/goledmatrix: ELF 32-bit LSB executable, ARM, EABI5 version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-armhf.so.3, for GNU/Linux 4.10.8, Go BuildID=e64a86f74eb3292dac7d89cb25d93e9f58fef28b, with debug_info, not stripped
+$ file bin/64/usr/bin/goledmatrix
+# bin/64/usr/bin/goledmatrix: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 4.10.8, Go BuildID=0e5708a60115cc43d38506ffdc1fa1ad81e7719a, with debug_info, not stripped
+```

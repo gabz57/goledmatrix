@@ -1,29 +1,26 @@
-all: ledmatrix/build
-.PHONY: ledmatrix/build
+all: ledmatrix32/build
+.PHONY: ledmatrix32/build
 
-ledmatrix/build:
-	@docker buildx build . \
+ledmatrix32/build:
+	@docker buildx build . -f armv7.Dockerfile \
 	--platform linux/arm/v7 \
 	--tag gabz57/goledmatrix:latest \
-	--output bin/
+	--output bin/32/
 
-#ledmatrix/build:
-#	@docker buildx build . \
-#	--platform linux/arm64 \
-#	--tag gabz57/goledmatrix:latest \
-#	--output bin/
+ledmatrix32/push:
+	@docker buildx build . -f armv7.Dockerfile \
+	--platform linux/arm/v7 \
+	--tag gabz57/goledmatrix:latest \
+	--push
 
-#	--target bin \
-#
-#ledmatrix/build:
-#	@docker buildx build . \
-#	--platform linux/amd64,linux/arm64 \
-#	--tag gabz57/goledmatrix:latest \
-#	--target bin \
-#	--output bin/
+ledmatrix64/build:
+	@docker buildx build . -f arm64.Dockerfile \
+	--platform linux/arm64 \
+	--tag gabz57/goledmatrix:latest \
+	--output bin/64/
 
-ledmatrix/push:
-	@docker buildx build . \
-	--platform linux/amd64,linux/arm64 \
+ledmatrix64/push:
+	@docker buildx build . -f arm64.Dockerfile \
+	--platform linux/arm64 \
 	--tag gabz57/goledmatrix:latest \
 	--push
