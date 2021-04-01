@@ -3,9 +3,15 @@ all: ledmatrix/build
 
 ledmatrix/build:
 	@docker buildx build . \
-	--platform linux/arm64 \
+	--platform linux/arm/v7 \
 	--tag gabz57/goledmatrix:latest \
 	--output bin/
+
+#ledmatrix/build:
+#	@docker buildx build . \
+#	--platform linux/arm64 \
+#	--tag gabz57/goledmatrix:latest \
+#	--output bin/
 
 #	--target bin \
 #

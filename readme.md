@@ -122,19 +122,19 @@ We should expect 3 possibles setups :
 
 The emulator works on MacBook, but I canno't yet compile the whole code with dependency to the C library, one need to comment the file and switch case for NewRGBLedMatrix in BuildMatrix method.
 
-IDEAL : We should be able to build an image using GOARCH=arm64 and CGO_ENABLED=1, using Docker which can also embed QEMU to allow running code compiled for another target directly by running the docker image
+IDEAL : We should be able to build an image using GOARCH=arm/v7 or GOARCH=arm64 and CGO_ENABLED=1, using Docker which can also embed QEMU to allow running code compiled for another target directly by running the docker image
 
 ```sh
 
-# What I want to use for building the Go app for ARM64 (later via Docker)
-$ CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o ./out/example/ demo.go
+# What I want to use for building the Go app for ARM32 (later via Docker), something like (but for 32-bit OS)
+$ CGO_ENABLED=1 CC=???? GOOS=linux GOARCH=arm go build -o ./out/example/ demo.go
 
 # Next line show how I would like to build for MacBook (AMD64) (only  for starting the emulator or server part, 
 # thus we could exclude the matrix_rpi.go file from compilation, which references the libmatrix C library)
 $ CGO_ENABLED=0 CC=gcc GOOS=linux GOARCH=amd64 go build -o ./out/example/ demo.go
 ```
 
-Currently, WHEN commenting Go matrix_rpi.go file, one can build using docker toward ARM64 with CGO_ENABLED=0
+Currently, AFTER commenting Go matrix_rpi.go file, one can build using docker toward ARM64 with CGO_ENABLED=0
 
 But we won't be able to run it for hardware tests, thus losing any interest...
 
@@ -161,3 +161,17 @@ $ docker buildx build --platform linux/arm64 . --output bin/ledmatrix/
 #12 19.85 collect2: error: ld returned 1 exit status
 
 ```
+[Resource qui distingue arm/v7 & arm64, et tuto pour installer docker sur RPi](https://withblue.ink/2020/06/24/docker-and-docker-compose-on-raspberry-pi-os.html)
+
+In the Docker ecosystem, 
+64-bit ARM images are called arm64 or arm64/v8.
+- Raspberry 3B+ si OS en 64-bit (récent, pas certain que la compatibilité GPIO soit totale)
+- Raspberry 4
+
+32-bit ARM images for Raspberry Pi OS are labeled as 
+armhf, armv7, or arm/v7
+- Raspberry 2, 3 si OS en 32-bit
+
+[cross compilation Go](https://connect.ed-diamond.com/GNU-Linux-Magazine/GLMFHS-106/Utiliser-simplement-un-reseau-de-neurones-sur-Raspberry-Pi-grace-a-ONNX-et-Go)
+
+[buildX multiarch](https://medium.com/nttlabs/buildx-multiarch-2c6c2df00ca2)

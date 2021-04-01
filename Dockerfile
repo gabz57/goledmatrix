@@ -2,7 +2,8 @@ FROM --platform=${BUILDPLATFORM} golang:1.16.2-stretch AS builder
 ARG TARGETOS
 ARG TARGETARCH
 
-RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+#RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+RUN apt-get update && apt-get install -y gcc-arm-linux-gnueabihf
 
 ADD . /go/src/github.com/gabz57/goledmatrix
 
@@ -16,8 +17,9 @@ RUN make
 ## build Go DEMO application
 #WORKDIR /go/src/github.com/gabz57/goledmatrix
 WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
-
-RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
+# TODO build for RPi3B+ (32 bits => arm/v7 compiler)
+RUN CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example/ .
+#RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
 #RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
 
 # Final stage - pick any old arm64 image you want
