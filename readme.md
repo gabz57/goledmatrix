@@ -175,3 +175,12 @@ armhf, armv7, or arm/v7
 [cross compilation Go](https://connect.ed-diamond.com/GNU-Linux-Magazine/GLMFHS-106/Utiliser-simplement-un-reseau-de-neurones-sur-Raspberry-Pi-grace-a-ONNX-et-Go)
 
 [buildX multiarch](https://medium.com/nttlabs/buildx-multiarch-2c6c2df00ca2)
+
+
+### Building its own toolchain
+https://rolandsdev.blog/cross-compile-for-raspberry-pi-with-docker/
+### GoReleaser + golang-cross
+https://goreleaser.com/limitations/cgo/
+https://goreleaser.com/cookbooks/cgo-and-crosscompiling
+
+https://github.com/troian/golang-cross
