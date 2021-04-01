@@ -143,7 +143,6 @@ func BuildMatrix(config *MatrixConfig) (m Matrix, err error) {
 		return NewMatrixEmulator(config)
 	} else {
 		return NewRGBLedMatrix(config)
-		//return NewMatrixEmulator(config)
 	}
 }
 

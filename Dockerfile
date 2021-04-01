@@ -1,30 +1,28 @@
-FROM --platform=${BUILDPLATFORM} golang:1.16.2-stretch AS builder
-ARG TARGETOS
-ARG TARGETARCH
+###############
+# Build stage for linux/arm/v7 platform
+FROM --platform=${BUILDPLATFORM} dockcross/linux-armv7 AS builder
 
-#RUN apt-get update && apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
-RUN apt-get update && apt-get install -y gcc-arm-linux-gnueabihf
+RUN apt-get update && apt-get install -y git golang
+# TODO: describe why it works 😎 (inspired from this discussion: https://github.com/docker-library/golang/issues/129)
+ENV GOPATH $HOME/go
 
 ADD . /go/src/github.com/gabz57/goledmatrix
 
-
-## fetch & build C library to drive hardware matrix via GPIO on RPi
+## To drive hardware matrix via GPIO on RPi
+## fetch origial C library via Git submodule & build it
 WORKDIR /go/src/github.com/gabz57/goledmatrix/vendor/rpi-rgb-led-matrix
 RUN git submodule update --init
-RUN make
+## Note: only building the library for librgbmatrix.a file (skipping samples which makes compilation fail)
+RUN make -C ./lib
 
-#WORKDIR app/vendor/rpi-rgb-led-matrix
 ## build Go DEMO application
-#WORKDIR /go/src/github.com/gabz57/goledmatrix
 WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
-# TODO build for RPi3B+ (32 bits => arm/v7 compiler)
-RUN CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example/ .
-#RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
-#RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=${TARGETOS} GOARCH=${TARGETARCH} go build -o /out/example .
+RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 
-# Final stage - pick any old arm64 image you want
-#FROM multiarch/ubuntu-core:arm64-bionic
-FROM scratch
 
+###############
+# Running stage
+FROM scratch AS bin
+## TODO? COPY --from=builder # compiled C library
 COPY --from=builder /out/example /usr/bin/goledmatrix
 CMD [ "/usr/bin/goledmatrix" ]
