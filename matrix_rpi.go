@@ -5,6 +5,23 @@ package goledmatrix
 #cgo LDFLAGS: -lrgbmatrix -L${SRCDIR}/vendor/rpi-rgb-led-matrix/lib -lstdc++ -lm
 #include <led-matrix-c.h>
 
+void led_matrix_swap(struct RGBLedMatrix *matrix, struct LedCanvas *offscreen_canvas,
+                     int width, int height, const uint32_t pixels[]) {
+  int i, x, y;
+  uint32_t color;
+  for (x = 0; x < width; ++x) {
+    for (y = 0; y < height; ++y) {
+      i = x + (y * width);
+      color = pixels[i];
+
+      led_canvas_set_pixel(offscreen_canvas, x, y,
+        (color >> 16) & 255, (color >> 8) & 255, color & 255);
+    }
+  }
+
+  offscreen_canvas = led_matrix_swap_on_vsync(matrix, offscreen_canvas);
+}
+
 void set_show_refresh_rate(struct RGBLedMatrixOptions *o, int show_refresh_rate) {
 o->show_refresh_rate = show_refresh_rate != 0 ? 1 : 0;
 }
@@ -20,6 +37,8 @@ o->inverse_colors = inverse_colors != 0 ? 1 : 0;
 import "C"
 import (
 	"fmt"
+	"image/color"
+	"unsafe"
 )
 
 func (c *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
@@ -125,15 +144,36 @@ func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 }
 
 // Render update the display with the data from the LED buffer
-// NOTE: canvas is unused here as data are already set to buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
-	//C.led_matrix_swap(
-	//	m.matrix,
-	//	m.buffer,
-	//	C.int(canvas.w), C.int(canvas.h),
-	//	(*C.uint32_t)(unsafe.Pointer(&canvas.leds[0])),
-	//)
-	m.buffer = C.led_matrix_swap_on_vsync(m.matrix, m.buffer)
+	leds := make([]C.uint32_t, canvas.w*canvas.h)
+	for i, led := range canvas.leds {
+		if led != nil {
+			leds[i] = C.uint32_t(colorToUint32(led))
+		}
+	}
+
+	C.led_matrix_swap(
+		m.matrix,
+		m.buffer,
+		C.int(canvas.w), C.int(canvas.h),
+		(*C.uint32_t)(unsafe.Pointer(&leds[0])),
+	)
+	//var i int
+	//var c color.Color
+	//for x := 0; x <  canvas.w; x++ {
+	//	for y := 0; y <  canvas.h; y++ {
+	//		i = x + y * canvas.w
+	//		c = canvas.leds[i]
+	//		if c != nil {
+	//			colorUInt32 := colorToUint32(c)
+	//			C.led_canvas_set_pixel(m.buffer, C.int(x), C.int(y),
+	//				(colorUInt32 >> 16) & 255, (colorUInt32 >> 8) & 255, colorUInt32 & 255)
+	//		}
+	//		c = nil
+	//	}
+	//}
+
+	//m.buffer = C.led_matrix_swap_on_vsync(m.matrix, m.buffer)
 	//canvas.leds = make([]color.Color, canvas.w*canvas.h)
 
 	return nil
@@ -145,14 +185,15 @@ func (m *MatrixHardware) Close() error {
 	return nil
 }
 
-//func colorToUint32(c color.Color) uint32 {
-//	if c == nil {
-//		return 0
-//	}
-//	// A color's RGBA method returns values in the range [0, 65535]
-//	red, green, blue, _ := c.RGBA()
-//	return (red>>8)<<16 | (green>>8)<<8 | blue>>8
-//}
+func colorToUint32(c color.Color) uint32 {
+	if c == nil {
+		return 0
+	}
+	// A color's RGBA method returns values in the range [0, 65535]
+	red, green, blue, _ := c.RGBA()
+	return (red>>8)<<16 | (green>>8)<<8 | blue>>8
+}
+
 //
 //
 //func uint32ToColor(u C.uint32_t) color.Color {

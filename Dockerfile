@@ -1,6 +1,6 @@
 ###############
 # Build stage for linux/arm/v7 platform
-FROM --platform=${BUILDPLATFORM} dockcross/linux-armv7 AS builder
+FROM dockcross/linux-armv7 AS builder
 
 RUN apt-get update && apt-get install -y git golang
 # TODO: describe why it works 😎 (inspired from this discussion: https://github.com/docker-library/golang/issues/129)

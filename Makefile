@@ -1,5 +1,10 @@
-all: ledmatrix32/build
-.PHONY: ledmatrix32/build
+all: ledmatrix/build
+.PHONY: ledmatrix/build
+
+ledmatrix/build:
+	@docker build . -f Dockerfile \
+	--tag gabz57/goledmatrix:rpi32 \
+	--output bin/32/
 
 ledmatrix32/build:
 	@docker buildx build . -f armv7.Dockerfile \

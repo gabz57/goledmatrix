@@ -2,4 +2,4 @@
 
 python resetmatrix.py
 cd /usr/bin/
-./goledmatrix
+sudo ./goledmatrix

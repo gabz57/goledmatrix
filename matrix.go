@@ -127,13 +127,6 @@ func (conf *MatrixConfig) Geometry() (width, height int) {
 	return conf.Cols * conf.ChainLength, conf.Rows * conf.Parallel
 }
 
-//var Shared = struct {
-//	mu              sync.Mutex
-//	uploadEventSent bool
-//	mouseEvents     []image.Point
-//}{
-//}
-
 // UploadEvent signals that the shared pix slice should be uploaded to the
 // screen.Texture via the screen.Buffer.
 type UploadEvent struct{}
@@ -146,34 +139,12 @@ func BuildMatrix(config *MatrixConfig) (m Matrix, err error) {
 	}
 }
 
-//
-//func Run(matrixCreator func() (Matrix, error), gameloop func(c *Canvas, done chan struct{})) {
-//	//matrix, err := matrixCreator()
-//	//if err != nil {
-//	//	log.Fatal(err)
-//	//}
-//	//
-//	//done := make(chan struct{})
-//	//
-//	//// TODO: canvas can manipulate multiple matrix (Emulator + RPC client) Render -> dispatch to each matrix (1 copy for each)
-//	////   OR: canvas manipulates 1 matrix (RPC)
-//	//canvas := NewCanvas(matrix)
-//	//// 1st initialization required to draw text onto something != nil
-//	//canvas.Clear()
-//	//
-//	//defer canvas.Close()
-//	//defer matrix.Close()
-//	//
-//	//go gameloop(canvas, done)
-//	//matrix.MainThread(canvas, done)
-//}
 func Run(matrixCreator func(config *MatrixConfig) (Matrix, error), gameloop func(c *Canvas, done chan struct{})) {
-	fmt.Println("Run")
 	RunMany([]func(config *MatrixConfig) (Matrix, error){matrixCreator}, gameloop)
 }
 
 func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gameloop func(c *Canvas, done chan struct{})) {
-	fmt.Println("RunMany")
+	fmt.Println("Running...")
 
 	config := ReadConfigFlags()
 
@@ -202,9 +173,9 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 
 	done := make(chan struct{})
 	defer canvas.Close()
-	fmt.Println("go gameloop")
 
 	// User defined method
+	fmt.Println("go gameloop")
 	go gameloop(canvas, done)
 
 	// run all matrices (UI is run on main thread)
