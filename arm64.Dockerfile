@@ -18,11 +18,13 @@ RUN make -C ./lib
 ## build Go DEMO application
 WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o /out/example .
-#RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 
 ###############
 # Running stage
-FROM scratch AS bin
+FROM arm64v8/python:3.9.2-slim-buster AS bin
 ## TODO? COPY --from=builder # compiled C library
 COPY --from=builder /out/example /usr/bin/goledmatrix
-CMD [ "/usr/bin/goledmatrix" ]
+COPY ./resetmatrix.py .
+COPY ./entrypoint.sh .
+ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+#CMD [ "/usr/bin/goledmatrix" ]

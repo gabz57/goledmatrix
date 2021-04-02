@@ -14,9 +14,9 @@ Starting the hardware matrix also requires to init the panels with a python scri
 ## For developers
 
 This project uses Docker BuildX to build and prepare the different targets :
-- **linux/amd64** (for MacBook)
-- **linux/aarch64** (for RPi 3B+)
-// note I'm note sure about this yet, for RPi 3B+ and GPIO arm/v7 might be needed, arm64 should be written instead of aarch64
+- **linux/arm/v7** (for RPi 3B+ with previous OS 32-bit)
+- **linux/arm64** (for RPi 3B+ with more recent OS in 64-bit)
+// Note arm64 might not work and need further tests
 
 ### To do only once : Setup Docker BuildX (⚠️ One must also ensure that experimental mode is enabled in Docker)
 ```sh
@@ -26,8 +26,9 @@ $ docker buildx inspect --bootstrap
 ```
 
 ### Build using Docker BuildX
+Ideally we should build a single Dockerfile with this command, I haven't merged the 2 files yet, feel free to help ;)
 ```sh
-$ docker buildx build --platform linux/amd64,linux/arm/v7 .
+$ docker buildx build --platform linux/arm64,linux/arm/v7 .
 ```
 
 ### Local manual GO build (emulator only)
@@ -45,10 +46,10 @@ The Makefile default behaviour only builds the project, if you wish to publish i
 ```sh
 $ make
 OR 
-# this will create a local executable file for RPi
-$ docker buildx build --platform linux/arm/v7 . --output bin/ledmatrix/
-# this will create a local executable file for MacBook
-$ docker buildx build --platform linux/amd64 . --output bin/ledmatrix/
+# this will create a local executable file for RPi 32-bit
+$ docker buildx build --platform linux/arm/v7 . -f armv7.Dockerfile --output bin/ledmatrix/
+# this will create a local executable file for RPi 64-bit
+$ docker buildx build --platform linux/arm64 . -f arm64.Dockerfile --output bin/ledmatrix/
 ```
 
 ### Run on MacBook
@@ -120,32 +121,22 @@ We should expect 3 possibles setups :
 
 ## ℹ️ IMPORTANT
 
-The emulator works on MacBook, but I canno't yet compile the whole code with dependency to the C library, one need to comment the file and switch case for NewRGBLedMatrix in BuildMatrix method.
+The emulator works on MacBook, but I cannot compile the whole code with its dependency to the C library.
+One need to comment the file and switch off the case for NewRGBLedMatrix in BuildMatrix method.
 
-IDEAL : We should be able to build an image using GOARCH=arm/v7 or GOARCH=arm64 and CGO_ENABLED=1, using Docker which can also embed QEMU to allow running code compiled for another target directly by running the docker image
+IDEAL : We should be able to build an image using GOARCH=arm/v7 or GOARCH=arm64 and CGO_ENABLED=1.
+This image should run on macbook (using emulator or server mode) using Docker which can embed QEMU 
+QEMU allow compiled code (for another target) to run directly on MacOS.
 
+`HELP NEEDED` using the emulator through the docker image requires to provide some kind of display to docker run command.
+This should looks like :
 ```sh
-
-# What I want to use for building the Go app for ARM32 (later via Docker), something like (but for 32-bit OS)
-$ CGO_ENABLED=1 CC=???? GOOS=linux GOARCH=arm go build -o ./out/example/ demo.go
-
-# Next line show how I would like to build for MacBook (AMD64) (only  for starting the emulator or server part, 
-# thus we could exclude the matrix_rpi.go file from compilation, which references the libmatrix C library)
-$ CGO_ENABLED=0 CC=gcc GOOS=linux GOARCH=amd64 go build -o ./out/example/ demo.go
+# these are just examples, they don't work
+$ docker run -ti --rm -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix -v $HOME/.Xauthority:$HOME/.Xauthority gabz57/goledmatrix:demo
+$ docker run -ti --rm -e DISPLAY=host.docker.internal:0 gabz57/goledmatrix:demo
 ```
 
-Currently, AFTER commenting Go matrix_rpi.go file, one can build using docker toward ARM64 with CGO_ENABLED=0
-
-But we won't be able to run it for hardware tests, thus losing any interest...
-
-Using :
-```sh
-$ docker buildx build --platform linux/arm64 . --output bin/ledmatrix/
-# which will run in Dockerfile
-# RUN CGO_ENABLED=0 CC=aarch64-linux-gnu-gcc GOOS=linux GOARCH=arm64 go build -o /out/example/ .
-```
-
-When trying to turn on C compilation with Go application (CGO_ENABLED=1)
+On MacBook, when trying to turn on C compilation with Go application (CGO_ENABLED=1) using previous Dockerfile version :
 ```sh
 $ docker buildx build --platform linux/arm64 . --output bin/ledmatrix/
 # which will run in Dockerfile
