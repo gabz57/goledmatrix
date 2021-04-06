@@ -11,6 +11,7 @@ import (
 	"image"
 	"image/color"
 	"os"
+	"strconv"
 	"time"
 )
 
@@ -104,23 +105,33 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 	// TODO: copy []color.Color with event ? into a buffer for 1 grid
 	//  (only keep most recent data to display)
+	//start := time.Now()
+
 	m.Send(UploadEvent{})
+	//fmt.Println("emulator took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+
 	return nil
 }
 
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas *Canvas) error {
+	start := time.Now()
+	var cnt = 0
 	if m.w != nil {
+		canvas.mutex.Lock()
 		var c color.Color
 		for col := 0; col < m.Width; col++ {
 			for row := 0; row < m.Height; row++ {
 				c = canvas.At(col, row)
 				if c != nil {
 					m.w.Fill(m.ledRect(col, row), c, screen.Over)
+					cnt++
 				}
 				c = nil
 			}
 		}
+		canvas.mutex.Unlock()
+		fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
 		m.w.Publish()
 	}
 	return nil
@@ -230,13 +241,15 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 						break LOOP
 					}
 				case error:
-					fmt.Println("event : error")
+					//fmt.Println("event : error")
 					fmt.Fprintln(os.Stderr, m)
 					//default:
 				}
 				if publish {
+					//start := time.Now()
 					m.drawBackground(sz)
 					err = m.Render(canvas)
+					//fmt.Println("pulication took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
 					if err != nil {
 						panic(err)
 					}

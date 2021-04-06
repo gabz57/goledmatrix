@@ -52,9 +52,9 @@ var DefaultConfig = MatrixConfig{
 
 // FLAGS
 var (
-	rows                     = flag.Int("led-rows", 32, "number of rows supported")
+	rows                     = flag.Int("led-rows", 64, "number of rows supported")
 	cols                     = flag.Int("led-cols", 64, "number of columns supported")
-	parallel                 = flag.Int("led-parallel", 1, "number of daisy-chained panels")
+	parallel                 = flag.Int("led-parallel", 2, "number of daisy-chained panels")
 	chain                    = flag.Int("led-chain", 2, "number of displays daisy-chained")
 	brightness               = flag.Int("brightness", 100, "brightness (0-100)")
 	hardware_mapping         = flag.String("led-gpio-mapping", "regular", "Name of GPIO mapping used.")
@@ -135,7 +135,8 @@ func BuildMatrix(config *MatrixConfig) (m Matrix, err error) {
 	if config.Emulator == true {
 		return NewMatrixEmulator(config)
 	} else {
-		return NewRGBLedMatrix(config)
+		return NewMatrixEmulator(config)
+		//return NewRGBLedMatrix(config)
 	}
 }
 

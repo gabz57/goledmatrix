@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 )
+
 type RecursiveMutex struct {
 	internalMutex    sync.Mutex
 	currentGoRoutine int64  // keeps track of the current goroutine id
@@ -54,6 +55,7 @@ func (rm *RecursiveMutex) Lock() {
 	rm.lockCount++
 	rm.internalMutex.Unlock()
 }
+
 // Canvas is a image.Image representation of a LED matrix, it implements
 // image.Image interface and can be used with draw.Draw for example
 func (rm *RecursiveMutex) Unlock() {
@@ -72,6 +74,34 @@ type Canvas struct {
 	leds     []color.Color
 }
 
+type Point struct {
+	X, Y int
+}
+
+type FloatingPoint struct {
+	X, Y float64
+}
+
+func (p *Point) Floating() FloatingPoint {
+	return FloatingPoint{
+		X: float64(p.X),
+		Y: float64(p.Y),
+	}
+}
+
+func (p Point) Add(other Point) Point {
+	return Point{
+		X: p.X + other.X,
+		Y: p.Y + other.Y,
+	}
+}
+
+func (p Point) AddXY(x, y int) Point {
+	return Point{
+		X: p.X + x,
+		Y: p.Y + y,
+	}
+}
 func NewCanvas(config *MatrixConfig) *Canvas {
 	w, h := config.Geometry()
 	c := Canvas{
@@ -108,19 +138,41 @@ func (c *Canvas) Set(x, y int, ledColor color.Color) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	//c.leds[c.position(x, y)] = color.RGBAModel.Convert(ledColor)
-	c.leds[c.position(x, y)] = ledColor
+	if x >= 0 && y >= 0 && c.position(x, y) < c.w*c.h {
+		c.leds[c.position(x, y)] = ledColor
+	}
+}
+
+func (c *Canvas) SetPoint(point Point, ledColor color.Color) {
+	c.mutex.Lock()
+	defer c.mutex.Unlock()
+	if point.X >= 0 && point.Y >= 0 && c.position(point.X, point.Y) < c.w*c.h {
+		c.leds[c.position(point.X, point.Y)] = ledColor
+	}
 }
 
 func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.RGBA, face font.Face) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	d := &font.Drawer{
-		Dst:  c,
+		Dst:  &TextCanvas{c},
 		Src:  image.NewUniform(ledColor),
 		Face: face,
 		Dot:  fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)},
 	}
 	d.DrawString(label)
+}
+
+type TextCanvas struct {
+	*Canvas
+}
+
+func (tc *TextCanvas) At(x, y int) color.Color {
+	colorAt := tc.Canvas.At(x, y)
+	if colorAt == nil {
+		colorAt = color.Black
+	}
+	return colorAt
 }
 
 func (c *Canvas) Render() error {
@@ -141,7 +193,7 @@ func (c *Canvas) Clear() {
 	defer c.mutex.Unlock()
 	c.leds = nil
 	c.leds = make([]color.Color, c.w*c.h)
-	draw.Draw(c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
+	//draw.Draw(c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
 }
 
 // Close clears the canvas and closes all the matrices
