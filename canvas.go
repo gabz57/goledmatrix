@@ -6,7 +6,6 @@ import (
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
-	"image/draw"
 	"runtime"
 	"strconv"
 	"strings"
@@ -56,8 +55,6 @@ func (rm *RecursiveMutex) Lock() {
 	rm.internalMutex.Unlock()
 }
 
-// Canvas is a image.Image representation of a LED matrix, it implements
-// image.Image interface and can be used with draw.Draw for example
 func (rm *RecursiveMutex) Unlock() {
 	rm.internalMutex.Lock()
 	rm.lockCount--
@@ -67,6 +64,8 @@ func (rm *RecursiveMutex) Unlock() {
 	rm.internalMutex.Unlock()
 }
 
+// Canvas is a image.Image representation of a LED matrix, it implements
+// image.Image interface and can be used with draw.Draw for example
 type Canvas struct {
 	w, h     int
 	matrices []Matrix
@@ -109,7 +108,7 @@ func NewCanvas(config *MatrixConfig) *Canvas {
 		h:    h,
 		leds: make([]color.Color, w*h),
 	}
-	draw.Draw(&c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
+	//draw.Draw(&c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
 	return &c
 }
 
@@ -151,7 +150,7 @@ func (c *Canvas) SetPoint(point Point, ledColor color.Color) {
 	}
 }
 
-func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.RGBA, face font.Face) {
+func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.Color, face font.Face) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	d := &font.Drawer{

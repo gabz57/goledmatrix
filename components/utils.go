@@ -1,9 +1,11 @@
 package components
 
 import (
+	"fmt"
 	. "github.com/gabz57/goledmatrix"
 	"image/color"
 	"math"
+	"time"
 )
 
 var Origin = Point{}
@@ -15,6 +17,7 @@ var defaultLayout = Layout{
 }
 
 var ColorBlue = color.RGBA{R: 0x00, G: 0x00, B: 0xff, A: 0xff}
+var ColorGreen = color.RGBA{R: 0x00, G: 0xff, B: 0x00, A: 0xff}
 var ColorViolet = color.RGBA{R: 0xff, G: 0x00, B: 0xff, A: 0xff}
 var ColorRed = color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xff}
 
@@ -54,4 +57,10 @@ func Rotate(p, o Point, degrees float64) Point {
 
 func degToRad(x float64) float64 {
 	return (x / 180) * math.Pi
+}
+
+func TimeToText(now time.Time) string {
+	hour, min, sec := now.Clock()
+	millis := now.Nanosecond() / 1000000
+	return fmt.Sprintf("%02d", hour) + ":" + fmt.Sprintf("%02d", min) + ":" + fmt.Sprintf("%02d", sec) + "." + fmt.Sprintf("%03d", millis)
 }

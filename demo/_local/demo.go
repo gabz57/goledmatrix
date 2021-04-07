@@ -33,7 +33,7 @@ func Gameloop(c *goledmatrix.Canvas, done chan struct{}) {
 			X: c.Bounds().Max.X / 2,
 			Y: c.Bounds().Max.Y / 2,
 		},
-		10,
+		55,
 	)
 	world := components.NewWorld(c, []components.Component{clock})
 

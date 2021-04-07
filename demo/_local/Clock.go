@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
+	"github.com/gabz57/goledmatrix/fonts"
 	"time"
 )
 
@@ -22,25 +22,68 @@ type Clock struct {
 var clockGraphic = NewGraphic(nil, nil)
 
 func NewClock(center Point, radius int) Clock {
-	hour, min, sec := time.Now().Clock()
 	clock := Clock{
 		now:    time.Now(),
 		center: center,
 		radius: radius,
 		shape: CompositeDrawable{
 			Graphic:   &clockGraphic,
-			Drawables: []Drawable{},
+			Drawables: []*Drawable{},
 		},
 	}
+	clock.shape.AddDrawable(clock.buildBlabla(10, 10))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 20))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 30))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 40))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 50))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 60))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 70))
+	clock.shape.AddDrawable(clock.buildBlabla(10, 80))
+	//
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 10))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 20))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 30))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 40))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 50))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 60))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 70))
+	//clock.shape.AddDrawable(clock.buildBlabla(50, 80))
+	//
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 10))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 20))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 30))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 40))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 50))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 60))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 70))
+	//clock.shape.AddDrawable(clock.buildBlabla(90, 80))
+	//
 	clock.shape.AddDrawable(clock.buildDrawableContourCircle())
 	clock.shape.AddDrawable(clock.buildDrawableCenter())
 	clock.shape.AddDrawables(clock.buildDrawableHours())
 	clock.shape.AddDrawables(clock.buildDrawableMinutes())
 
-	clock.text = clock.buildText(hour, min, sec)
+	now := time.Now()
+	hour, min, sec := now.Clock()
+	clock.text = clock.buildText(now)
+	var drawableText Drawable
+	drawableText = clock.text
+	clock.shape.AddDrawable(&drawableText)
+
 	clock.rotatingHour = clock.buildRotatingHour(hour, min)
+	var drawableHour Drawable
+	drawableHour = clock.rotatingHour
+	clock.shape.AddDrawable(&drawableHour)
+
 	clock.rotatingMinute = clock.buildRotatingMinute(min, sec)
+	var drawableMinute Drawable
+	drawableMinute = clock.rotatingMinute
+	clock.shape.AddDrawable(&drawableMinute)
+
 	clock.rotatingSecond = clock.buildRotatingSecond(sec)
+	var drawableSecond Drawable
+	drawableSecond = clock.rotatingSecond
+	clock.shape.AddDrawable(&drawableSecond)
 
 	return clock
 }
@@ -51,166 +94,165 @@ func (c Clock) Update() {
 		c.now = now
 		hour, min, sec := now.Clock()
 
-		angleDegreesHour := float64((hour + min/60) * 30)
+		aDHour := angleDegreesHour(hour, min)
 		c.rotatingHour.SetLine(
-			Rotate(Point{
-				X: c.center.X,
-				Y: 2,
-			}, c.center, angleDegreesHour),
-			Rotate(Point{
-				X: c.center.X,
-				Y: 5,
-			}, c.center, angleDegreesHour),
+			c.center,
+			c.hourLineEnd(aDHour),
 		)
 
-		angleDegreesMinute := (float64(min) + float64(sec/60)) * 6
 		c.rotatingMinute.SetLine(
 			c.center,
-			Rotate(Point{
-				X: c.center.X,
-				Y: 10,
-			}, c.center, angleDegreesMinute))
+			c.minuteLineEnd(angleDegreesMinute(min, sec)),
+		)
 
-		angleDegreesSecond := (float64(sec) + (float64(c.now.Nanosecond()) / 1000000000)) * 6
 		c.rotatingSecond.SetDot(
-			Rotate(Point{
-				X: c.center.X + c.radius - 2,
-				Y: 0,
-			}, c.center, angleDegreesSecond))
-		c.text.SetText(timeToText(hour, min, sec))
+			c.secondDotPosition(angleDegreesSecond(sec, c.now)),
+		)
+
+		c.text.SetText(TimeToText(c.now))
 	}
 }
 
-func timeToText(hour int, min int, sec int) string {
-	return fmt.Sprintf("%02d", hour) + ":" + fmt.Sprintf("%02d", min) + ":" + fmt.Sprintf("%02d", sec)
+func angleDegreesHour(hour int, min int) float64 {
+	return (float64(hour) + float64(min)/60) * 30
 }
 
-func (c Clock) buildDrawableContourCircle() Drawable {
+func angleDegreesMinute(min int, sec int) float64 {
+	return (float64(min) + float64(sec)/60) * 6
+}
+
+func angleDegreesSecond(sec int, now time.Time) float64 {
+	return (float64(sec) + (float64(now.Nanosecond()) / 1000000000)) * 6
+}
+
+func (c Clock) buildBlabla(x, y int) *Drawable {
 	graphic := NewGraphic(c.shape.Graphic, nil)
-	return &*shapes.NewCircle(&graphic, c.center, c.radius, false)
+	var circle Drawable
+	circle = shapes.NewText(&graphic, Point{X: x, Y: y}, "bla bla", fonts.Bdf4x6)
+	return &circle
 }
-
-func (c Clock) buildDrawableCenter() Drawable {
+func (c Clock) buildDrawableContourCircle() *Drawable {
 	graphic := NewGraphic(c.shape.Graphic, nil)
-	return shapes.NewDot(&graphic, c.center)
+	var circle Drawable
+	circle = shapes.NewCircle(&graphic, c.center, c.radius, false)
+	return &circle
 }
 
-func (c Clock) buildDrawableHours() []Drawable {
-	drawables := make([]Drawable, 12)
+func (c Clock) buildDrawableCenter() *Drawable {
+	graphic := NewGraphic(c.shape.Graphic, nil)
+	var dot Drawable
+	dot = shapes.NewDot(&graphic, c.center)
+	return &dot
+}
+
+func (c Clock) buildDrawableHours() []*Drawable {
+	drawables := make([]*Drawable, 12)
 	for hour := 0; hour < 12; hour++ {
-		drawables[hour] = c.buildDrawableHour(c.center, c.radius, hour)
+		drawables[hour] = c.buildDrawableHour(hour)
 	}
 	return drawables
 }
 
-func (c Clock) buildDrawableHour(center Point, radius int, hour int) Drawable {
-	angleDegrees := float64(hour * 30)
-
+func (c Clock) buildDrawableHour(hour int) *Drawable {
+	angleDegrees := angleDegreesHour(hour, 0)
 	graphic := NewGraphic(c.shape.Graphic, nil)
-	return shapes.NewLine(&graphic,
+	var line Drawable
+	line = shapes.NewLine(&graphic,
 		Rotate(Point{
-			X: center.X + radius - 5,
-			Y: 0,
-		}, center, angleDegrees),
+			X: c.center.X,
+			Y: c.center.Y - c.radius + 5,
+		}, c.center, angleDegrees),
 		Rotate(Point{
-			X: center.X + radius - 2,
-			Y: 0,
-		}, center, angleDegrees),
+			X: c.center.X,
+			Y: c.center.Y - c.radius + 2,
+		}, c.center, angleDegrees),
 	)
+	return &line
 }
 
-func (c Clock) buildDrawableMinutes() []Drawable {
-	drawables := make([]Drawable, 60)
+func (c Clock) buildDrawableMinutes() []*Drawable {
+	drawables := make([]*Drawable, 60)
 	for minutes := 0; minutes < 60; minutes++ {
 		drawables[minutes] = c.buildDrawableMinute(c.center, c.radius, minutes)
 	}
 	return drawables
 }
 
-func (c Clock) buildDrawableMinute(center Point, radius int, minute int) Drawable {
-	angleDegrees := float64(minute * 6)
+func (c Clock) buildDrawableMinute(center Point, radius int, minute int) *Drawable {
+	angleDegrees := angleDegreesMinute(minute, 0)
 	graphic := NewGraphic(c.shape.Graphic, nil)
-	return shapes.NewDot(&graphic,
+	var dot Drawable
+	dot = shapes.NewDot(&graphic,
 		Rotate(Point{
-			X: center.X + radius - 2,
-			Y: 0,
+			X: center.X,
+			Y: center.Y - radius + 2,
 		}, center, angleDegrees),
 	)
+	return &dot
 }
 
-func (c Clock) buildText(hour int, min int, sec int) *shapes.Text {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(&ColorBlue, nil))
+func (c Clock) buildText(now time.Time) *shapes.Text {
+	graphic := NewGraphic(c.shape.Graphic, NewLayout(&ColorGreen, nil))
 	return shapes.NewText(&graphic,
 		Point{
 			X: 0,
 			Y: 0,
 		},
-		timeToText(hour, min, sec),
+		TimeToText(now),
+		fonts.Bdf4x6,
 	)
 }
 
-// current hour (line)
 func (c Clock) buildRotatingHour(hour, min int) *shapes.Line {
-	angleDegrees := float64((hour + min/60) * 30)
 	graphic := NewGraphic(c.shape.Graphic, NewLayout(&ColorBlue, nil))
 	return shapes.NewLine(&graphic,
-		Rotate(Point{
-			X: c.center.X,
-			Y: 2,
-		}, c.center, angleDegrees),
-		Rotate(Point{
-			X: c.center.X,
-			Y: 5,
-		}, c.center, angleDegrees),
+		c.center,
+		c.hourLineEnd(angleDegreesHour(hour, min)),
 	)
 }
 
-// current minute (line)
 func (c Clock) buildRotatingMinute(min, sec int) *shapes.Line {
-	angleDegrees := (float64(min) + float64(sec/60)) * 6
 	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorViolet, nil))
 	return shapes.NewLine(&graphic,
 		c.center,
-		Rotate(Point{
-			X: c.center.X,
-			Y: 10,
-		}, c.center, angleDegrees),
+		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 }
 
-// current second (dot)
 func (c Clock) buildRotatingSecond(sec int) *shapes.Dot {
-	angleDegrees := (float64(sec) + (float64(c.now.Nanosecond()) / 1000000000)) * 6
-	//angleDegrees := (float64(sec)) * 6
 	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
 	return shapes.NewDot(&graphic,
-		Rotate(Point{
-			X: c.center.X + c.radius - 2,
-			Y: 0,
-		}, c.center, angleDegrees),
+		c.secondDotPosition(angleDegreesSecond(sec, c.now)),
 	)
+}
+
+func (c Clock) secondDotPosition(angleDegrees float64) Point {
+	return Rotate(Point{
+		X: c.center.X,
+		Y: c.center.Y - c.radius + 2,
+	}, c.center, angleDegrees)
 }
 
 func (c Clock) Draw(canvas *Canvas) error {
-	err := c.shape.Draw(canvas)
-	if err != nil {
-		return err
-	}
-	return c.DrawCurrentTime(canvas)
+	return c.shape.Draw(canvas)
 }
 
-func (c Clock) DrawCurrentTime(canvas *Canvas) error {
-	err := c.text.Draw(canvas)
-	if err != nil {
-		return err
-	}
-	err = c.rotatingHour.Draw(canvas)
-	if err != nil {
-		return err
-	}
-	err = c.rotatingMinute.Draw(canvas)
-	if err != nil {
-		return err
-	}
-	return c.rotatingSecond.Draw(canvas)
+func (c Clock) hourLineStart(angleDegreesHour float64) Point {
+	return Rotate(Point{
+		X: c.center.X,
+		Y: c.center.Y - c.radius + 2,
+	}, c.center, angleDegreesHour)
+}
+
+func (c Clock) hourLineEnd(angleDegreesHour float64) Point {
+	return Rotate(Point{
+		X: c.center.X,
+		Y: c.center.Y - c.radius + 5,
+	}, c.center, angleDegreesHour)
+}
+func (c Clock) minuteLineEnd(angleDegrees float64) Point {
+	return Rotate(Point{
+		X: c.center.X,
+		Y: c.center.Y - c.radius + 10,
+	}, c.center, angleDegrees)
 }

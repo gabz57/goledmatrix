@@ -11,7 +11,6 @@ import (
 	"image"
 	"image/color"
 	"os"
-	"strconv"
 	"time"
 )
 
@@ -51,10 +50,9 @@ func NewMatrixEmulator(config *MatrixConfig) (c Matrix, err error) {
 	}()
 	w, h := config.Geometry()
 	e := &MatrixEmulator{
-		config: config,
-		Width:  w,
-		Height: h,
-		//GutterColor: color.White,
+		config:                  config,
+		Width:                   w,
+		Height:                  h,
 		GutterColor:             color.Gray{Y: 20},
 		PixelPitchToGutterRatio: 2,
 		Margin:                  10,
@@ -113,25 +111,33 @@ func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 	return nil
 }
 
+// FIXME: VERY EXPENSIVE !!
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas *Canvas) error {
-	start := time.Now()
+	//start := time.Now()
 	var cnt = 0
 	if m.w != nil {
 		canvas.mutex.Lock()
+		var fillDuration = time.Duration(0)
+		var fillStart time.Time
+
 		var c color.Color
 		for col := 0; col < m.Width; col++ {
 			for row := 0; row < m.Height; row++ {
 				c = canvas.At(col, row)
+
 				if c != nil {
+					fillStart = time.Now()
 					m.w.Fill(m.ledRect(col, row), c, screen.Over)
+					fillDuration += time.Now().Sub(fillStart)
 					cnt++
 				}
 				c = nil
 			}
 		}
 		canvas.mutex.Unlock()
-		fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+		//fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+		//fmt.Println("fillDuration= " + strconv.FormatInt(fillDuration.Milliseconds(), 10) + "ms,")
 		m.w.Publish()
 	}
 	return nil

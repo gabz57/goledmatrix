@@ -3,6 +3,9 @@ package components
 import (
 	"fmt"
 	"github.com/gabz57/goledmatrix"
+	"github.com/gosuri/uilive"
+	"github.com/paulbellamy/ratecounter"
+	"strconv"
 	"time"
 )
 
@@ -18,20 +21,31 @@ func NewWorld(canvas *goledmatrix.Canvas, components []Component) World {
 	}
 }
 
-const FrameDurationInNanos = 33333333  // 30 FPS approximated in nanos
-const UpdateDurationInNanos = 10000000 // 30 FPS approximated in nanos
-//const UpdateDurationInNanos = 33333333 // 30 FPS approximated in nanos
+const FrameDurationInNanos = 33333333 // 30 FPS approximated in nanos
+//const FrameDurationInNanos  = 16666666
+const UpdateDurationInNanos = 20000000
+
+//const UpdateDurationInNanos = 5000000
 const UpdateDuration = time.Duration(UpdateDurationInNanos)
 
 func (w World) Run(done chan struct{}) {
+	writer := uilive.New()
+	// start listening for updates and render
+	writer.Start()
+	updateCounter := ratecounter.NewRateCounter(1 * time.Second)
+	renderCounter := ratecounter.NewRateCounter(1 * time.Second)
+
 	fmt.Println("Run")
 	previous := time.Now()
 	lag := time.Duration(0)
 LOOP:
 	for {
+		_, _ = fmt.Fprintf(writer.Newline(), "Updates: "+strconv.FormatInt(updateCounter.Rate(), 10)+" updates/sec - RenderRate: "+strconv.FormatInt(renderCounter.Rate(), 10)+" FPS\n")
+
 		select {
 		case <-done:
 			break LOOP
+			//TODO: case e:= <-ui.event;// w.processInput()
 		default:
 		}
 		current := time.Now()
@@ -39,27 +53,30 @@ LOOP:
 		previous = current
 		lag += elapsed
 
-		w.processInput()
-		//w.updateGame()
-		//
 		for lag >= UpdateDuration {
-			//start := time.Now()
 			w.updateGame()
+			updateCounter.Incr(1)
 			lag -= UpdateDuration
-			//fmt.Println("w.update took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+
+			elapsed = time.Now().Sub(current)
+
+			if elapsed < UpdateDurationInNanos {
+				duration := UpdateDurationInNanos - elapsed
+				time.Sleep(duration)
+			}
 		}
-		//fmt.Println("updated after " + strconv.FormatInt(time.Now().Sub(current).Milliseconds(), 10) + "ms")
 
 		w.render()
+		renderCounter.Incr(1)
 
 		elapsed = time.Now().Sub(current)
 
 		if elapsed < FrameDurationInNanos {
 			duration := FrameDurationInNanos - elapsed
-			//fmt.Println(">sleep " + strconv.FormatInt(duration.Milliseconds(), 10) + "ms... (elapsed "+ strconv.FormatInt(elapsed.Milliseconds(), 10)+"ms)")
 			time.Sleep(duration)
 		}
 	}
+	writer.Stop() // flush and stop rendering to CLI
 }
 
 func (w World) processInput() {
