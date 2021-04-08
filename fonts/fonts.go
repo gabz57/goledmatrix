@@ -2,13 +2,20 @@ package fonts
 
 import (
 	"fmt"
+	"github.com/gosuri/uilive"
 	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
 	"io/ioutil"
 )
 
+var writer *uilive.Writer
+
 func init() {
-	fmt.Println("Loading Fonts")
+	// TODO: lazily load the font when needed
+	writer = uilive.New()
+	writer.Start()
+	defer writer.Stop()
+	fmt.Println("Loading Fonts...")
 	_, err := loadFonts()
 	if err != nil {
 		panic(err)
@@ -77,7 +84,7 @@ func loadFonts() (map[MatrixFont]*bdf.Font, error) {
 	}
 
 	for _, matrixFont := range matrixFonts {
-		fmt.Println("Loading Font " + matrixFont.FileName)
+		_, _ = fmt.Fprintf(writer.Newline(), "Loading Font "+matrixFont.FileName+"\n")
 
 		fontBytes, err := ioutil.ReadFile("fonts/" + matrixFont.FileName)
 		if err != nil {
@@ -91,6 +98,7 @@ func loadFonts() (map[MatrixFont]*bdf.Font, error) {
 		}
 		BdfFonts[matrixFont] = fontPtr
 	}
+	_, _ = fmt.Fprintf(writer.Newline(), "Loaded all Fonts\n")
 	return BdfFonts, nil
 }
 

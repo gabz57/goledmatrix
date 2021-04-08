@@ -56,7 +56,6 @@ func Serve(serverMatrix *goledmatrix.Matrix) func(c *goledmatrix.Canvas, done ch
 	return func(c *goledmatrix.Canvas, done chan struct{}) {
 		serve(serverMatrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")
-		done <- struct{}{}
 	}
 }
 

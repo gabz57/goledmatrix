@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gabz57/goledmatrix"
 	"github.com/gabz57/goledmatrix/fonts"
 	"github.com/gabz57/goledmatrix/rpc"
@@ -36,9 +35,6 @@ func Gameloop(c *goledmatrix.Canvas, done chan struct{}) {
 	var i = 0
 	var j = 0
 
-	fmt.Println("wait for gameloop...")
-	<-time.After(1000 * time.Millisecond)
-	fmt.Println("gameloop !")
 	fpsTicker := time.NewTicker(frameDuration)
 	//var tickerC <-chan time.Time
 	c.DrawLabel(10, 10, "Spring !", color.RGBA{R: 128, B: 128, A: 255}, font)
@@ -58,6 +54,4 @@ func Gameloop(c *goledmatrix.Canvas, done chan struct{}) {
 			j %= c.Bounds().Max.Y
 		}
 	}
-	fmt.Println("Gameloop END")
-	done <- struct{}{}
 }

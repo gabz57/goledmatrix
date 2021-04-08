@@ -113,8 +113,8 @@ func NewCanvas(config *MatrixConfig) *Canvas {
 }
 
 func (c *Canvas) register(matrix Matrix) {
-	fmt.Println("Registering matrix !")
 	c.matrices = append(c.matrices, matrix)
+	fmt.Println("Registered matrix !")
 }
 
 // ColorModel returns the canvas' color model, always color.RGBAModel
@@ -218,4 +218,14 @@ func (c *Canvas) position(x, y int) int {
 // NOTE: direct access (RPC Client) !
 func (c *Canvas) Leds() []color.Color {
 	return c.leds
+}
+
+// TODO: fix design to avoid lock exposure
+// added to avoid writes when drawing (emulator draw partial canvas)
+func (c *Canvas) Lock() {
+	c.mutex.Lock()
+}
+
+func (c *Canvas) Unlock() {
+	c.mutex.Unlock()
 }

@@ -18,8 +18,8 @@ func NewDot(graphic *Graphic, position Point) *Dot {
 }
 
 func (d *Dot) Draw(canvas *Canvas) error {
-	position := d.position.Add(d.ComputedOffset())
-	canvas.Set(position.X, position.Y, d.Layout().Color())
+	p := d.position.Add(d.ComputedOffset())
+	canvas.Set(p.X, p.Y, d.Layout().Color())
 
 	return nil
 }

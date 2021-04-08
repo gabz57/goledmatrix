@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/mainthread"
 	"log"
 	"os"
+	"time"
 )
 
 func RunMatrices(app func()) {
@@ -153,9 +154,7 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 		log.Fatal("No matrix defined !")
 	}
 
-	fmt.Println("Creating canvas...")
 	canvas := NewCanvas(config)
-	fmt.Println("Created canvas")
 	var w, h *int
 	for _, matrixCreator := range matrixCreators {
 		matrix, err := matrixCreator(config)
@@ -169,23 +168,29 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 			log.Fatal(err)
 		}
 		canvas.register(matrix)
-		fmt.Println("Registered matrix")
 	}
 
 	done := make(chan struct{})
 	defer canvas.Close()
 
-	// User defined method
-	fmt.Println("go gameloop")
-	go gameloop(canvas, done)
+	// Starting game loop on a separate routine
+	go func() {
+		// avoid drawing to early as emulator might not be ready, eventually fixed
+		<-time.After(1000 * time.Millisecond)
+
+		fmt.Println("Starting Gameloop !")
+		gameloop(canvas, done)
+		fmt.Println("Gameloop END")
+		done <- struct{}{}
+	}()
 
 	// run all matrices (UI is run on main thread)
 	mainMatrix, otherMatrices := splitMatrices(&canvas.matrices)
 	for _, otherMatrix := range otherMatrices {
-		fmt.Println("go MainThread()")
+		fmt.Println("go matrix.MainThread()")
 		go (*otherMatrix).MainThread(canvas, done)
 	}
-	fmt.Println("BLOCKING MainThread()")
+	fmt.Println("matrix.MainThread()")
 	(*mainMatrix).MainThread(canvas, done)
 }
 

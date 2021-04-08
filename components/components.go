@@ -3,20 +3,21 @@ package components
 import (
 	. "github.com/gabz57/goledmatrix"
 	"image/color"
+	"time"
 )
 
 type Component interface {
-	// processInput
+	// Controllable // for handling user/external events
 	Updatable
 	Drawable
 }
 
-type Drawable interface {
-	Draw(canvas *Canvas) error
+type Updatable interface {
+	Update(now time.Time)
 }
 
-type Updatable interface {
-	Update()
+type Drawable interface {
+	Draw(canvas *Canvas) error
 }
 
 type CompositeDrawable struct {
@@ -48,9 +49,6 @@ func (cd *CompositeDrawable) Draw(canvas *Canvas) error {
 type Layout struct {
 	color           color.Color
 	backgroundColor color.Color
-	//_transformers: PixelTransformer[] = [],
-	//_reverseY = false,
-	//_pixelEffect?: (_: Pixel) => Pixel[]
 }
 
 func (l *Layout) Color() color.Color {

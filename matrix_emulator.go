@@ -115,29 +115,31 @@ func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas *Canvas) error {
 	//start := time.Now()
-	var cnt = 0
+	//var cnt = 0
 	if m.w != nil {
 		canvas.mutex.Lock()
 		var fillDuration = time.Duration(0)
 		var fillStart time.Time
 
-		var c color.Color
-		for col := 0; col < m.Width; col++ {
-			for row := 0; row < m.Height; row++ {
-				c = canvas.At(col, row)
+		var ledColor color.Color
+		for x := 0; x < m.Width; x++ {
+			for y := 0; y < m.Height; y++ {
+				ledColor = canvas.At(x, y)
 
-				if c != nil {
+				if ledColor != nil {
 					fillStart = time.Now()
-					m.w.Fill(m.ledRect(col, row), c, screen.Over)
+
+					// FIXME: Bottleneck here, next call
+					//  causes trouble on large display
+					m.w.Fill(m.ledRect(x, y), ledColor, screen.Over)
 					fillDuration += time.Now().Sub(fillStart)
-					cnt++
+					//cnt++
 				}
-				c = nil
+				ledColor = nil
 			}
 		}
 		canvas.mutex.Unlock()
 		//fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
-		//fmt.Println("fillDuration= " + strconv.FormatInt(fillDuration.Milliseconds(), 10) + "ms,")
 		m.w.Publish()
 	}
 	return nil
@@ -194,7 +196,7 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 	m.setMaxFPS(true)
 	mainthread.Call(func() {
 		driver.Main(func(s screen.Screen) {
-			fmt.Println("m.MainThread")
+			fmt.Println("emulator.MainThread")
 			var err error
 			m.s = s
 			// Calculate initial window size based on whatever our gutter/pixel pitch currently is.
