@@ -2,9 +2,13 @@
 # Build stage for linux/arm64 platform
 FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64 AS builder
 
-RUN apt-get update && apt-get install -y git golang
-# TODO: describe why it works 😎 (inspired from this discussion: https://github.com/docker-library/golang/issues/129)
+RUN apt-get update && apt-get install -y git
+RUN wget https://dl.google.com/go/go1.16.3.linux-arm64.tar.gz
+RUN tar -xvf go1.16.3.linux-arm64.tar.gz
+RUN mv go /usr/local
+ENV GOROOT /usr/local/go
 ENV GOPATH $HOME/go
+ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
 
 ADD . /go/src/github.com/gabz57/goledmatrix
 

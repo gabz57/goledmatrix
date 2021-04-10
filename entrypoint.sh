@@ -1,5 +1,5 @@
 #!/bin/bash
 
-python resetmatrix.py
+python3 resetmatrix.py
 cd /usr/bin/
-sudo ./goledmatrix
+./goledmatrix

@@ -167,11 +167,12 @@ type TextCanvas struct {
 }
 
 func (tc *TextCanvas) At(x, y int) color.Color {
-	colorAt := tc.Canvas.At(x, y)
-	if colorAt == nil {
-		colorAt = color.Black
-	}
-	return colorAt
+	return color.Black
+	//colorAt := tc.Canvas.At(x, y)
+	//if colorAt == nil {
+	//	colorAt = color.Black
+	//}
+	//return colorAt
 }
 
 func (c *Canvas) Render() error {

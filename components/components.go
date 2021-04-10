@@ -51,15 +51,15 @@ type Layout struct {
 	backgroundColor color.Color
 }
 
-func (l *Layout) Color() color.Color {
-	return l.color
+func (l *Layout) Color() *color.Color {
+	return &l.color
 }
 
-func (l *Layout) BackgroundColor() color.Color {
+func (l *Layout) BackgroundColor() *color.Color {
 	if l.backgroundColor != nil {
-		return l.backgroundColor
+		return &l.backgroundColor
 	}
-	return l.color
+	return &l.color
 }
 
 type Graphic struct {

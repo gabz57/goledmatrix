@@ -7,6 +7,7 @@ import (
 	"github.com/faiface/mainthread"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -55,13 +56,14 @@ var DefaultConfig = MatrixConfig{
 var (
 	rows                     = flag.Int("led-rows", 64, "number of rows supported")
 	cols                     = flag.Int("led-cols", 64, "number of columns supported")
-	parallel                 = flag.Int("led-parallel", 2, "number of daisy-chained panels")
-	chain                    = flag.Int("led-chain", 2, "number of displays daisy-chained")
+	parallel                 = flag.Int("led-parallel", 1, "number of daisy-chained panels")
+	chain                    = flag.Int("led-chain", 4, "number of displays daisy-chained")
 	brightness               = flag.Int("brightness", 100, "brightness (0-100)")
-	hardware_mapping         = flag.String("led-gpio-mapping", "regular", "Name of GPIO mapping used.")
+	hardware_mapping         = flag.String("led-gpio-mapping", "adafruit-hat-pwm", "Name of GPIO mapping used.")
 	show_refresh             = flag.Bool("led-show-refresh", false, "Show refresh rate.")
 	inverse_colors           = flag.Bool("led-inverse", false, "Switch if your matrix has inverse colors on.")
-	disable_hardware_pulsing = flag.Bool("led-no-hardware-pulse", false, "Don't use hardware pin-pulse generation.")
+	disable_hardware_pulsing = flag.Bool("led-no-hardware-pulse", true, "Don't use hardware pin-pulse generation.")
+	led_pixel_mapper         = flag.String("led-pixel-mapper", "U-mapper;Rotate:180", "Semicolon-separated list of pixel-mappers to arrange pixels.")
 	//img                      = flag.String("image", "", "image path")
 	//
 	//rotate = flag.Int("rotate", 0, "rotate angle, 90, 180, 270")
@@ -79,6 +81,7 @@ func ReadConfigFlags() *MatrixConfig {
 	config.ShowRefreshRate = *show_refresh
 	config.InverseColors = *inverse_colors
 	config.DisableHardwarePulsing = *disable_hardware_pulsing
+	config.LedPixelMapper = *led_pixel_mapper
 	return config
 }
 
@@ -89,7 +92,7 @@ type MatrixConfig struct {
 	Rows int
 	// Cols the number of columns supported by the display, so 32 or 64 .
 	Cols int
-	// ChainLengthis the number of displays daisy-chained together
+	// ChainLength is the number of displays daisy-chained together
 	// (output of one connected to input of next).
 	ChainLength int
 	// Parallel is the number of parallel chains connected to the Pi; in old Pis
@@ -122,9 +125,16 @@ type MatrixConfig struct {
 
 	// Name of GPIO mapping used
 	HardwareMapping string
+	// Semicolon-separated list of pixel-mappers to arrange pixels.
+	LedPixelMapper string
 }
 
 func (conf *MatrixConfig) Geometry() (width, height int) {
+	var mapper string
+	mapper = conf.LedPixelMapper
+	if strings.Contains(mapper, "U-mapper") {
+		return conf.Cols * conf.ChainLength / 2, conf.Rows * conf.Parallel * 2
+	}
 	return conf.Cols * conf.ChainLength, conf.Rows * conf.Parallel
 }
 

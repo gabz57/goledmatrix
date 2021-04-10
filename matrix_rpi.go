@@ -37,6 +37,7 @@ o->inverse_colors = inverse_colors != 0 ? 1 : 0;
 import "C"
 import (
 	"fmt"
+	"github.com/gosuri/uilive"
 	"image/color"
 	"unsafe"
 )
@@ -52,7 +53,7 @@ func (c *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
 	o.brightness = C.int(c.Brightness)
 	o.scan_mode = C.int(c.ScanMode)
 	o.hardware_mapping = C.CString(c.HardwareMapping)
-
+	o.pixel_mapper_config = C.CString(c.LedPixelMapper)
 	if c.ShowRefreshRate == true {
 		C.set_show_refresh_rate(o, C.int(1))
 	} else {
@@ -83,6 +84,7 @@ type MatrixHardware struct {
 	matrix *C.struct_RGBLedMatrix
 	buffer *C.struct_LedCanvas
 	//leds   []C.uint32_t
+	writer uilive.Writer
 }
 
 // NewRGBLedMatrix returns a new matrix using the given size and config
@@ -100,17 +102,19 @@ func NewRGBLedMatrix(config *MatrixConfig) (c Matrix, err error) {
 	w, h := config.Geometry()
 	m := C.led_matrix_create_from_options(config.toC(), nil, nil)
 	b := C.led_matrix_create_offscreen_canvas(m)
+	writer := uilive.New()
 	c = &MatrixHardware{
 		config: config,
 		width:  w, height: h,
 		matrix: m,
 		buffer: b,
 		//leds:   make([]C.uint32_t, w*h),
+		writer: *writer,
 	}
 	if m == nil {
 		return nil, fmt.Errorf("unable to allocate memory")
 	}
-
+	writer.Start()
 	return c, nil
 }
 
@@ -124,40 +128,37 @@ func (m *MatrixHardware) Geometry() (width, height int) {
 	return m.width, m.height
 }
 
-//
-//// FIXME: DO NOT USE Set method anymore (Canvas concern)
-//// Set set LED at position x,y to the provided 24-bit color value.
-//func (m *MatrixHardware) Set(x, y int, color color.Color) {
-//
-//
-//	var int32Color uint32 = C.uint32_t(colorToUint32(color))
-//	C.led_canvas_set_pixel(
-//		m.buffer,
-//		x, y,
-//		(int32Color >> 16) & 255,
-//		(int32Color >> 8) & 255,
-//		int32Color & 255)
-//}
-
 func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 	return m.Render(canvas)
 }
 
 // Render update the display with the data from the LED buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
+	//start := time.Now()
 	leds := make([]C.uint32_t, canvas.w*canvas.h)
 	for i, led := range canvas.leds {
 		if led != nil {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
 	}
+	//copyDuration := time.Now().Sub(start)
 
+	//start = time.Now()
 	C.led_matrix_swap(
 		m.matrix,
 		m.buffer,
 		C.int(canvas.w), C.int(canvas.h),
 		(*C.uint32_t)(unsafe.Pointer(&leds[0])),
 	)
+	//swapDuration := time.Now().Sub(start)
+
+	//_, _ = fmt.Fprintf(
+	//	m.writer.Newline(),
+	//	"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
+	//		"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms\n")
+	//fmt.Println(		"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
+	//	"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms")
+
 	//var i int
 	//var c color.Color
 	//for x := 0; x <  canvas.w; x++ {
