@@ -39,6 +39,8 @@ import (
 	"fmt"
 	"github.com/gosuri/uilive"
 	"image/color"
+	"strconv"
+	"time"
 	"unsafe"
 )
 
@@ -134,48 +136,30 @@ func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 
 // Render update the display with the data from the LED buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
-	//start := time.Now()
+	start := time.Now()
 	leds := make([]C.uint32_t, canvas.w*canvas.h)
 	for i, led := range canvas.leds {
 		if led != nil {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
 	}
-	//copyDuration := time.Now().Sub(start)
+	copyDuration := time.Now().Sub(start)
 
-	//start = time.Now()
+	start = time.Now()
 	C.led_matrix_swap(
 		m.matrix,
 		m.buffer,
 		C.int(canvas.w), C.int(canvas.h),
 		(*C.uint32_t)(unsafe.Pointer(&leds[0])),
 	)
-	//swapDuration := time.Now().Sub(start)
+	swapDuration := time.Now().Sub(start)
 
 	//_, _ = fmt.Fprintf(
-	//	m.writer.Newline(),
-	//	"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
-	//		"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms\n")
-	//fmt.Println(		"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
-	//	"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms")
-
-	//var i int
-	//var c color.Color
-	//for x := 0; x <  canvas.w; x++ {
-	//	for y := 0; y <  canvas.h; y++ {
-	//		i = x + y * canvas.w
-	//		c = canvas.leds[i]
-	//		if c != nil {
-	//			colorUInt32 := colorToUint32(c)
-	//			C.led_canvas_set_pixel(m.buffer, C.int(x), C.int(y),
-	//				(colorUInt32 >> 16) & 255, (colorUInt32 >> 8) & 255, colorUInt32 & 255)
-	//		}
-	//		c = nil
-	//	}
-	//}
-
-	//m.buffer = C.led_matrix_swap_on_vsync(m.matrix, m.buffer)
-	//canvas.leds = make([]color.Color, canvas.w*canvas.h)
+	//m.writer.Newline(),
+	//"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
+	//	"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms\n")
+	fmt.Println("copy: " + strconv.FormatInt(copyDuration.Milliseconds(), 10) + " ms - " +
+		"swap: " + strconv.FormatInt(swapDuration.Milliseconds(), 10) + " ms")
 
 	return nil
 }

@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/faiface/mainthread"
+	"image/color"
 	"log"
 	"os"
 	"strings"
@@ -140,12 +141,15 @@ func (conf *MatrixConfig) Geometry() (width, height int) {
 
 // UploadEvent signals that the shared pix slice should be uploaded to the
 // screen.Texture via the screen.Buffer.
-type UploadEvent struct{}
+type UploadEvent struct {
+	leds []color.Color
+}
 
 func BuildMatrix(config *MatrixConfig) (m Matrix, err error) {
 	if config.Emulator == true {
 		return NewMatrixEmulator(config)
 	} else {
+		//return NewMatrixEmulator(config)
 		return NewRGBLedMatrix(config)
 	}
 }

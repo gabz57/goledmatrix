@@ -6,70 +6,13 @@ import (
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
-	"runtime"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
 )
-
-type RecursiveMutex struct {
-	internalMutex    sync.Mutex
-	currentGoRoutine int64  // keeps track of the current goroutine id
-	lockCount        uint64 // lock count on the current goroutine
-}
-
-func goid() int64 {
-	var buf [64]byte
-	n := runtime.Stack(buf[:], false)
-	idField := strings.Fields(strings.TrimPrefix(string(buf[:n]), "goroutine "))[0]
-	id, err := strconv.Atoi(idField)
-	if err != nil {
-		panic(fmt.Sprintf("cannot get goroutine id: %v", err))
-	}
-	return int64(id)
-}
-
-func (rm *RecursiveMutex) Lock() {
-	// get the current goroutine id
-	goRoutineID := goid()
-	for {
-		rm.internalMutex.Lock()
-		if rm.currentGoRoutine == 0 {
-			// no locks yet
-			rm.currentGoRoutine = goRoutineID
-			break
-		} else if rm.currentGoRoutine == goRoutineID {
-			// lock from the same go routine
-			break
-		} else {
-			// lock from a different go routine, need to wait
-			// until lock is released
-			rm.internalMutex.Unlock()
-			time.Sleep(time.Millisecond)
-			continue
-		}
-	}
-	// increase the lock count
-	rm.lockCount++
-	rm.internalMutex.Unlock()
-}
-
-func (rm *RecursiveMutex) Unlock() {
-	rm.internalMutex.Lock()
-	rm.lockCount--
-	if rm.lockCount == 0 {
-		rm.currentGoRoutine = 0
-	}
-	rm.internalMutex.Unlock()
-}
 
 // Canvas is a image.Image representation of a LED matrix, it implements
 // image.Image interface and can be used with draw.Draw for example
 type Canvas struct {
 	w, h     int
 	matrices []Matrix
-	mutex    RecursiveMutex
 	leds     []color.Color
 }
 
@@ -134,25 +77,19 @@ func (c *Canvas) At(x, y int) color.Color {
 
 // Set set LED at position x,y to the provided 24-bit color value
 func (c *Canvas) Set(x, y int, ledColor color.Color) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	//c.leds[c.position(x, y)] = color.RGBAModel.Convert(ledColor)
-	if x >= 0 && y >= 0 && c.position(x, y) < c.w*c.h {
+	if x >= 0 && y >= 0 && c.position(x, y) < len(c.leds) {
 		c.leds[c.position(x, y)] = ledColor
 	}
 }
 
 func (c *Canvas) SetPoint(point Point, ledColor color.Color) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	if point.X >= 0 && point.Y >= 0 && c.position(point.X, point.Y) < c.w*c.h {
 		c.leds[c.position(point.X, point.Y)] = ledColor
 	}
 }
 
 func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.Color, face font.Face) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	d := &font.Drawer{
 		Dst:  &TextCanvas{c},
 		Src:  image.NewUniform(ledColor),
@@ -168,16 +105,9 @@ type TextCanvas struct {
 
 func (tc *TextCanvas) At(x, y int) color.Color {
 	return color.Black
-	//colorAt := tc.Canvas.At(x, y)
-	//if colorAt == nil {
-	//	colorAt = color.Black
-	//}
-	//return colorAt
 }
 
 func (c *Canvas) Render() error {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
 	for _, m := range c.matrices {
 		err := m.RenderMethod(c)
 		if err != nil {
@@ -187,13 +117,9 @@ func (c *Canvas) Render() error {
 	return nil
 }
 
-// Clear set all the leds on the matrix with color.Black
+// Clear set all the leds on the matrix to nil
 func (c *Canvas) Clear() {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	c.leds = nil
 	c.leds = make([]color.Color, c.w*c.h)
-	//draw.Draw(c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
 }
 
 // Close clears the canvas and closes all the matrices
@@ -219,14 +145,4 @@ func (c *Canvas) position(x, y int) int {
 // NOTE: direct access (RPC Client) !
 func (c *Canvas) Leds() []color.Color {
 	return c.leds
-}
-
-// TODO: fix design to avoid lock exposure
-// added to avoid writes when drawing (emulator draw partial canvas)
-func (c *Canvas) Lock() {
-	c.mutex.Lock()
-}
-
-func (c *Canvas) Unlock() {
-	c.mutex.Unlock()
 }

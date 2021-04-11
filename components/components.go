@@ -13,6 +13,8 @@ type Component interface {
 }
 
 type Updatable interface {
+	// Update is called at its own rate to avoid depending on rendering time,
+	// thus we can compute speed depending on this constant rate
 	Update(now time.Time)
 }
 

@@ -11,7 +11,6 @@ import (
 	"image"
 	"image/color"
 	"os"
-	"time"
 )
 
 const DefaultPixelPitch = 12
@@ -27,10 +26,9 @@ type MatrixEmulator struct {
 	PixelPitchToGutterRatio int
 	Margin                  int
 
-	w         screen.Window
-	s         screen.Screen
-	frameTick *time.Ticker
-	isReady   bool
+	w       screen.Window
+	s       screen.Screen
+	isReady bool
 }
 
 func (m *MatrixEmulator) IsEmulator() bool {
@@ -101,25 +99,19 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 }
 
 func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
-	// TODO: copy []color.Color with event ? into a buffer for 1 grid
-	//  (only keep most recent data to display)
-	//start := time.Now()
-
-	m.Send(UploadEvent{})
-	//fmt.Println("emulator took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
-
+	m.Send(UploadEvent{
+		leds: c.leds,
+	})
 	return nil
 }
 
-// FIXME: VERY EXPENSIVE !!
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas *Canvas) error {
 	//start := time.Now()
 	//var cnt = 0
 	if m.w != nil {
-		canvas.mutex.Lock()
-		var fillDuration = time.Duration(0)
-		var fillStart time.Time
+		//var fillDuration = time.Duration(0)
+		//var fillStart time.Time
 
 		var ledColor color.Color
 		for x := 0; x < m.Width; x++ {
@@ -127,18 +119,15 @@ func (m *MatrixEmulator) Render(canvas *Canvas) error {
 				ledColor = canvas.At(x, y)
 
 				if ledColor != nil {
-					fillStart = time.Now()
+					//fillStart = time.Now()
 
-					// FIXME: Bottleneck here, next call
-					//  causes trouble on large display
 					m.w.Fill(m.ledRect(x, y), ledColor, screen.Over)
-					fillDuration += time.Now().Sub(fillStart)
+					//fillDuration += time.Now().Sub(fillStart)
 					//cnt++
 				}
 				ledColor = nil
 			}
 		}
-		canvas.mutex.Unlock()
 		//fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
 		m.w.Publish()
 	}
@@ -168,6 +157,18 @@ func (m *MatrixEmulator) drawBackground(sz size.Event) {
 	m.w.Fill(sz.Bounds(), color.Black, screen.Src)
 	// Fill matrix display rectangle with the gutter color.
 	m.w.Fill(m.matrixWithMarginsRect(), m.GutterColor, screen.Src)
+
+	pixelPlusGutter := m.PixelPitch + m.Gutter
+	for col := -1; col < m.Width; col++ {
+		x := (col * pixelPlusGutter) + m.Margin + m.PixelPitch
+		y := m.Margin
+		m.w.Fill(image.Rect(x, y, x+m.Gutter, (m.Height)*pixelPlusGutter+m.Margin+m.Gutter), color.Black, screen.Src)
+	}
+	for row := -1; row < m.Height; row++ {
+		x := m.Margin
+		y := (row * pixelPlusGutter) + m.Margin + m.PixelPitch
+		m.w.Fill(image.Rect(x, y, (m.Width)*pixelPlusGutter+m.Margin+m.Gutter, y+m.Gutter), color.Black, screen.Src)
+	}
 }
 
 // calculateGutterForViewableArea As the name states, calculates the size of the gutter for a given viewable area.
@@ -182,18 +183,7 @@ func (m *MatrixEmulator) calculateGutterForViewableArea(size image.Point) int {
 	return maxGutterInY
 }
 
-// setMaxFPS allows us to set max frames per second.
-// Disable any maximum by passing 0.
-func (m *MatrixEmulator) setMaxFPS(enabled bool) {
-	if enabled {
-		m.frameTick = time.NewTicker(time.Second / 60)
-	} else {
-		m.frameTick = nil
-	}
-}
-
 func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
-	m.setMaxFPS(true)
 	mainthread.Call(func() {
 		driver.Main(func(s screen.Screen) {
 			fmt.Println("emulator.MainThread")
@@ -213,7 +203,6 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 
 			defer m.w.Release()
 			var sz size.Event
-			var publish = false
 		LOOP:
 			for {
 				select {
@@ -239,7 +228,16 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 					m.isReady = true
 				case UploadEvent:
 					if m.isReady {
-						publish = true
+						m.drawBackground(sz)
+						err = m.Render(&Canvas{
+							w:        canvas.w,
+							h:        canvas.h,
+							matrices: nil,
+							leds:     evn.leds,
+						})
+						if err != nil {
+							panic(err)
+						}
 					}
 				case size.Event:
 					sz = evn
@@ -252,18 +250,6 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 					//fmt.Println("event : error")
 					fmt.Fprintln(os.Stderr, m)
 					//default:
-				}
-				if publish {
-					//start := time.Now()
-					m.drawBackground(sz)
-					err = m.Render(canvas)
-					//fmt.Println("pulication took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
-					if err != nil {
-						panic(err)
-					}
-					//if m.frameTick != nil {
-					//	<-m.frameTick.C
-					//}
 				}
 			}
 			fmt.Println("screen loop END")

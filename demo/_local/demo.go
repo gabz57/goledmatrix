@@ -16,9 +16,11 @@ func app() {
 }
 
 func Gameloop(c *goledmatrix.Canvas, done chan struct{}) {
-	engine := components.NewEngine(c, []components.Component{
-		clockComponent(c),
-		infoComponent(c),
+	clock := clockComponent(c)
+	info := infoComponent(c)
+	engine := components.NewEngine(c, []*components.Component{
+		&clock,
+		&info,
 	})
 	engine.Run(done)
 }
