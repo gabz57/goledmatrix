@@ -6,14 +6,32 @@ import (
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
+	"image/draw"
 )
 
 // Canvas is a image.Image representation of a LED matrix, it implements
 // image.Image interface and can be used with draw.Draw for example
-type Canvas struct {
+type Canvas interface {
+	draw.Image
+	register(matrix Matrix)
+	Set(x, y int, ledColor color.Color)
+	DrawLabel(x, y int, label string, ledColor color.Color, face font.Face)
+	Render() error
+	Clear()
+	Close() error
+	position(x, y int) int
+	getLeds() *[]color.Color
+	getMatrices() *[]Matrix
+}
+
+type CanvasImpl struct {
 	w, h     int
 	matrices []Matrix
 	leds     []color.Color
+}
+
+func (c *CanvasImpl) getMatrices() *[]Matrix {
+	return &c.matrices
 }
 
 type Point struct {
@@ -46,52 +64,55 @@ func (p Point) AddXY(x, y int) Point {
 }
 func NewCanvas(config *MatrixConfig) *Canvas {
 	w, h := config.Geometry()
-	c := Canvas{
+	var canvas Canvas
+	canvas = &CanvasImpl{
 		w:    w,
 		h:    h,
 		leds: make([]color.Color, w*h),
 	}
-	//draw.Draw(&c, c.Bounds(), &image.Uniform{C: color.Black}, image.Point{}, draw.Src)
-	return &c
+	return &canvas
 }
 
-func (c *Canvas) register(matrix Matrix) {
+func (c *CanvasImpl) register(matrix Matrix) {
 	c.matrices = append(c.matrices, matrix)
 	fmt.Println("Registered matrix !")
 }
 
 // ColorModel returns the canvas' color model, always color.RGBAModel
-func (c *Canvas) ColorModel() color.Model {
+func (c *CanvasImpl) ColorModel() color.Model {
 	return color.RGBAModel
 }
 
 // Bounds return the topology of the Canvas
-func (c *Canvas) Bounds() image.Rectangle {
+func (c *CanvasImpl) Bounds() image.Rectangle {
 	return image.Rect(0, 0, c.w, c.h)
 }
 
 // At returns the color of the pixel at (x, y) and SHOULD NOT be directly used by dev, only through image.Image interface
-func (c *Canvas) At(x, y int) color.Color {
+func (c *CanvasImpl) At(x, y int) color.Color {
 	return c.leds[c.position(x, y)]
 }
 
 // Set set LED at position x,y to the provided 24-bit color value
-func (c *Canvas) Set(x, y int, ledColor color.Color) {
+func (c *CanvasImpl) Set(x, y int, ledColor color.Color) {
 	//c.leds[c.position(x, y)] = color.RGBAModel.Convert(ledColor)
-	if x >= 0 && y >= 0 && c.position(x, y) < len(c.leds) {
-		c.leds[c.position(x, y)] = ledColor
+	position := c.position(x, y)
+	if x >= 0 && y >= 0 && position < len(c.leds) {
+		c.leds[position] = ledColor
 	}
 }
 
-func (c *Canvas) SetPoint(point Point, ledColor color.Color) {
+func (c *CanvasImpl) SetPoint(point Point, ledColor color.Color) {
 	if point.X >= 0 && point.Y >= 0 && c.position(point.X, point.Y) < c.w*c.h {
 		c.leds[c.position(point.X, point.Y)] = ledColor
 	}
 }
 
-func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.Color, face font.Face) {
+func (c *CanvasImpl) DrawLabel(x, y int, label string, ledColor color.Color, face font.Face) {
+	var canvas Canvas
+	canvas = c
 	d := &font.Drawer{
-		Dst:  &TextCanvas{c},
+		Dst:  &textCanvas{canvas},
 		Src:  image.NewUniform(ledColor),
 		Face: face,
 		Dot:  fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)},
@@ -99,17 +120,19 @@ func (c *Canvas) DrawLabel(x, y int, label string, ledColor color.Color, face fo
 	d.DrawString(label)
 }
 
-type TextCanvas struct {
-	*Canvas
+type textCanvas struct {
+	Canvas
 }
 
-func (tc *TextCanvas) At(x, y int) color.Color {
+func (tc *textCanvas) At(x, y int) color.Color {
 	return color.Black
 }
 
-func (c *Canvas) Render() error {
+func (c *CanvasImpl) Render() error {
+	var canvas Canvas
+	canvas = c
 	for _, m := range c.matrices {
-		err := m.RenderMethod(c)
+		err := m.RenderMethod(&canvas)
 		if err != nil {
 			return err
 		}
@@ -118,12 +141,12 @@ func (c *Canvas) Render() error {
 }
 
 // Clear set all the leds on the matrix to nil
-func (c *Canvas) Clear() {
+func (c *CanvasImpl) Clear() {
 	c.leds = make([]color.Color, c.w*c.h)
 }
 
 // Close clears the canvas and closes all the matrices
-func (c *Canvas) Close() error {
+func (c *CanvasImpl) Close() error {
 	c.Clear()
 	err := c.Render()
 	if err != nil {
@@ -138,11 +161,10 @@ func (c *Canvas) Close() error {
 	return err
 }
 
-func (c *Canvas) position(x, y int) int {
+func (c *CanvasImpl) position(x, y int) int {
 	return x + (y * c.w)
 }
 
-// NOTE: direct access (RPC Client) !
-func (c *Canvas) Leds() []color.Color {
-	return c.leds
+func (c *CanvasImpl) getLeds() *[]color.Color {
+	return &c.leds
 }

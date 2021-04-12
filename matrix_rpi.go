@@ -137,8 +137,9 @@ func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 // Render update the display with the data from the LED buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
 	start := time.Now()
-	leds := make([]C.uint32_t, canvas.w*canvas.h)
-	for i, led := range canvas.leds {
+	canvasSize := (*canvas).Bounds().Max
+	leds := make([]C.uint32_t, canvasSize.X*canvasSize.Y)
+	for i, led := range *(*canvas).getLeds() {
 		if led != nil {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
@@ -149,7 +150,7 @@ func (m *MatrixHardware) Render(canvas *Canvas) error {
 	C.led_matrix_swap(
 		m.matrix,
 		m.buffer,
-		C.int(canvas.w), C.int(canvas.h),
+		C.int(canvasSize.X), C.int(canvasSize.Y),
 		(*C.uint32_t)(unsafe.Pointer(&leds[0])),
 	)
 	swapDuration := time.Now().Sub(start)
@@ -179,25 +180,14 @@ func colorToUint32(c color.Color) uint32 {
 	return (red>>8)<<16 | (green>>8)<<8 | blue>>8
 }
 
-//
-//
-//func uint32ToColor(u C.uint32_t) color.Color {
-//	return color.RGBA{
-//		R: uint8(u>>16) & 255,
-//		G: uint8(u>>8) & 255,
-//		B: uint8(u>>0) & 255,
-//	}
-//}
-
-func (m *MatrixHardware) MainThread(canvas *Canvas, done chan struct{}) {
+func (m *MatrixHardware) MainThread(_ *Canvas, done chan struct{}) {
 	select {
 	case <-done:
 		break
 	}
 }
 
-func (m *MatrixHardware) Send(event interface{}) {
-	panic("implement me")
+func (m *MatrixHardware) Send(_ interface{}) {
 }
 
 func (m *MatrixHardware) IsEmulator() bool {

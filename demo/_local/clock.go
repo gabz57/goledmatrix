@@ -5,6 +5,7 @@ import (
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"github.com/gabz57/goledmatrix/fonts"
+	"image/color"
 	"time"
 )
 
@@ -17,11 +18,17 @@ type Clock struct {
 	rotatingHour   *shapes.Line
 	rotatingMinute *shapes.Line
 	rotatingSecond *shapes.Dot
+	location       *time.Location
 }
 
 var clockGraphic = NewGraphic(nil, nil)
 
-func NewClock(center Point, radius int) Component {
+func NewClock(canvas Canvas, center Point, radius int) Component {
+	location, _ := time.LoadLocation("Europe/Paris")
+	var mask Canvas
+	//mask = NewSingleColorMask(canvas, ColorRed)
+	mask = NewShadedColorCanvasMask(canvas)
+
 	c := Clock{
 		now:    time.Now(),
 		center: center,
@@ -30,12 +37,13 @@ func NewClock(center Point, radius int) Component {
 			Graphic:   &clockGraphic,
 			Drawables: []*Drawable{},
 		},
+		location: location,
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-7, radius/2-6), "OCTO"))
 
-	c.shape.AddDrawable(c.buildStaticContourCircle())
+	c.shape.AddDrawable(masked(mask, c.buildStaticContourCircle()))
 	c.shape.AddDrawable(c.buildStaticCenter())
 	c.shape.AddDrawables(c.buildStaticHours())
 	c.shape.AddDrawables(c.buildStaticMinutes())
@@ -43,25 +51,48 @@ func NewClock(center Point, radius int) Component {
 	now := time.Now()
 	hour, min, sec := now.Clock()
 
-	c.rotatingHour = c.buildRotatingHour(hour, min)
-	var drawableHour Drawable
-	drawableHour = c.rotatingHour
-	c.shape.AddDrawable(&drawableHour)
-
-	c.rotatingMinute = c.buildRotatingMinute(min, sec)
-	var drawableMinute Drawable
-	drawableMinute = c.rotatingMinute
-	c.shape.AddDrawable(&drawableMinute)
-
 	c.rotatingSecond = c.buildRotatingSecond(sec)
 	var drawableSecond Drawable
 	drawableSecond = c.rotatingSecond
 	c.shape.AddDrawable(&drawableSecond)
 
+	c.rotatingMinute = c.buildRotatingMinute(min, sec)
+	var drawableMinute Drawable
+	drawableMinute = c.rotatingMinute
+	c.shape.AddDrawable(masked(mask, &drawableMinute))
+
+	c.rotatingHour = c.buildRotatingHour(hour, min)
+	var drawableHour Drawable
+	drawableHour = c.rotatingHour
+	c.shape.AddDrawable(&drawableHour)
+
 	return &c
 }
 
-func (c *Clock) Update(now time.Time) {
+func masked(mask Canvas, drawable *Drawable) *Drawable {
+	var d Drawable
+	d = buildMaskedDrawable(mask, drawable)
+	return &d
+}
+
+type MaskedDrawable struct {
+	drawable *Drawable
+	mask     *Canvas
+}
+
+func (m MaskedDrawable) Draw(canvas Canvas) error {
+	return (*m.drawable).Draw(*m.mask)
+}
+
+func buildMaskedDrawable(mask Canvas, d *Drawable) *MaskedDrawable {
+	return &MaskedDrawable{
+		drawable: d,
+		mask:     &mask,
+	}
+}
+
+func (c *Clock) Update(elapsedBetweenUpdate time.Duration) {
+	now := time.Now().In(c.location)
 	if now.Sub(c.now).Milliseconds() < 10 {
 		// skip
 		return
@@ -80,7 +111,7 @@ func (c *Clock) Update(now time.Time) {
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 
-	c.rotatingSecond.SetDot(
+	c.rotatingSecond.SetPosition(
 		c.secondDotPosition(angleDegreesSecond(sec, c.now)),
 	)
 }
@@ -171,7 +202,7 @@ func (c *Clock) buildRotatingHour(hour, min int) *shapes.Line {
 }
 
 func (c *Clock) buildRotatingMinute(min, sec int) *shapes.Line {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorViolet, nil))
+	graphic := NewGraphic(c.shape.Graphic, NewLayout(color.White, nil))
 	return shapes.NewLine(&graphic,
 		c.center,
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
@@ -192,21 +223,14 @@ func (c *Clock) secondDotPosition(angleDegrees float64) Point {
 	}, c.center, angleDegrees)
 }
 
-func (c *Clock) Draw(canvas *Canvas) error {
+func (c *Clock) Draw(canvas Canvas) error {
 	return c.shape.Draw(canvas)
-}
-
-func (c *Clock) hourLineStart(angleDegreesHour float64) Point {
-	return Rotate(Point{
-		X: c.center.X,
-		Y: c.center.Y - c.radius + 2,
-	}, c.center, angleDegreesHour)
 }
 
 func (c *Clock) hourLineEnd(angleDegreesHour float64) Point {
 	return Rotate(Point{
 		X: c.center.X,
-		Y: c.center.Y - c.radius + 5,
+		Y: c.center.Y - c.radius/2,
 	}, c.center, angleDegreesHour)
 }
 

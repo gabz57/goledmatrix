@@ -3,50 +3,47 @@ package shapes
 import (
 	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
-	"image/color"
 )
 
-type Pixel struct {
-	x, y int
-	c    *color.Color
-}
-
-type Circle struct {
+type Ring struct {
 	*Graphic
-	center Point
-	radius int
-	fill   bool
-	pixels []Pixel
+	center               Point
+	radiusExt, radiusInt int
+	fill                 bool
+	pixels               []Pixel
 }
 
-func NewCircle(graphic *Graphic, center Point, radius int, fill bool) *Circle {
-	c := Circle{
-		Graphic: graphic,
-		center:  center,
-		radius:  radius,
-		fill:    fill,
+func NewRing(graphic *Graphic, center Point, radiusExt, radiusInt int, fill bool) *Ring {
+	c := Ring{
+		Graphic:   graphic,
+		center:    center,
+		radiusExt: radiusExt,
+		radiusInt: radiusInt,
+		fill:      fill,
 	}
-	c.pixels = c.buildPixels(center, radius, fill)
+	c.pixels = c.buildPixels(center, radiusExt, radiusInt, fill)
 	return &c
 }
 
-func (c *Circle) buildPixels(centerPoint Point, radius int, fill bool) []Pixel {
+func (r *Ring) buildPixels(centerPoint Point, radiusExt, radiusInt int, fill bool) []Pixel {
 	var pixels []Pixel
-	offset := c.ComputedOffset()
+	offset := r.ComputedOffset()
 	center := offset.Add(centerPoint)
 	if fill {
-		c.fillCircle(&pixels, radius, center)
+		r.fillRing(&pixels, radiusExt, radiusInt, center)
 	}
-	c.contourCircle(&pixels, radius, center)
+	r.contourRing(&pixels, radiusExt, radiusInt, center)
 	return pixels
 }
 
-func (c *Circle) fillCircle(pixels *[]Pixel, radius int, center Point) {
-	bgColorColor := c.Layout().BackgroundColor()
-	radiusSqr := radius * radius
-	for x := 0; x <= radius; x++ {
-		for y := 0; y <= radius; y++ {
-			if x*x+y*y <= radiusSqr {
+func (r *Ring) fillRing(pixels *[]Pixel, radiusExt int, radiusInt int, center Point) {
+	bgColorColor := r.Layout().BackgroundColor()
+	radiusExtSqr := radiusExt * radiusExt
+	radiusIntSqr := radiusInt * radiusInt
+	for x := 0; x <= radiusExt; x++ {
+		for y := 0; y <= radiusExt; y++ {
+			d := x*x + y*y
+			if d >= radiusIntSqr && d <= radiusExtSqr {
 				*pixels = append(*pixels,
 					Pixel{
 						x: center.X + x,
@@ -74,8 +71,13 @@ func (c *Circle) fillCircle(pixels *[]Pixel, radius int, center Point) {
 	}
 }
 
-func (c *Circle) contourCircle(pixels *[]Pixel, radius int, center Point) {
-	fgColor := c.Layout().Color()
+func (r *Ring) contourRing(pixels *[]Pixel, radiusExt int, radiusInt int, center Point) {
+	r.ring(pixels, radiusExt, center)
+	r.ring(pixels, radiusInt, center)
+}
+
+func (r *Ring) ring(pixels *[]Pixel, radius int, center Point) {
+	fgColor := r.Layout().Color()
 	var x = radius
 	var y = 0
 	var radiusError = 1 - x
@@ -131,8 +133,8 @@ func (c *Circle) contourCircle(pixels *[]Pixel, radius int, center Point) {
 	}
 }
 
-func (c *Circle) Draw(canvas Canvas) error {
-	for _, pixel := range c.pixels {
+func (r *Ring) Draw(canvas Canvas) error {
+	for _, pixel := range r.pixels {
 		canvas.Set(pixel.x, pixel.y, *pixel.c)
 	}
 	return nil

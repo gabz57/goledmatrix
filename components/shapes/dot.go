@@ -17,13 +17,17 @@ func NewDot(graphic *Graphic, position Point) *Dot {
 	}
 }
 
-func (d *Dot) Draw(canvas *Canvas) error {
+func (d *Dot) Draw(canvas Canvas) error {
 	p := d.position.Add(d.ComputedOffset())
 	canvas.Set(p.X, p.Y, *d.Layout().Color())
 
 	return nil
 }
 
-func (d *Dot) SetDot(position Point) {
+func (d *Dot) SetPosition(position Point) {
 	d.position = position
+}
+
+func (d *Dot) GetPosition() *Point {
+	return &d.position
 }

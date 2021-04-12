@@ -54,7 +54,7 @@ LOOP:
 
 		// using lag to catch up missing updates when UI renders to slow
 		for lag >= UpdateDuration {
-			e.updateGame(current)
+			e.updateGame(UpdateDuration)
 			updateCounter.Incr(1)
 			lag -= UpdateDuration
 
@@ -76,21 +76,21 @@ func (e *Engine) processInput() {
 	// pipe user input events to be handled in respective component(s)
 }
 
-func (e *Engine) updateGame(now time.Time) {
+func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) {
 	for _, component := range e.components {
-		(*component).Update(now)
+		(*component).Update(elapsedBetweenUpdate)
 	}
 }
 
 // Draw the components into the canvas and render its content
 func (e *Engine) render() error {
-	e.canvas.Clear()
+	(*e.canvas).Clear()
 	for _, component := range e.components {
-		err := (*component).Draw(e.canvas)
+		err := (*component).Draw(*e.canvas)
 		if err != nil {
 			return err
 		}
 	}
-	err := e.canvas.Render()
+	err := (*e.canvas).Render()
 	return err
 }

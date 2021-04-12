@@ -19,7 +19,7 @@ func NewLine(graphic *Graphic, start, end Point) *Line {
 	}
 }
 
-func (l *Line) Draw(canvas *Canvas) error {
+func (l *Line) Draw(canvas Canvas) error {
 	offset := l.ComputedOffset()
 
 	start := Point{

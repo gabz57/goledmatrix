@@ -26,7 +26,7 @@ func NewRectangle(graphic *Graphic, position Point, width, height int, fill bool
 	}
 }
 
-func (r *Rectangle) Draw(canvas *Canvas) error {
+func (r *Rectangle) Draw(canvas Canvas) error {
 	offset := r.ComputedOffset()
 	start := Point{
 		X: offset.X + r.min.X,

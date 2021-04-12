@@ -180,11 +180,11 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 		if err != nil {
 			log.Fatal(err)
 		}
-		canvas.register(matrix)
+		(*canvas).register(matrix)
 	}
 
 	done := make(chan struct{})
-	defer canvas.Close()
+	defer (*canvas).Close()
 
 	// Starting game loop on a separate routine
 	go func() {
@@ -198,7 +198,7 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 	}()
 
 	// run all matrices (UI is run on main thread)
-	mainMatrix, otherMatrices := splitMatrices(&canvas.matrices)
+	mainMatrix, otherMatrices := splitMatrices((*canvas).getMatrices())
 	for _, otherMatrix := range otherMatrices {
 		fmt.Println("go matrix.MainThread()")
 		go (*otherMatrix).MainThread(canvas, done)

@@ -100,7 +100,7 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 
 func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 	m.Send(UploadEvent{
-		leds: c.leds,
+		leds: *(*c).getLeds(),
 	})
 	return nil
 }
@@ -116,7 +116,7 @@ func (m *MatrixEmulator) Render(canvas *Canvas) error {
 		var ledColor color.Color
 		for x := 0; x < m.Width; x++ {
 			for y := 0; y < m.Height; y++ {
-				ledColor = canvas.At(x, y)
+				ledColor = (*canvas).At(x, y)
 
 				if ledColor != nil {
 					//fillStart = time.Now()
@@ -229,12 +229,14 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 				case UploadEvent:
 					if m.isReady {
 						m.drawBackground(sz)
-						err = m.Render(&Canvas{
-							w:        canvas.w,
-							h:        canvas.h,
-							matrices: nil,
-							leds:     evn.leds,
-						})
+						max := (*canvas).Bounds().Max
+						var canva Canvas
+						canva = &CanvasImpl{
+							w:    max.X,
+							h:    max.Y,
+							leds: evn.leds,
+						}
+						err = m.Render(&canva)
 						if err != nil {
 							panic(err)
 						}

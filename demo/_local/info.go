@@ -17,11 +17,14 @@ type Info struct {
 	fpsText       *shapes.Text
 	updateCounter ratecounter.RateCounter
 	drawCounter   ratecounter.RateCounter
+	location      *time.Location
 }
 
 var infoGraphic = NewGraphic(nil, nil)
 
-func NewInfo(c *Canvas) Component {
+func NewInfo(c Canvas) Component {
+	location, _ := time.LoadLocation("Europe/Paris")
+
 	info := Info{
 		now:         time.Now(),
 		lastFpsText: time.Now(),
@@ -31,6 +34,7 @@ func NewInfo(c *Canvas) Component {
 		},
 		updateCounter: *ratecounter.NewRateCounter(1 * time.Second),
 		drawCounter:   *ratecounter.NewRateCounter(1 * time.Second),
+		location:      location,
 	}
 
 	info.timeText = info.buildTimeText()
@@ -46,7 +50,9 @@ func NewInfo(c *Canvas) Component {
 	return &info
 }
 
-func (i *Info) Update(now time.Time) {
+func (i *Info) Update(elapsedBetweenUpdate time.Duration) {
+	now := time.Now().In(i.location)
+
 	defer i.updateCounter.Incr(1)
 	if now.Sub(i.now).Milliseconds() < 10 {
 		return
@@ -60,7 +66,7 @@ func (i *Info) Update(now time.Time) {
 	i.fpsText.SetText(i.fpsTxt())
 }
 
-func (i *Info) Draw(canvas *Canvas) error {
+func (i *Info) Draw(canvas Canvas) error {
 	defer i.drawCounter.Incr(1)
 	return i.shape.Draw(canvas)
 }
@@ -84,7 +90,7 @@ func (i *Info) buildTimeText() *shapes.Text {
 	)
 }
 
-func (i *Info) buildFPSText(c *Canvas) *shapes.Text {
+func (i *Info) buildFPSText(c Canvas) *shapes.Text {
 	graphic := NewGraphic(i.shape.Graphic, NewLayout(&ColorGreen, nil))
 	return shapes.NewText(&graphic,
 		Point{

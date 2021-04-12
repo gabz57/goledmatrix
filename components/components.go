@@ -15,11 +15,11 @@ type Component interface {
 type Updatable interface {
 	// Update is called at its own rate to avoid depending on rendering time,
 	// thus we can compute speed depending on this constant rate
-	Update(now time.Time)
+	Update(elapsedBetweenUpdate time.Duration)
 }
 
 type Drawable interface {
-	Draw(canvas *Canvas) error
+	Draw(canvas Canvas) error
 }
 
 type CompositeDrawable struct {
@@ -37,7 +37,7 @@ func (cd *CompositeDrawable) AddDrawables(drawables []*Drawable) {
 	}
 }
 
-func (cd *CompositeDrawable) Draw(canvas *Canvas) error {
+func (cd *CompositeDrawable) Draw(canvas Canvas) error {
 	var err error
 	for _, drawable := range cd.Drawables {
 		err = (*drawable).Draw(canvas)

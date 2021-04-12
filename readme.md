@@ -193,5 +193,10 @@ $ file bin/32/usr/bin/goledmatrix
 $ file bin/64/usr/bin/goledmatrix
 # bin/64/usr/bin/goledmatrix: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), dynamically linked, interpreter /lib/ld-linux-aarch64.so.1, for GNU/Linux 4.10.8, Go BuildID=0e5708a60115cc43d38506ffdc1fa1ad81e7719a, with debug_info, not stripped
 ```
-docker run --rm gabz57/goledmatrix:rpi64
-docker rmi gabz57/goledmatrix:rpi64 && docker run --privileged --rm gabz57/goledmatrix:rpi64
+
+```sh
+$ docker ps
+$ docker stop CONTAINER
+$ docker run --rm gabz57/goledmatrix:rpi64
+$ docker rmi gabz57/goledmatrix:rpi64 && docker run --privileged --rm gabz57/goledmatrix:rpi64
+```

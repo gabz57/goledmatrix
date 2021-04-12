@@ -23,7 +23,7 @@ func NewText(graphic *Graphic, position Point, txt string, f fonts.MatrixFont) *
 	}
 }
 
-func (t *Text) Draw(canvas *Canvas) error {
+func (t *Text) Draw(canvas Canvas) error {
 	position := t.position.Add(t.ComputedOffset())
 	canvas.DrawLabel(position.X, position.Y+t.font.Metrics().Height.Ceil(), t.txt, *t.Layout().Color(), t.font)
 	return nil
