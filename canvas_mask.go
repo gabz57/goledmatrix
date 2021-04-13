@@ -6,21 +6,34 @@ import (
 	"math"
 )
 
-// Canvas wrapper to replace pixels color with colors from the mask
-type CanvasMask struct {
-	Canvas
-	mask []color.Color
-}
+type (
+	// Canvas wrapper to replace pixels color with colors from the colors
+	Mask interface {
+		Canvas
+		Set(x, y int, ledColor color.Color)
+	}
+	StaticCanvasMask struct {
+		Mask
+		colors []color.Color
+	}
+	ShadedColorCanvasMask struct {
+		Mask
+	}
+	ColorFaderCanvasMask struct {
+		Mask
+		fade float64
+	}
+)
 
-// Set set LED at position x,y to the provided 24-bit color value
-func (c *CanvasMask) Set(x, y int, ledColor color.Color) {
+func (c *StaticCanvasMask) Set(x, y int, ledColor color.Color) {
 	position := c.position(x, y)
 	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
-		(*c.GetLeds())[position] = c.mask[position]
+		(*c.GetLeds())[position] = c.colors[position]
 	}
 }
 
-func NewSingleColorMask(canvas Canvas, maskColor color.Color) *CanvasMask {
+// StaticCanvasMask specialization with a single color
+func NewSingleColorMask(canvas Canvas, maskColor color.Color) *StaticCanvasMask {
 	max := canvas.Bounds().Max
 	var mask = make([]color.Color, max.X*max.Y)
 	for col := 0; col < max.X; col++ {
@@ -28,28 +41,29 @@ func NewSingleColorMask(canvas Canvas, maskColor color.Color) *CanvasMask {
 			mask[canvas.position(col, row)] = maskColor
 		}
 	}
-	return NewMask(canvas, mask)
+	return NewCanvasMask(canvas, mask)
 }
 
-type ShadedColorCanvasMask struct {
-	Canvas
+func NewCanvasMask(canvas Canvas, colors []color.Color) *StaticCanvasMask {
+	return &StaticCanvasMask{
+		Mask:   canvas,
+		colors: colors,
+	}
 }
 
 func NewShadedColorCanvasMask(canvas Canvas) *ShadedColorCanvasMask {
 	return &ShadedColorCanvasMask{
-		Canvas: canvas,
+		Mask: canvas,
 	}
 }
 
-// Set set LED at position x,y to the provided 24-bit color value
 func (c *ShadedColorCanvasMask) Set(x, y int, ledColor color.Color) {
 	position := c.position(x, y)
-	center := Point{
-		X: c.Bounds().Max.X / 2,
-		Y: c.Bounds().Max.Y / 2,
-	}
-
 	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
+		center := Point{
+			X: c.Bounds().Max.X / 2,
+			Y: c.Bounds().Max.Y / 2,
+		}
 		(*c.GetLeds())[position] = shadedAroundCenterColor(c.Bounds().Max, center, x, y)
 	}
 }
@@ -110,9 +124,29 @@ func shadedAroundCenterColor(max image.Point, center Point, x int, y int) color.
 	}
 }
 
-func NewMask(canvas Canvas, mask []color.Color) *CanvasMask {
-	return &CanvasMask{
-		Canvas: canvas,
-		mask:   mask,
+func NewColorFaderMask(canvas Canvas) *ColorFaderCanvasMask {
+	return &ColorFaderCanvasMask{
+		Mask: canvas,
+		fade: 0,
 	}
+}
+
+func (c *ColorFaderCanvasMask) SetFade(fade float64) {
+	if fade >= 1 {
+		c.fade = 1
+	} else if fade <= 0 {
+		c.fade = 0
+	} else {
+		c.fade = fade
+	}
+}
+
+func (c *ColorFaderCanvasMask) Set(x, y int, ledColor color.Color) {
+	r, g, b, a := ledColor.RGBA()
+	c.Mask.Set(x, y, color.RGBA{
+		R: uint8((1 - c.fade) * float64(uint8(r))),
+		G: uint8((1 - c.fade) * float64(uint8(g))),
+		B: uint8((1 - c.fade) * float64(uint8(b))),
+		A: uint8(a),
+	})
 }

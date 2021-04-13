@@ -10,7 +10,7 @@ import (
 )
 
 type Clock struct {
-	shape             CompositeDrawable
+	shape             *CompositeDrawable
 	now               time.Time
 	center            Point
 	radius            int
@@ -28,24 +28,20 @@ var clockGraphic = NewGraphic(nil, nil)
 func NewClock(canvas Canvas, center Point, radius int) Component {
 	location, _ := time.LoadLocation("Europe/Paris")
 	var mask Canvas
-	//mask = NewSingleColorMask(canvas, ColorRed)
 	mask = NewShadedColorCanvasMask(canvas)
 
 	c := Clock{
-		now:    time.Now(),
-		center: center,
-		radius: radius,
-		shape: CompositeDrawable{
-			Graphic:   &clockGraphic,
-			Drawables: []*Drawable{},
-		},
+		now:      time.Now(),
+		center:   center,
+		radius:   radius,
+		shape:    NewCompositeDrawable(clockGraphic),
 		location: location,
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-7, radius/2-6), "OCTO"))
 
-	c.shape.AddDrawable(masked(mask, c.buildStaticContourCircle()))
+	c.shape.AddDrawable(Masked(mask, c.buildStaticContourCircle()))
 	c.shape.AddDrawable(c.buildStaticCenter())
 	c.shape.AddDrawables(c.buildStaticHours())
 	c.shape.AddDrawables(c.buildStaticMinutes())
@@ -61,7 +57,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
 	var drawableMinute Drawable
 	drawableMinute = c.rotatingMinute
-	c.shape.AddDrawable(masked(mask, &drawableMinute))
+	c.shape.AddDrawable(Masked(mask, &drawableMinute))
 
 	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
 	var drawableMinuteDot Drawable
@@ -71,7 +67,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	c.rotatingHour = c.buildRotatingHour(hour, min)
 	var drawableHour Drawable
 	drawableHour = c.rotatingHour
-	c.shape.AddDrawable(masked(mask, &drawableHour))
+	c.shape.AddDrawable(Masked(mask, &drawableHour))
 
 	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
 	var drawableHourDot Drawable
@@ -79,28 +75,6 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	c.shape.AddDrawable(&drawableHourDot)
 
 	return &c
-}
-
-func masked(mask Canvas, drawable *Drawable) *Drawable {
-	var d Drawable
-	d = buildMaskedDrawable(mask, drawable)
-	return &d
-}
-
-type MaskedDrawable struct {
-	drawable *Drawable
-	mask     *Canvas
-}
-
-func (m MaskedDrawable) Draw(canvas Canvas) error {
-	return (*m.drawable).Draw(*m.mask)
-}
-
-func buildMaskedDrawable(mask Canvas, d *Drawable) *MaskedDrawable {
-	return &MaskedDrawable{
-		drawable: d,
-		mask:     &mask,
-	}
 }
 
 func (c *Clock) Update(elapsedBetweenUpdate time.Duration) {

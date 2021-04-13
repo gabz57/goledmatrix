@@ -3,24 +3,86 @@ package impl
 import (
 	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
+	"github.com/gabz57/goledmatrix/components/shapes"
 	"image/color"
 	"time"
 )
 
+const (
+	HeartWidth  = 13
+	HeartHeight = 12
+)
+
 type Heart struct {
-	Graphic *Graphic
-	pixels  []Pixel
-	origin  Point
+	shape        *CompositeDrawable
+	heart        *shapes.Free
+	mask         *ColorFaderCanvasMask
+	fadeOut      bool
+	fade         float64
+	fadeDuration time.Duration
+	step         float64
 }
 
-func NewHeart(origin Point) *Heart {
-	var heartGraphic = NewGraphic(nil, nil)
+func NewHeart(canvas Canvas, origin Point, fadeDuration time.Duration, initialFade float64, initialFadeOut bool) *Heart {
+	var heartGraphic = NewOffsetGraphic(nil, nil, origin)
 	heart := Heart{
-		Graphic: &heartGraphic,
-		pixels:  heartPixels(),
-		origin:  origin,
+		shape:        NewCompositeDrawable(heartGraphic),
+		fade:         initialFade,
+		fadeOut:      initialFadeOut,
+		fadeDuration: fadeDuration,
+		mask:         NewColorFaderMask(canvas),
+		heart:        buildHeart(&heartGraphic),
 	}
+
+	var drawableHeart Drawable
+	drawableHeart = heart.heart
+
+	heart.shape.AddDrawable(Masked(
+		heart.mask,
+		&drawableHeart))
+
 	return &heart
+}
+
+func buildHeart(g *Graphic) *shapes.Free {
+	graphic := NewGraphic(g, NewLayout(nil, nil))
+	return shapes.NewFree(&graphic, heartPixels())
+}
+
+func (h *Heart) Update(elapsedBetweenUpdate time.Duration) {
+	h.step = float64(elapsedBetweenUpdate) / float64(h.fadeDuration)
+	h.fade, h.fadeOut = nextFadeValue(true, h.fadeOut, h.fade, h.step)
+	h.mask.SetFade(h.fade)
+}
+
+func (h *Heart) IsAppearing() bool {
+	// we cannot compare with 1 as fade is a float, we minor the value by 1 step
+	return h.fadeOut && h.fade >= (1-h.step)
+}
+
+func nextFadeValue(loop bool, fadeOut bool, fade float64, diff float64) (float64, bool) {
+	if fadeOut {
+		fade += diff
+		if fade >= 1 {
+			if loop {
+				return 1, false
+			}
+			return 1, true
+		}
+	} else {
+		fade -= diff
+		if fade <= 0 {
+			if loop {
+				return 0, true
+			}
+			return 0, false
+		}
+	}
+	return fade, fadeOut
+}
+
+func (h Heart) Draw(canvas Canvas) error {
+	return h.shape.Draw(canvas)
 }
 
 var pink color.Color = color.RGBA{R: 218, G: 50, B: 166, A: 0xff}
@@ -160,14 +222,4 @@ func heartPixels() (pixels []Pixel) {
 		Pixel{X: 10, Y: 0, C: &ColorBlack},
 	)
 	return pixels
-}
-
-func (h Heart) Update(elapsedBetweenUpdate time.Duration) {
-}
-
-func (h Heart) Draw(canvas Canvas) error {
-	for _, pixel := range h.pixels {
-		canvas.Set(h.origin.X+pixel.X, h.origin.Y+pixel.Y, *pixel.C)
-	}
-	return nil
 }

@@ -27,6 +27,13 @@ type CompositeDrawable struct {
 	Drawables []*Drawable
 }
 
+func NewCompositeDrawable(g Graphic) *CompositeDrawable {
+	return &CompositeDrawable{
+		Graphic:   &g,
+		Drawables: []*Drawable{},
+	}
+}
+
 func (cd *CompositeDrawable) AddDrawable(drawable *Drawable) {
 	cd.Drawables = append(cd.Drawables, drawable)
 }
@@ -85,4 +92,23 @@ func (g *Graphic) ComputedOffset() Point {
 		return g.parent.ComputedOffset().Add(g.offset)
 	}
 	return g.offset
+}
+
+func Masked(mask Canvas, drawable *Drawable) *Drawable {
+	var d Drawable
+	d = &MaskedDrawable{
+		drawable: drawable,
+		mask:     &mask,
+	}
+	return &d
+}
+
+type MaskedDrawable struct {
+	drawable *Drawable
+	mask     *Canvas
+}
+
+// override Drawable.Draw method to perform indirection with mask
+func (m MaskedDrawable) Draw(canvas Canvas) error {
+	return (*m.drawable).Draw(*m.mask)
 }

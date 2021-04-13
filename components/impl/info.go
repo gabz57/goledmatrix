@@ -11,7 +11,7 @@ import (
 )
 
 type Info struct {
-	shape         CompositeDrawable
+	shape         *CompositeDrawable
 	now           time.Time
 	lastFpsText   time.Time
 	timeText      *shapes.Text
@@ -28,12 +28,9 @@ func NewInfo(c Canvas) Component {
 	location, _ := time.LoadLocation("Europe/Paris")
 
 	info := Info{
-		now:         time.Now(),
-		lastFpsText: time.Now(),
-		shape: CompositeDrawable{
-			Graphic:   &infoGraphic,
-			Drawables: []*Drawable{},
-		},
+		now:           time.Now(),
+		lastFpsText:   time.Now(),
+		shape:         NewCompositeDrawable(infoGraphic),
 		updateCounter: *ratecounter.NewRateCounter(1 * time.Second),
 		drawCounter:   *ratecounter.NewRateCounter(1 * time.Second),
 		location:      location,

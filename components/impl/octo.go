@@ -23,9 +23,11 @@ var lightBlue = color.RGBA{
 }
 
 type OctoLogo struct {
-	shape                           CompositeDrawable
-	center                          Point
-	radiusExt, radiusInt, radiusEye int
+	shape     *CompositeDrawable
+	center    Point
+	radiusExt int
+	radiusInt int
+	radiusEye int
 }
 
 var octoLogoGraphic = NewGraphic(nil, nil)
@@ -33,10 +35,7 @@ var octoLogoGraphic = NewGraphic(nil, nil)
 func NewOctoLogo(canvas Canvas, center Point, radiusExt int) *OctoLogo {
 	radiusInt := int(float64(radiusExt) * 2 / 3)
 	logo := OctoLogo{
-		shape: CompositeDrawable{
-			Graphic:   &infoGraphic,
-			Drawables: []*Drawable{},
-		},
+		shape:     NewCompositeDrawable(octoLogoGraphic),
 		center:    center,
 		radiusExt: radiusExt,
 		radiusInt: radiusInt,
@@ -48,6 +47,7 @@ func NewOctoLogo(canvas Canvas, center Point, radiusExt int) *OctoLogo {
 
 	return &logo
 }
+
 func (o *OctoLogo) Update(elapsedBetweenUpdate time.Duration) {
 }
 

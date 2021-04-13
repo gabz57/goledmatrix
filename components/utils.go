@@ -24,6 +24,10 @@ var ColorBlue color.Color = color.RGBA{R: 0x00, G: 0x00, B: 0xff, A: 0xff}
 var ColorViolet color.Color = color.RGBA{R: 0xff, G: 0x00, B: 0xff, A: 0xff}
 
 func NewGraphic(parent *Graphic, layout *Layout) Graphic {
+	return NewOffsetGraphic(parent, layout, None)
+}
+
+func NewOffsetGraphic(parent *Graphic, layout *Layout, offset Point) Graphic {
 	if layout == nil {
 		if parent != nil {
 			layout = parent.layout
@@ -34,7 +38,7 @@ func NewGraphic(parent *Graphic, layout *Layout) Graphic {
 	return Graphic{
 		layout: layout,
 		parent: parent,
-		offset: None,
+		offset: offset,
 	}
 }
 
