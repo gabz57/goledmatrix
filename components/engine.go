@@ -5,7 +5,6 @@ import (
 	"github.com/gabz57/goledmatrix"
 	"github.com/gosuri/uilive"
 	"github.com/paulbellamy/ratecounter"
-	"strconv"
 	"time"
 )
 
@@ -38,7 +37,7 @@ func (e *Engine) Run(done chan struct{}) {
 LOOP:
 	for {
 		// print and updates to console without writing on a new line each time
-		_, _ = fmt.Fprintf(writer.Newline(), "Updates: "+strconv.FormatInt(updateCounter.Rate(), 10)+" update/sec - RenderRate: "+strconv.FormatInt(renderCounter.Rate(), 10)+" FPS\n")
+		//_, _ = fmt.Fprintf(writer.Newline(), "Updates: "+strconv.FormatInt(updateCounter.Rate(), 10)+" update/sec - RenderRate: "+strconv.FormatInt(renderCounter.Rate(), 10)+" FPS\n")
 
 		select {
 		case <-done:
@@ -82,7 +81,7 @@ func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) {
 	}
 }
 
-// Draw the components into the canvas and render its content
+// Draw the components into the canvas and renders its content
 func (e *Engine) render() error {
 	(*e.canvas).Clear()
 	for _, component := range e.components {

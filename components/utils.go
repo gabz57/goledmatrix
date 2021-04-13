@@ -16,10 +16,12 @@ var defaultLayout = Layout{
 	backgroundColor: nil,
 }
 
-var ColorBlue = color.RGBA{R: 0x00, G: 0x00, B: 0xff, A: 0xff}
-var ColorGreen = color.RGBA{R: 0x00, G: 0xff, B: 0x00, A: 0xff}
-var ColorViolet = color.RGBA{R: 0xff, G: 0x00, B: 0xff, A: 0xff}
-var ColorRed = color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xff}
+var ColorWhite color.Color = color.RGBA{R: 0xff, G: 0xff, B: 0xff, A: 0xff}
+var ColorBlack color.Color = color.RGBA{R: 0x00, G: 0x00, B: 0x00, A: 0xff}
+var ColorRed color.Color = color.RGBA{R: 0xff, G: 0x00, B: 0x00, A: 0xff}
+var ColorGreen color.Color = color.RGBA{R: 0x00, G: 0xff, B: 0x00, A: 0xff}
+var ColorBlue color.Color = color.RGBA{R: 0x00, G: 0x00, B: 0xff, A: 0xff}
+var ColorViolet color.Color = color.RGBA{R: 0xff, G: 0x00, B: 0xff, A: 0xff}
 
 func NewGraphic(parent *Graphic, layout *Layout) Graphic {
 	if layout == nil {

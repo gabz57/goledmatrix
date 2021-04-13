@@ -2,9 +2,12 @@ package rpc
 
 import (
 	"encoding/gob"
+	"fmt"
 	"github.com/gabz57/goledmatrix"
 	"image/color"
 	"net/rpc"
+	"strconv"
+	"time"
 )
 
 func init() {
@@ -52,7 +55,37 @@ func (m *MatrixRpcClient) RenderMethod(canvas *goledmatrix.Canvas) error {
 
 func (m *MatrixRpcClient) Render(canvas *goledmatrix.Canvas) error {
 	var reply *RenderReply
-	return m.client.Call("MatrixRPCServer.Render", &RenderArgs{Colors: canvas.Leds()}, &reply)
+	start := time.Now()
+	err := m.client.Call("MatrixRPCServer.Render", &RenderArgs{
+		Pixels:    toPixels(canvas),
+		Timestamp: time.Now().UnixNano(),
+	}, &reply)
+	fmt.Println("rpc render took " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+	return err
+}
+
+func (m *MatrixRpcClient) rpcRender(canvas *goledmatrix.Canvas, reply *RenderReply) error {
+	start := time.Now()
+	err := m.client.Call("MatrixRPCServer.Render", &RenderArgs{
+		Pixels:    toPixels(canvas),
+		Timestamp: time.Now().UnixNano(),
+	}, &reply)
+	fmt.Println("rpc render took" + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+	return err
+}
+
+func toPixels(canvas *goledmatrix.Canvas) (pixels []Pixel) {
+	width := (*canvas).Bounds().Max.X
+	for i, c := range *(*canvas).GetLeds() {
+		if c != nil {
+			pixels = append(pixels, Pixel{
+				X: i % width,
+				Y: i / width,
+				C: c,
+			})
+		}
+	}
+	return pixels
 }
 
 func (m *MatrixRpcClient) Close() error {

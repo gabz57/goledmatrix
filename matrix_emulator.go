@@ -100,7 +100,7 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 
 func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 	m.Send(UploadEvent{
-		leds: *(*c).getLeds(),
+		leds: *(*c).GetLeds(),
 	})
 	return nil
 }

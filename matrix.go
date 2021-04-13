@@ -186,28 +186,33 @@ func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gamelo
 	done := make(chan struct{})
 	defer (*canvas).Close()
 
-	// Starting game loop on a separate routine
-	go func() {
-		// avoid drawing to early as emulator might not be ready, eventually fixed
-		<-time.After(1000 * time.Millisecond)
-
-		fmt.Println("Starting Gameloop !")
-		gameloop(canvas, done)
-		fmt.Println("Gameloop END")
-		done <- struct{}{}
-	}()
-
 	// run all matrices (UI is run on main thread)
-	mainMatrix, otherMatrices := splitMatrices((*canvas).getMatrices())
+	mainMatrix, otherMatrices := SplitMatrices((*canvas).GetMatrices())
 	for _, otherMatrix := range otherMatrices {
 		fmt.Println("go matrix.MainThread()")
 		go (*otherMatrix).MainThread(canvas, done)
 	}
+
+	// Starting game loop on a separate routine
+	go gameLoop(gameloop, canvas, done)
+
 	fmt.Println("matrix.MainThread()")
 	(*mainMatrix).MainThread(canvas, done)
 }
 
-func splitMatrices(ms *[]Matrix) (mainMatrix *Matrix, others []*Matrix) {
+func gameLoop(gameloop func(c *Canvas, done chan struct{}), canvas *Canvas, done chan struct{}) {
+	func() {
+		// avoid drawing to early as emulator might not be ready, eventually fixed
+		<-time.After(1000 * time.Millisecond)
+
+		fmt.Println("Gameloop STARTED")
+		gameloop(canvas, done)
+		fmt.Println("Gameloop END")
+		done <- struct{}{}
+	}()
+}
+
+func SplitMatrices(ms *[]Matrix) (mainMatrix *Matrix, others []*Matrix) {
 	for _, matrix := range *ms {
 		if matrix.IsEmulator() {
 			mainMatrix = &matrix

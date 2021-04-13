@@ -1,4 +1,4 @@
-package main
+package impl
 
 import (
 	. "github.com/gabz57/goledmatrix"

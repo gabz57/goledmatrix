@@ -1,4 +1,4 @@
-package main
+package impl
 
 import (
 	. "github.com/gabz57/goledmatrix"
@@ -10,15 +10,17 @@ import (
 )
 
 type Clock struct {
-	shape          CompositeDrawable
-	now            time.Time
-	center         Point
-	radius         int
-	text           *shapes.Text
-	rotatingHour   *shapes.Line
-	rotatingMinute *shapes.Line
-	rotatingSecond *shapes.Dot
-	location       *time.Location
+	shape             CompositeDrawable
+	now               time.Time
+	center            Point
+	radius            int
+	text              *shapes.Text
+	rotatingHour      *shapes.Line
+	rotatingHourDot   *shapes.Dot
+	rotatingMinute    *shapes.Line
+	rotatingMinuteDot *shapes.Dot
+	rotatingSecond    *shapes.Dot
+	location          *time.Location
 }
 
 var clockGraphic = NewGraphic(nil, nil)
@@ -61,10 +63,20 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	drawableMinute = c.rotatingMinute
 	c.shape.AddDrawable(masked(mask, &drawableMinute))
 
+	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
+	var drawableMinuteDot Drawable
+	drawableMinuteDot = c.rotatingMinuteDot
+	c.shape.AddDrawable(&drawableMinuteDot)
+
 	c.rotatingHour = c.buildRotatingHour(hour, min)
 	var drawableHour Drawable
 	drawableHour = c.rotatingHour
-	c.shape.AddDrawable(&drawableHour)
+	c.shape.AddDrawable(masked(mask, &drawableHour))
+
+	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
+	var drawableHourDot Drawable
+	drawableHourDot = c.rotatingHourDot
+	c.shape.AddDrawable(&drawableHourDot)
 
 	return &c
 }
@@ -105,9 +117,15 @@ func (c *Clock) Update(elapsedBetweenUpdate time.Duration) {
 		c.center,
 		c.hourLineEnd(aDHour),
 	)
+	c.rotatingHourDot.SetPosition(
+		c.hourLineEnd(aDHour),
+	)
 
 	c.rotatingMinute.SetLine(
 		c.center,
+		c.minuteLineEnd(angleDegreesMinute(min, sec)),
+	)
+	c.rotatingMinuteDot.SetPosition(
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 
@@ -194,9 +212,16 @@ func (c *Clock) buildStaticMinute(center Point, radius int, minute int) *Drawabl
 }
 
 func (c *Clock) buildRotatingHour(hour, min int) *shapes.Line {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(&ColorBlue, nil))
+	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorBlue, nil))
 	return shapes.NewLine(&graphic,
 		c.center,
+		c.hourLineEnd(angleDegreesHour(hour, min)),
+	)
+}
+
+func (c *Clock) buildRotatingHourDot(hour, min int) *shapes.Dot {
+	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
+	return shapes.NewDot(&graphic,
 		c.hourLineEnd(angleDegreesHour(hour, min)),
 	)
 }
@@ -205,6 +230,13 @@ func (c *Clock) buildRotatingMinute(min, sec int) *shapes.Line {
 	graphic := NewGraphic(c.shape.Graphic, NewLayout(color.White, nil))
 	return shapes.NewLine(&graphic,
 		c.center,
+		c.minuteLineEnd(angleDegreesMinute(min, sec)),
+	)
+}
+
+func (c *Clock) buildRotatingMinuteDot(min, sec int) *shapes.Dot {
+	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
+	return shapes.NewDot(&graphic,
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 }

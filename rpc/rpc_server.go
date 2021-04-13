@@ -1,6 +1,7 @@
 package rpc
 
 import (
+	"encoding/gob"
 	"fmt"
 	"github.com/gabz57/goledmatrix"
 	"image/color"
@@ -10,63 +11,72 @@ import (
 	"net/rpc"
 )
 
+func init() {
+	gob.Register(color.RGBA{})
+}
+
 type MatrixRPCServer struct {
-	m goledmatrix.Matrix
-	c *goledmatrix.Canvas
+	m         *goledmatrix.Matrix
+	c         *goledmatrix.Canvas
+	timestamp int64
 }
 
 type GeometryArgs struct{}
 type GeometryReply struct{ Width, Height int }
 
 func (m *MatrixRPCServer) Geometry(_ *GeometryArgs, reply *GeometryReply) error {
-	w, h := m.m.Geometry()
+	fmt.Println("MatrixRPCServer.Geometry()")
+	w, h := (*m.m).Geometry()
 	reply.Width = w
 	reply.Height = h
 	return nil
 }
 
-type RenderArgs struct{ Colors []color.Color }
+type Pixel struct {
+	X, Y int
+	C    color.Color
+}
+
+type RenderArgs struct {
+	Pixels []Pixel
+	//Colors []color.Color
+	Timestamp int64
+}
 type RenderReply struct{}
 
 func (m *MatrixRPCServer) Render(args *RenderArgs, _ *RenderReply) error {
-	defer m.c.Clear()
-	w, h := m.m.Geometry()
-
-	var c color.Color
-	for x := 0; x < w; x++ {
-		for y := 0; y < h; y++ {
-			c = args.Colors[x+y*w]
-			if c != nil {
-				m.c.Set(x, y, c)
-			}
-			c = nil
-		}
+	defer (*m.c).Clear()
+	for _, pixel := range args.Pixels {
+		(*m.c).Set(pixel.X, pixel.Y, pixel.C)
 	}
-	return m.c.Render()
+	return (*m.c).Render()
 }
 
 type CloseArgs struct{}
 type CloseReply struct{}
 
 func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
-	return m.m.Close()
+	fmt.Println("MatrixRPCServer.Close()")
+	return (*m.m).Close()
 }
 
-func Serve(serverMatrix *goledmatrix.Matrix) func(c *goledmatrix.Canvas, done chan struct{}) {
+func Serve() func(c *goledmatrix.Canvas, done chan struct{}) {
 	return func(c *goledmatrix.Canvas, done chan struct{}) {
-		serve(serverMatrix, c) // Blocking
+		// NOTE quick hack to retrieve hardware matrix, not very safe
+		mainMatrix, _ := goledmatrix.SplitMatrices((*c).GetMatrices())
+		serve(mainMatrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")
 	}
 }
 
 func serve(m *goledmatrix.Matrix, c *goledmatrix.Canvas) {
-	rpc.Register(&MatrixRPCServer{*m, c})
+	server := MatrixRPCServer{m: m, c: c}
+	rpc.Register(&server)
 	rpc.HandleHTTP()
-	l, e := net.Listen("tcp", ":1234")
+	l, e := net.Listen("tcp", ":8080")
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
-	fmt.Println(l)
-	fmt.Println("Serving...")
+	fmt.Println("Serving... @ " + l.Addr().String())
 	http.Serve(l, nil)
 }

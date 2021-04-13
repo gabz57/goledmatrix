@@ -1,6 +1,7 @@
-package main
+package impl
 
 import (
+	"fmt"
 	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
@@ -15,6 +16,7 @@ type Info struct {
 	lastFpsText   time.Time
 	timeText      *shapes.Text
 	fpsText       *shapes.Text
+	updateText    *shapes.Text
 	updateCounter ratecounter.RateCounter
 	drawCounter   ratecounter.RateCounter
 	location      *time.Location
@@ -38,6 +40,7 @@ func NewInfo(c Canvas) Component {
 	}
 
 	info.timeText = info.buildTimeText()
+	info.updateText = info.buildUpdateText(c)
 	info.fpsText = info.buildFPSText(c)
 	var drawableTimeText Drawable
 	drawableTimeText = info.timeText
@@ -46,6 +49,10 @@ func NewInfo(c Canvas) Component {
 	var drawableFpsText Drawable
 	drawableFpsText = info.fpsText
 	info.shape.AddDrawable(&drawableFpsText)
+
+	var drawableUpdateText Drawable
+	drawableUpdateText = info.updateText
+	info.shape.AddDrawable(&drawableUpdateText)
 
 	return &info
 }
@@ -64,6 +71,7 @@ func (i *Info) Update(elapsedBetweenUpdate time.Duration) {
 	}
 	i.lastFpsText = now
 	i.fpsText.SetText(i.fpsTxt())
+	i.updateText.SetText(i.updateTxt())
 }
 
 func (i *Info) Draw(canvas Canvas) error {
@@ -73,13 +81,20 @@ func (i *Info) Draw(canvas Canvas) error {
 
 func (i *Info) fpsTxt() string {
 	if i.updateCounter.Rate() != 0 && i.drawCounter.Rate() != 0 {
-		return i.updateCounter.String() + " upd/s  " + i.drawCounter.String() + " FPS"
+		return fmt.Sprintf("%3d", i.drawCounter.Rate()) + " FPS"
+	}
+	return "-"
+}
+
+func (i *Info) updateTxt() string {
+	if i.updateCounter.Rate() != 0 && i.drawCounter.Rate() != 0 {
+		return fmt.Sprintf("%3d", i.updateCounter.Rate()) + " upd/s"
 	}
 	return "-"
 }
 
 func (i *Info) buildTimeText() *shapes.Text {
-	graphic := NewGraphic(i.shape.Graphic, NewLayout(&ColorGreen, nil))
+	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
 	return shapes.NewText(&graphic,
 		Point{
 			X: 0,
@@ -89,9 +104,20 @@ func (i *Info) buildTimeText() *shapes.Text {
 		fonts.Bdf4x6,
 	)
 }
+func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
+	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
+	return shapes.NewText(&graphic,
+		Point{
+			X: c.Bounds().Max.X - 35,
+			Y: c.Bounds().Max.Y - 10,
+		},
+		i.updateTxt(),
+		fonts.Bdf4x6,
+	)
+}
 
 func (i *Info) buildFPSText(c Canvas) *shapes.Text {
-	graphic := NewGraphic(i.shape.Graphic, NewLayout(&ColorGreen, nil))
+	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
 	return shapes.NewText(&graphic,
 		Point{
 			X: 0,

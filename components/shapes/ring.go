@@ -46,24 +46,24 @@ func (r *Ring) fillRing(pixels *[]Pixel, radiusExt int, radiusInt int, center Po
 			if d >= radiusIntSqr && d <= radiusExtSqr {
 				*pixels = append(*pixels,
 					Pixel{
-						x: center.X + x,
-						y: center.Y + y,
-						c: bgColorColor,
+						X: center.X + x,
+						Y: center.Y + y,
+						C: bgColorColor,
 					},
 					Pixel{
-						x: center.X + x,
-						y: center.Y - y,
-						c: bgColorColor,
+						X: center.X + x,
+						Y: center.Y - y,
+						C: bgColorColor,
 					},
 					Pixel{
-						x: center.X - x,
-						y: center.Y + y,
-						c: bgColorColor,
+						X: center.X - x,
+						Y: center.Y + y,
+						C: bgColorColor,
 					},
 					Pixel{
-						x: center.X - x,
-						y: center.Y - y,
-						c: bgColorColor,
+						X: center.X - x,
+						Y: center.Y - y,
+						C: bgColorColor,
 					},
 				)
 			}
@@ -84,44 +84,44 @@ func (r *Ring) ring(pixels *[]Pixel, radius int, center Point) {
 	for y <= x {
 		*pixels = append(*pixels,
 			Pixel{
-				x: center.X + x,
-				y: center.Y + y,
-				c: fgColor,
+				X: center.X + x,
+				Y: center.Y + y,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X + x,
-				y: center.Y - y,
-				c: fgColor,
+				X: center.X + x,
+				Y: center.Y - y,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X - x,
-				y: center.Y + y,
-				c: fgColor,
+				X: center.X - x,
+				Y: center.Y + y,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X - x,
-				y: center.Y - y,
-				c: fgColor,
+				X: center.X - x,
+				Y: center.Y - y,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X + y,
-				y: center.Y + x,
-				c: fgColor,
+				X: center.X + y,
+				Y: center.Y + x,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X + y,
-				y: center.Y - x,
-				c: fgColor,
+				X: center.X + y,
+				Y: center.Y - x,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X - y,
-				y: center.Y + x,
-				c: fgColor,
+				X: center.X - y,
+				Y: center.Y + x,
+				C: fgColor,
 			},
 			Pixel{
-				x: center.X - y,
-				y: center.Y - x,
-				c: fgColor,
+				X: center.X - y,
+				Y: center.Y - x,
+				C: fgColor,
 			})
 		y++
 		if radiusError < 0 {
@@ -135,7 +135,7 @@ func (r *Ring) ring(pixels *[]Pixel, radius int, center Point) {
 
 func (r *Ring) Draw(canvas Canvas) error {
 	for _, pixel := range r.pixels {
-		canvas.Set(pixel.x, pixel.y, *pixel.c)
+		canvas.Set(pixel.X, pixel.Y, *pixel.C)
 	}
 	return nil
 }

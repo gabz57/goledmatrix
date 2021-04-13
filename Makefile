@@ -19,13 +19,19 @@ ledmatrix32/push:
 	--push
 
 ledmatrix64/build:
-	@docker buildx build . -f arm64.Dockerfile \
+	@docker buildx build . -f arm64.demo.Dockerfile \
 	--platform linux/arm64 \
 	--tag gabz57/goledmatrix:rpi64 \
 	--output bin/64/
 
-ledmatrix64/push:
-	@docker buildx build . -f arm64.Dockerfile \
+ledmatrix64-demo/push:
+	@docker buildx build . -f arm64.demo.Dockerfile \
 	--platform linux/arm64 \
 	--tag gabz57/goledmatrix:rpi64 \
+	--push
+
+ledmatrix64-server/push:
+	@docker buildx build . -f arm64.server.Dockerfile \
+	--platform linux/arm64 \
+	--tag gabz57/goledmatrix:rpi64-server \
 	--push

@@ -1,6 +1,7 @@
 package goledmatrix
 
 import (
+	"image"
 	"image/color"
 	"math"
 )
@@ -14,8 +15,8 @@ type CanvasMask struct {
 // Set set LED at position x,y to the provided 24-bit color value
 func (c *CanvasMask) Set(x, y int, ledColor color.Color) {
 	position := c.position(x, y)
-	if x >= 0 && y >= 0 && position < len(*c.getLeds()) {
-		(*c.getLeds())[position] = c.mask[position]
+	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
+		(*c.GetLeds())[position] = c.mask[position]
 	}
 }
 
@@ -48,8 +49,8 @@ func (c *ShadedColorCanvasMask) Set(x, y int, ledColor color.Color) {
 		Y: c.Bounds().Max.Y / 2,
 	}
 
-	if x >= 0 && y >= 0 && position < len(*c.getLeds()) {
-		(*c.getLeds())[position] = shadedAroundCenterColor(center, x, y)
+	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
+		(*c.GetLeds())[position] = shadedAroundCenterColor(c.Bounds().Max, center, x, y)
 	}
 }
 
@@ -57,11 +58,13 @@ func radToDeg(r float64) float64 {
 	return (r * 180) / math.Pi
 }
 
-func shadedAroundCenterColor(center Point, x int, y int) color.Color {
+func shadedAroundCenterColor(max image.Point, center Point, x int, y int) color.Color {
 	var saturation, value float64
-	hue := radToDeg(math.Atan2(float64(y-center.Y), float64(x-center.X))) + 180 // angle
+	posY := y - center.Y
+	posX := x - center.X
+	hue := radToDeg(math.Atan2(float64(posY), float64(posX))) + 180 // angle
 	saturation = 1
-	value = 1
+	value = math.Sqrt(float64(posY*posY)+float64(posX*posX)) / math.Sqrt(float64(max.X*max.X+max.Y*max.Y)/4)
 
 	chroma := value * saturation
 	hue1 := hue / 60
@@ -105,8 +108,6 @@ func shadedAroundCenterColor(center Point, x int, y int) color.Color {
 		B: uint8(255 * b),
 		A: uint8(255),
 	}
-	//// Change r,g,b values from [0,1] to [0,255]
-	//return [255*r,255*g,255*b];
 }
 
 func NewMask(canvas Canvas, mask []color.Color) *CanvasMask {

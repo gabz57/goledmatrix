@@ -20,8 +20,8 @@ type Canvas interface {
 	Clear()
 	Close() error
 	position(x, y int) int
-	getLeds() *[]color.Color
-	getMatrices() *[]Matrix
+	GetLeds() *[]color.Color
+	GetMatrices() *[]Matrix
 }
 
 type CanvasImpl struct {
@@ -30,8 +30,13 @@ type CanvasImpl struct {
 	leds     []color.Color
 }
 
-func (c *CanvasImpl) getMatrices() *[]Matrix {
+func (c *CanvasImpl) GetMatrices() *[]Matrix {
 	return &c.matrices
+}
+
+type Pixel struct {
+	X, Y int
+	C    *color.Color
 }
 
 type Point struct {
@@ -98,7 +103,7 @@ func (c *CanvasImpl) Set(x, y int, ledColor color.Color) {
 	//c.leds[c.position(x, y)] = color.RGBAModel.Convert(ledColor)
 	position := c.position(x, y)
 	if x >= 0 && y >= 0 && position < len(c.leds) {
-		c.leds[position] = ledColor
+		c.leds[position] = color.RGBAModel.Convert(ledColor)
 	}
 }
 
@@ -165,6 +170,6 @@ func (c *CanvasImpl) position(x, y int) int {
 	return x + (y * c.w)
 }
 
-func (c *CanvasImpl) getLeds() *[]color.Color {
+func (c *CanvasImpl) GetLeds() *[]color.Color {
 	return &c.leds
 }

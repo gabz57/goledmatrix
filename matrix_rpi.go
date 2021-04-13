@@ -139,7 +139,7 @@ func (m *MatrixHardware) Render(canvas *Canvas) error {
 	start := time.Now()
 	canvasSize := (*canvas).Bounds().Max
 	leds := make([]C.uint32_t, canvasSize.X*canvasSize.Y)
-	for i, led := range *(*canvas).getLeds() {
+	for i, led := range *(*canvas).GetLeds() {
 		if led != nil {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
