@@ -1,9 +1,8 @@
-package rpc
+package goledmatrix
 
 import (
 	"encoding/gob"
 	"fmt"
-	"github.com/gabz57/goledmatrix"
 	"image/color"
 	"log"
 	"net"
@@ -16,8 +15,8 @@ func init() {
 }
 
 type MatrixRPCServer struct {
-	m         *goledmatrix.Matrix
-	c         *goledmatrix.Canvas
+	m         *Matrix
+	c         *Canvas
 	timestamp int64
 }
 
@@ -32,13 +31,13 @@ func (m *MatrixRPCServer) Geometry(_ *GeometryArgs, reply *GeometryReply) error 
 	return nil
 }
 
-type Pixel struct {
+type RpcPixel struct {
 	X, Y int
 	C    color.Color
 }
 
 type RenderArgs struct {
-	Pixels []Pixel
+	Pixels []RpcPixel
 	//Colors []color.Color
 	Timestamp int64
 }
@@ -60,16 +59,14 @@ func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
 	return (*m.m).Close()
 }
 
-func Serve() func(c *goledmatrix.Canvas, done chan struct{}) {
-	return func(c *goledmatrix.Canvas, done chan struct{}) {
-		// NOTE quick hack to retrieve hardware matrix, not very safe
-		mainMatrix, _ := goledmatrix.SplitMatrices((*c).GetMatrices())
-		serve(mainMatrix, c) // Blocking
+func Serve(matrix *Matrix) func(c *Canvas, done chan struct{}) {
+	return func(c *Canvas, done chan struct{}) {
+		serve(matrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")
 	}
 }
 
-func serve(m *goledmatrix.Matrix, c *goledmatrix.Canvas) {
+func serve(m *Matrix, c *Canvas) {
 	server := MatrixRPCServer{m: m, c: c}
 	rpc.Register(&server)
 	rpc.HandleHTTP()

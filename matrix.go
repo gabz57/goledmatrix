@@ -16,8 +16,6 @@ func RunMatrices(app func()) {
 	mainthread.Run(app)
 }
 
-const MatrixEmulatorENV = "MATRIX_EMULATOR"
-
 // Matrix is an interface that represent any RGB matrix, very useful for testing
 type Matrix interface {
 	Config() *MatrixConfig
@@ -30,7 +28,6 @@ type Matrix interface {
 	MainThread(canvas *Canvas, done chan struct{})
 	// extension method to delay Render in UI thread via UI custom event,
 	Send(event interface{})
-	IsEmulator() bool // can differ from configuration (todo: fix/enhance design ?)
 }
 
 type ScanMode int8
@@ -42,18 +39,26 @@ const (
 
 // DefaultConfig default WS281x configuration
 var DefaultConfig = MatrixConfig{
-	Emulator:          false,
-	Rows:              32,
-	Cols:              32,
-	ChainLength:       1,
-	Parallel:          1,
-	PWMBits:           11,
-	PWMLSBNanoseconds: 130,
-	Brightness:        100,
-	ScanMode:          Progressive,
+	Rows:                   32,
+	Cols:                   32,
+	ChainLength:            1,
+	Parallel:               1,
+	PWMBits:                11,
+	PWMLSBNanoseconds:      130,
+	Brightness:             100,
+	ScanMode:               Progressive,
+	DisableHardwarePulsing: false,
+	ShowRefreshRate:        false,
+	InverseColors:          false,
+	HardwareMapping:        "",
+	LedPixelMapper:         "",
+	Emulator:               false,
+	Client:                 false,
+	Server:                 false,
 }
 
 // FLAGS
+// NOTE: reading flags overwrites DefaultConfig values
 var (
 	rows                     = flag.Int("led-rows", 64, "number of rows supported")
 	cols                     = flag.Int("led-cols", 64, "number of columns supported")
@@ -70,9 +75,15 @@ var (
 	//rotate = flag.Int("rotate", 0, "rotate angle, 90, 180, 270")
 )
 
-func ReadConfigFlags() *MatrixConfig {
+const (
+	MatrixEmulatorENV        = "MATRIX_EMULATOR"
+	MatrixClientENV          = "MATRIX_CLIENT"
+	MatrixServerENV          = "MATRIX_SERVER"
+	MatrixServerIpAddressENV = "MATRIX_ADDRESS"
+)
+
+func ReadConfigFlags() (*MatrixConfig, error) {
 	config := &DefaultConfig
-	config.Emulator = os.Getenv(MatrixEmulatorENV) == "1"
 	config.Rows = *rows
 	config.Cols = *cols
 	config.Parallel = *parallel
@@ -83,12 +94,19 @@ func ReadConfigFlags() *MatrixConfig {
 	config.InverseColors = *inverse_colors
 	config.DisableHardwarePulsing = *disable_hardware_pulsing
 	config.LedPixelMapper = *led_pixel_mapper
-	return config
+	config.Emulator = os.Getenv(MatrixEmulatorENV) == "1"
+	config.Server = os.Getenv(MatrixServerENV) == "1"
+	config.Client = os.Getenv(MatrixClientENV) == "1"
+	config.IpAddress = os.Getenv(MatrixServerIpAddressENV)
+
+	if config.Client && len(config.IpAddress) <= 7 {
+		return nil, errors.New("client mode is enabled but server IP is missing, complete Environment variables with " + MatrixServerIpAddressENV + " value")
+	}
+	return config, nil
 }
 
 // MatrixConfig rgb-led-matrix configuration
 type MatrixConfig struct {
-	Emulator bool
 	// Rows the number of rows supported by the display, so 32 or 16.
 	Rows int
 	// Cols the number of columns supported by the display, so 32 or 64 .
@@ -128,6 +146,14 @@ type MatrixConfig struct {
 	HardwareMapping string
 	// Semicolon-separated list of pixel-mappers to arrange pixels.
 	LedPixelMapper string
+	// Using OpenGL emulator instead of driving hardware matrix
+	Emulator bool
+	// Driving remote matrix using GoRPC
+	Client bool
+	// Serving hardware matrix using GoRPC
+	Server bool
+	// Remote server address
+	IpAddress string
 }
 
 func (conf *MatrixConfig) Geometry() (width, height int) {
@@ -145,106 +171,40 @@ type UploadEvent struct {
 	leds []color.Color
 }
 
-func BuildMatrix(config *MatrixConfig) (m Matrix, err error) {
-	if config.Emulator == true {
-		return NewMatrixEmulator(config)
-	} else {
-		//return NewMatrixEmulator(config)
-		return NewRGBLedMatrix(config)
-	}
-}
-
-func Run(matrixCreator func(config *MatrixConfig) (Matrix, error), gameloop func(c *Canvas, done chan struct{})) {
-	RunMany([]func(config *MatrixConfig) (Matrix, error){matrixCreator}, gameloop)
-}
-
-func RunMany(matrixCreators []func(config *MatrixConfig) (Matrix, error), gameloop func(c *Canvas, done chan struct{})) {
+func Run(gameloop func(c *Canvas, done chan struct{})) {
 	fmt.Println("Running...")
-
-	config := ReadConfigFlags()
-
-	if len(matrixCreators) == 0 {
-		log.Fatal("No matrix defined !")
+	config, err := ReadConfigFlags()
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	canvas := NewCanvas(config)
-	var w, h *int
-	for _, matrixCreator := range matrixCreators {
-		matrix, err := matrixCreator(config)
-
-		if err != nil {
-			log.Fatal(err)
-		}
-		width, height := matrix.Geometry()
-		err = validateGeometry(width, height, w, h)
-		if err != nil {
-			log.Fatal(err)
-		}
-		(*canvas).register(matrix)
+	matrix, err := BuildMatrix(config)
+	if err != nil {
+		log.Fatal(err)
 	}
-
-	done := make(chan struct{})
+	canvas := NewCanvas(config, &matrix)
 	defer (*canvas).Close()
 
-	// run all matrices (UI is run on main thread)
-	mainMatrix, otherMatrices := SplitMatrices((*canvas).GetMatrices())
-	for _, otherMatrix := range otherMatrices {
-		fmt.Println("go matrix.MainThread()")
-		go (*otherMatrix).MainThread(canvas, done)
-	}
-
+	done := make(chan struct{})
 	// Starting game loop on a separate routine
-	go gameLoop(gameloop, canvas, done)
+	go run(func(c *Canvas, done chan struct{}) {
+		if config.Server {
+			Serve(&matrix)
+		} else {
+			gameloop(c, done)
+		}
+	}, canvas, done)
 
 	fmt.Println("matrix.MainThread()")
-	(*mainMatrix).MainThread(canvas, done)
+	matrix.MainThread(canvas, done)
 }
-
-func gameLoop(gameloop func(c *Canvas, done chan struct{}), canvas *Canvas, done chan struct{}) {
+func run(gameloop func(c *Canvas, done chan struct{}), canvas *Canvas, done chan struct{}) {
 	func() {
 		// avoid drawing to early as emulator might not be ready, eventually fixed
-		<-time.After(1000 * time.Millisecond)
+		<-time.After(100 * time.Millisecond)
 
 		fmt.Println("Gameloop STARTED")
 		gameloop(canvas, done)
 		fmt.Println("Gameloop END")
 		done <- struct{}{}
 	}()
-}
-
-func SplitMatrices(ms *[]Matrix) (mainMatrix *Matrix, others []*Matrix) {
-	for _, matrix := range *ms {
-		if matrix.IsEmulator() {
-			mainMatrix = &matrix
-		} else {
-			others = append(others, &matrix)
-		}
-	}
-	if mainMatrix == nil {
-		if len(others) > 0 {
-			mainMatrix = others[0]
-		}
-		if len(others) >= 2 {
-			others = others[(1):]
-		}
-	}
-	return mainMatrix, others
-}
-
-func validateGeometry(width, height int, w, h *int) error {
-	if w == nil {
-		w = &width
-	} else {
-		if *w != width {
-			return errors.New("Incorrect WIDTH detected between matrices ")
-		}
-	}
-	if h == nil {
-		h = &height
-	} else {
-		if *h != height {
-			return errors.New("Incorrect HEIGHT detected between matrices ")
-		}
-	}
-	return nil
 }

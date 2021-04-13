@@ -39,8 +39,6 @@ import (
 	"fmt"
 	"github.com/gosuri/uilive"
 	"image/color"
-	"strconv"
-	"time"
 	"unsafe"
 )
 
@@ -80,12 +78,10 @@ func (c *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
 // MatrixHardware matrix representation for ws281x
 type MatrixHardware struct {
 	config *MatrixConfig
-
 	height int
 	width  int
 	matrix *C.struct_RGBLedMatrix
 	buffer *C.struct_LedCanvas
-	//leds   []C.uint32_t
 	writer uilive.Writer
 }
 
@@ -110,7 +106,6 @@ func NewRGBLedMatrix(config *MatrixConfig) (c Matrix, err error) {
 		width:  w, height: h,
 		matrix: m,
 		buffer: b,
-		//leds:   make([]C.uint32_t, w*h),
 		writer: *writer,
 	}
 	if m == nil {
@@ -136,7 +131,7 @@ func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
 
 // Render update the display with the data from the LED buffer
 func (m *MatrixHardware) Render(canvas *Canvas) error {
-	start := time.Now()
+	//start := time.Now()
 	canvasSize := (*canvas).Bounds().Max
 	leds := make([]C.uint32_t, canvasSize.X*canvasSize.Y)
 	for i, led := range *(*canvas).GetLeds() {
@@ -144,23 +139,21 @@ func (m *MatrixHardware) Render(canvas *Canvas) error {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
 	}
-	copyDuration := time.Now().Sub(start)
+	//copyDuration := time.Now().Sub(start)
 
-	start = time.Now()
+	//start = time.Now()
 	C.led_matrix_swap(
 		m.matrix,
 		m.buffer,
 		C.int(canvasSize.X), C.int(canvasSize.Y),
 		(*C.uint32_t)(unsafe.Pointer(&leds[0])),
 	)
-	swapDuration := time.Now().Sub(start)
+	//swapDuration := time.Now().Sub(start)
 
 	//_, _ = fmt.Fprintf(
 	//m.writer.Newline(),
 	//"copy: "+strconv.FormatInt(copyDuration.Milliseconds(), 10)+" ms - " +
 	//	"swap: "+strconv.FormatInt(swapDuration.Milliseconds(), 10)+" ms\n")
-	fmt.Println("copy: " + strconv.FormatInt(copyDuration.Milliseconds(), 10) + " ms - " +
-		"swap: " + strconv.FormatInt(swapDuration.Milliseconds(), 10) + " ms")
 
 	return nil
 }
@@ -188,8 +181,4 @@ func (m *MatrixHardware) MainThread(_ *Canvas, done chan struct{}) {
 }
 
 func (m *MatrixHardware) Send(_ interface{}) {
-}
-
-func (m *MatrixHardware) IsEmulator() bool {
-	return false
 }

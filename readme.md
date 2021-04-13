@@ -197,6 +197,7 @@ $ file bin/64/usr/bin/goledmatrix
 ```sh
 $ docker ps
 $ docker stop CONTAINER
-$ docker run --rm gabz57/goledmatrix:rpi64
-$ docker rmi gabz57/goledmatrix:rpi64 && docker run --privileged --rm gabz57/goledmatrix:rpi64
+$ docker rmi gabz57/goledmatrix:rpi64
+$ docker run --rm --privileged gabz57/goledmatrix:rpi64
+$ docker run --rm --privileged -e MATRIX_SERVER=1 -p 8080 gabz57/goledmatrix:rpi64
 ```

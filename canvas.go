@@ -13,7 +13,6 @@ import (
 // image.Image interface and can be used with draw.Draw for example
 type Canvas interface {
 	draw.Image
-	register(matrix Matrix)
 	Set(x, y int, ledColor color.Color)
 	DrawLabel(x, y int, label string, ledColor color.Color, face font.Face)
 	Render() error
@@ -21,17 +20,12 @@ type Canvas interface {
 	Close() error
 	position(x, y int) int
 	GetLeds() *[]color.Color
-	GetMatrices() *[]Matrix
 }
 
 type CanvasImpl struct {
-	w, h     int
-	matrices []Matrix
-	leds     []color.Color
-}
-
-func (c *CanvasImpl) GetMatrices() *[]Matrix {
-	return &c.matrices
+	w, h   int
+	matrix *Matrix
+	leds   []color.Color
 }
 
 type Pixel struct {
@@ -67,19 +61,20 @@ func (p Point) AddXY(x, y int) Point {
 		Y: p.Y + y,
 	}
 }
-func NewCanvas(config *MatrixConfig) *Canvas {
+func NewCanvas(config *MatrixConfig, m *Matrix) *Canvas {
 	w, h := config.Geometry()
 	var canvas Canvas
 	canvas = &CanvasImpl{
-		w:    w,
-		h:    h,
-		leds: make([]color.Color, w*h),
+		w:      w,
+		h:      h,
+		leds:   make([]color.Color, w*h),
+		matrix: m,
 	}
 	return &canvas
 }
 
-func (c *CanvasImpl) register(matrix Matrix) {
-	c.matrices = append(c.matrices, matrix)
+func (c *CanvasImpl) register(matrix *Matrix) {
+	c.matrix = matrix
 	fmt.Println("Registered matrix !")
 }
 
@@ -136,11 +131,9 @@ func (tc *textCanvas) At(x, y int) color.Color {
 func (c *CanvasImpl) Render() error {
 	var canvas Canvas
 	canvas = c
-	for _, m := range c.matrices {
-		err := m.RenderMethod(&canvas)
-		if err != nil {
-			return err
-		}
+	err := (*c.matrix).RenderMethod(&canvas)
+	if err != nil {
+		return err
 	}
 	return nil
 }
@@ -150,18 +143,16 @@ func (c *CanvasImpl) Clear() {
 	c.leds = make([]color.Color, c.w*c.h)
 }
 
-// Close clears the canvas and closes all the matrices
+// Close clears the canvas and closes all the matrix
 func (c *CanvasImpl) Close() error {
 	c.Clear()
 	err := c.Render()
 	if err != nil {
 		//return err
 	}
-	for _, m := range c.matrices {
-		err = m.Close()
-		if err != nil {
-			return err
-		}
+	err = (*c.matrix).Close()
+	if err != nil {
+		return err
 	}
 	return err
 }

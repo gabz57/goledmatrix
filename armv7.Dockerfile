@@ -1,4 +1,4 @@
-###############
+############### @DEPRECATED: I switched to arm64 on my Rpi3B+
 # Build stage for linux/arm/v7 platform
 FROM --platform=${BUILDPLATFORM} dockcross/linux-armv7 AS builder
 
@@ -10,7 +10,10 @@ ENV GOROOT /usr/local/go
 ENV GOPATH $HOME/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
 
-ADD . /go/src/github.com/gabz57/goledmatrix
+COPY ./. /go/src/github.com/gabz57/goledmatrix
+# overwrite BuildMatrix method with Hardware binding
+COPY ./matrix_rpi /go/src/github.com/gabz57/goledmatrix/matrix_rpi.go
+COPY ./matrix_builder_rpi /go/src/github.com/gabz57/goledmatrix/matrix_builder.go
 
 ## To drive hardware matrix via GPIO on RPi
 ## fetch origial C library via Git submodule & build it
@@ -27,19 +30,13 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 ###############
 # Running stage
 FROM arm32v7/python:3.9.2-slim-buster AS bin
-RUN apt-get update \
- && apt-get install -y sudo
-
-#RUN adduser --disabled-password --gecos '' docker
-#RUN adduser docker sudo
-#RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN pip3 install gpiozero
-## TODO ? COPY --from=builder # compiled C library
-COPY --from=builder /out/example /usr/bin/goledmatrix
 COPY ./fonts /usr/bin/fonts
 COPY ./resetmatrix.py .
-
 COPY ./entrypoint.sh .
 
-#USER docker
 ENTRYPOINT ["/bin/bash", "/entrypoint.sh"]
+
+EXPOSE 8080
+
+COPY --from=builder /out/example /usr/bin/goledmatrix
