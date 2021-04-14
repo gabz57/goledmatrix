@@ -61,6 +61,21 @@ func (p Point) AddXY(x, y int) Point {
 		Y: p.Y + y,
 	}
 }
+
+func (fp FloatingPoint) Add(other FloatingPoint) FloatingPoint {
+	return FloatingPoint{
+		X: fp.X + other.X,
+		Y: fp.Y + other.Y,
+	}
+}
+
+func (fp FloatingPoint) AddXY(x, y float64) FloatingPoint {
+	return FloatingPoint{
+		X: fp.X + x,
+		Y: fp.Y + y,
+	}
+}
+
 func NewCanvas(config *MatrixConfig, m *Matrix) *Canvas {
 	w, h := config.Geometry()
 	var canvas Canvas

@@ -20,8 +20,8 @@ func NewEngine(canvas *goledmatrix.Canvas, components []*Component) Engine {
 	}
 }
 
-const FrameDurationInNanos = 33333333 // 30 FPS approximated in nanos
-const UpdateDurationInNanos = 10000000
+const FrameDurationInNanos = 33333333  // 30 FPS approximated in nanos
+const UpdateDurationInNanos = 10000000 // 100 updates per second (to maintain physics & time), independent from FPS
 const UpdateDuration = time.Duration(UpdateDurationInNanos)
 
 func (e *Engine) Run(done chan struct{}) {

@@ -61,6 +61,16 @@ func Rotate(p, o Point, degrees float64) Point {
 	}
 }
 
+func RotateOrigin(fp FloatingPoint, degrees float64) FloatingPoint {
+	rad := degToRad(degrees)
+	cos := math.Cos(rad)
+	sin := math.Sin(rad)
+	return FloatingPoint{
+		X: cos*(fp.X) - sin*(fp.Y),
+		Y: sin*(fp.X) + cos*(fp.Y),
+	}
+}
+
 func degToRad(x float64) float64 {
 	return (x / 180) * math.Pi
 }

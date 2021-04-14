@@ -1,38 +1,38 @@
 package impl
 
 import (
-	"github.com/gabz57/goledmatrix"
-	"github.com/gabz57/goledmatrix/components"
+	. "github.com/gabz57/goledmatrix"
+	. "github.com/gabz57/goledmatrix/components"
 	"math/rand"
 	"time"
 )
 
-func Gameloop(c *goledmatrix.Canvas, done chan struct{}) {
-	clock := clockComponent(*c)
-	//movingDot := movingDotComponent(*c)
+func Gameloop(c *Canvas, done chan struct{}) {
 	octoLogo := octoLogoComponent(*c)
+	//clock := clockComponent(*c)
+	movingDot := movingDotComponent(*c)
 	//heart := heartComponent(*c)
-	hearts := heartsComponent(*c)
+	//hearts := heartsComponent(*c)
 	info := infoComponent(*c)
-	engine := components.NewEngine(c, []*components.Component{
+	engine := NewEngine(c, []*Component{
 		&octoLogo,
-		&clock,
-		//&movingDot,
+		//&clock,
+		&movingDot,
 		//&heart,
-		&hearts,
+		//&hearts,
 		&info,
 	})
 	engine.Run(done)
 }
 
-func infoComponent(c goledmatrix.Canvas) components.Component {
+func infoComponent(c Canvas) Component {
 	return NewInfo(c)
 }
 
-func heartComponent(c goledmatrix.Canvas) components.Component {
+func heartComponent(c Canvas) Component {
 	return NewHeart(
 		c,
-		goledmatrix.Point{
+		Point{
 			X: c.Bounds().Max.X / 5,
 			Y: c.Bounds().Max.Y / 2,
 		},
@@ -41,14 +41,14 @@ func heartComponent(c goledmatrix.Canvas) components.Component {
 		false)
 }
 
-func heartsComponent(c goledmatrix.Canvas) components.Component {
-	return NewHearts(c, goledmatrix.Point{}, 10)
+func heartsComponent(c Canvas) Component {
+	return NewHearts(c, Point{}, 10)
 }
 
-func clockComponent(c goledmatrix.Canvas) components.Component {
+func clockComponent(c Canvas) Component {
 	return NewClock(
 		c,
-		goledmatrix.Point{
+		Point{
 			X: c.Bounds().Max.X / 2,
 			Y: c.Bounds().Max.Y / 2,
 		},
@@ -56,22 +56,25 @@ func clockComponent(c goledmatrix.Canvas) components.Component {
 	)
 }
 
-func movingDotComponent(c goledmatrix.Canvas) components.Component {
+func movingDotComponent(c Canvas) Component {
 	return NewMovingDot(
 		c,
-		goledmatrix.Point{
+		Point{
 			X: 0,
 			Y: 0,
 		},
-		25,
+		FloatingPoint{
+			X: 25,
+			Y: 25,
+		},
 		c.Bounds(),
 	)
 }
 
-func octoLogoComponent(c goledmatrix.Canvas) components.Component {
+func octoLogoComponent(c Canvas) Component {
 	return NewOctoLogo(
 		c,
-		goledmatrix.Point{
+		Point{
 			X: c.Bounds().Max.X / 2,
 			Y: c.Bounds().Max.Y / 2,
 		},
