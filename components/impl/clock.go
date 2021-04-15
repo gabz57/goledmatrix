@@ -23,8 +23,6 @@ type Clock struct {
 	location          *time.Location
 }
 
-var clockGraphic = NewGraphic(nil, nil)
-
 func NewClock(canvas Canvas, center Point, radius int) Component {
 	location, _ := time.LoadLocation("Europe/Paris")
 	var mask Canvas
@@ -34,7 +32,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 		now:      time.Now(),
 		center:   center,
 		radius:   radius,
-		shape:    NewCompositeDrawable(clockGraphic),
+		shape:    NewCompositeDrawable(NewGraphic(nil, nil)),
 		location: location,
 	}
 
@@ -121,23 +119,20 @@ func angleDegreesSecond(sec int, now time.Time) float64 {
 }
 
 func (c *Clock) buildStaticText(position Point, txt string) *Drawable {
-	graphic := NewGraphic(c.shape.Graphic, nil)
 	var circle Drawable
-	circle = shapes.NewText(&graphic, position, txt, fonts.Bdf4x6)
+	circle = shapes.NewText(NewGraphic(c.shape.Graphic, nil), position, txt, fonts.Bdf4x6)
 	return &circle
 }
 
 func (c *Clock) buildStaticContourCircle() *Drawable {
-	graphic := NewGraphic(c.shape.Graphic, nil)
 	var circle Drawable
-	circle = shapes.NewCircle(&graphic, c.center, c.radius, false)
+	circle = shapes.NewCircle(NewGraphic(c.shape.Graphic, nil), c.center, c.radius, false)
 	return &circle
 }
 
 func (c *Clock) buildStaticCenter() *Drawable {
-	graphic := NewGraphic(c.shape.Graphic, nil)
 	var dot Drawable
-	dot = shapes.NewDot(&graphic, c.center)
+	dot = shapes.NewDot(NewGraphic(c.shape.Graphic, nil), c.center)
 	return &dot
 }
 
@@ -150,9 +145,9 @@ func (c *Clock) buildStaticHours() []*Drawable {
 }
 
 func (c *Clock) buildStaticHour(hour int) *Drawable {
-	graphic := NewGraphic(c.shape.Graphic, nil)
 	var line Drawable
-	line = shapes.NewLine(&graphic,
+	line = shapes.NewLine(
+		NewGraphic(c.shape.Graphic, nil),
 		Rotate(Point{
 			X: c.center.X,
 			Y: c.center.Y - c.radius + 5,
@@ -174,9 +169,9 @@ func (c *Clock) buildStaticMinutes() []*Drawable {
 }
 
 func (c *Clock) buildStaticMinute(center Point, radius int, minute int) *Drawable {
-	graphic := NewGraphic(c.shape.Graphic, nil)
 	var dot Drawable
-	dot = shapes.NewDot(&graphic,
+	dot = shapes.NewDot(
+		NewGraphic(c.shape.Graphic, nil),
 		Rotate(Point{
 			X: center.X,
 			Y: center.Y - radius + 2,
@@ -186,38 +181,38 @@ func (c *Clock) buildStaticMinute(center Point, radius int, minute int) *Drawabl
 }
 
 func (c *Clock) buildRotatingHour(hour, min int) *shapes.Line {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorBlue, nil))
-	return shapes.NewLine(&graphic,
+	return shapes.NewLine(
+		NewGraphic(c.shape.Graphic, NewLayout(ColorBlue, nil)),
 		c.center,
 		c.hourLineEnd(angleDegreesHour(hour, min)),
 	)
 }
 
 func (c *Clock) buildRotatingHourDot(hour, min int) *shapes.Dot {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
-	return shapes.NewDot(&graphic,
+	return shapes.NewDot(
+		NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil)),
 		c.hourLineEnd(angleDegreesHour(hour, min)),
 	)
 }
 
 func (c *Clock) buildRotatingMinute(min, sec int) *shapes.Line {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(color.White, nil))
-	return shapes.NewLine(&graphic,
+	return shapes.NewLine(
+		NewGraphic(c.shape.Graphic, NewLayout(color.White, nil)),
 		c.center,
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 }
 
 func (c *Clock) buildRotatingMinuteDot(min, sec int) *shapes.Dot {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
-	return shapes.NewDot(&graphic,
+	return shapes.NewDot(
+		NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil)),
 		c.minuteLineEnd(angleDegreesMinute(min, sec)),
 	)
 }
 
 func (c *Clock) buildRotatingSecond(sec int) *shapes.Dot {
-	graphic := NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil))
-	return shapes.NewDot(&graphic,
+	return shapes.NewDot(
+		NewGraphic(c.shape.Graphic, NewLayout(ColorRed, nil)),
 		c.secondDotPosition(angleDegreesSecond(sec, c.now)),
 	)
 }

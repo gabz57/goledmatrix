@@ -23,15 +23,15 @@ type Heart struct {
 	step         float64
 }
 
-func NewHeart(canvas Canvas, origin Point, fadeDuration time.Duration, initialFade float64, initialFadeOut bool) *Heart {
-	var heartGraphic = NewOffsetGraphic(nil, nil, origin)
+func NewHeart(canvas Canvas, parent *Graphic, initialPosition Point, fadeDuration time.Duration, initialFade float64, initialFadeOut bool) *Heart {
+	var heartGraphic = NewOffsetGraphic(parent, nil, initialPosition)
 	heart := Heart{
 		shape:        NewCompositeDrawable(heartGraphic),
 		fade:         initialFade,
 		fadeOut:      initialFadeOut,
 		fadeDuration: fadeDuration,
 		mask:         NewColorFaderMask(canvas),
-		heart:        buildHeart(&heartGraphic),
+		heart:        shapes.NewFree(heartGraphic, heartPixels()),
 	}
 
 	var drawableHeart Drawable
@@ -40,13 +40,10 @@ func NewHeart(canvas Canvas, origin Point, fadeDuration time.Duration, initialFa
 	heart.shape.AddDrawable(Masked(
 		heart.mask,
 		&drawableHeart))
+	// to avoid flash on first rendering
+	heart.Update(0)
 
 	return &heart
-}
-
-func buildHeart(g *Graphic) *shapes.Free {
-	graphic := NewGraphic(g, NewLayout(nil, nil))
-	return shapes.NewFree(&graphic, heartPixels())
 }
 
 func (h *Heart) Update(elapsedBetweenUpdate time.Duration) {
@@ -55,7 +52,7 @@ func (h *Heart) Update(elapsedBetweenUpdate time.Duration) {
 	h.mask.SetFade(h.fade)
 }
 
-func (h *Heart) IsAppearing() bool {
+func (h *Heart) IsFaded() bool {
 	// we cannot compare with 1 as fade is a float, we minor the value by 1 step
 	return h.fadeOut && h.fade >= (1-h.step)
 }
@@ -83,6 +80,14 @@ func nextFadeValue(loop bool, fadeOut bool, fade float64, diff float64) (float64
 
 func (h Heart) Draw(canvas Canvas) error {
 	return h.shape.Draw(canvas)
+}
+
+func (h *Heart) GetPosition() Point {
+	return h.heart.Graphic.ComputedOffset()
+}
+
+func (h *Heart) SetPosition(point Point) {
+	h.heart.Graphic.SetOffset(point)
 }
 
 var pink color.Color = color.RGBA{R: 218, G: 50, B: 166, A: 0xff}

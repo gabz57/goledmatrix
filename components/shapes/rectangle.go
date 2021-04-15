@@ -11,18 +11,12 @@ type Rectangle struct {
 	fill     bool
 }
 
-func NewRectangle(graphic *Graphic, position Point, width, height int, fill bool) *Rectangle {
+func NewRectangle(graphic *Graphic, position Point, dimensions Point, fill bool) *Rectangle {
 	return &Rectangle{
 		Graphic: graphic,
-		min: Point{
-			X: position.X,
-			Y: position.Y,
-		},
-		max: Point{
-			X: position.X + width,
-			Y: position.Y + height,
-		},
-		fill: fill,
+		min:     position,
+		max:     position.Add(dimensions),
+		fill:    fill,
 	}
 }
 

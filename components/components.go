@@ -27,9 +27,9 @@ type CompositeDrawable struct {
 	Drawables []*Drawable
 }
 
-func NewCompositeDrawable(g Graphic) *CompositeDrawable {
+func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
 	return &CompositeDrawable{
-		Graphic:   &g,
+		Graphic:   graphic,
 		Drawables: []*Drawable{},
 	}
 }
@@ -92,6 +92,10 @@ func (g *Graphic) ComputedOffset() Point {
 		return g.parent.ComputedOffset().Add(g.offset)
 	}
 	return g.offset
+}
+
+func (g *Graphic) SetOffset(offset Point) {
+	g.offset = offset
 }
 
 func Masked(mask Canvas, drawable *Drawable) *Drawable {

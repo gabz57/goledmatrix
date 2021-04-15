@@ -8,15 +8,31 @@ import (
 	"time"
 )
 
-type Engine struct {
-	canvas     *goledmatrix.Canvas
-	components []*Component
+type (
+	Engine struct {
+		canvas                 *goledmatrix.Canvas
+		scenes                 []*Scene
+		activeScene            *Scene
+		elapsedSinceSceneStart time.Duration
+	}
+	Scene struct {
+		components []*Component
+		duration   time.Duration
+	}
+)
+
+func NewScene(component []*Component, duration time.Duration) *Scene {
+	return &Scene{
+		components: component,
+		duration:   duration,
+	}
 }
 
-func NewEngine(canvas *goledmatrix.Canvas, components []*Component) Engine {
+func NewEngine(canvas *goledmatrix.Canvas, scenes []*Scene) Engine {
 	return Engine{
-		canvas:     canvas,
-		components: components,
+		canvas:      canvas,
+		scenes:      scenes,
+		activeScene: scenes[0],
 	}
 }
 
@@ -51,12 +67,15 @@ LOOP:
 		previous = current
 		lag += elapsed
 
+		if e.elapsedSinceSceneStart > e.activeScene.duration {
+			e.runNextScene()
+		}
 		// using lag to catch up missing updates when UI renders to slow
 		for lag >= UpdateDuration {
 			e.updateGame(UpdateDuration)
 			updateCounter.Incr(1)
 			lag -= UpdateDuration
-
+			e.elapsedSinceSceneStart += UpdateDuration
 			select {
 			case <-time.After(UpdateDurationInNanos - time.Now().Sub(current)):
 			}
@@ -76,7 +95,7 @@ func (e *Engine) processInput() {
 }
 
 func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) {
-	for _, component := range e.components {
+	for _, component := range e.activeScene.components {
 		(*component).Update(elapsedBetweenUpdate)
 	}
 }
@@ -84,7 +103,7 @@ func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) {
 // Draw the components into the canvas and renders its content
 func (e *Engine) render() error {
 	(*e.canvas).Clear()
-	for _, component := range e.components {
+	for _, component := range e.activeScene.components {
 		err := (*component).Draw(*e.canvas)
 		if err != nil {
 			return err
@@ -92,4 +111,14 @@ func (e *Engine) render() error {
 	}
 	err := (*e.canvas).Render()
 	return err
+}
+
+func (e *Engine) runNextScene() {
+	for i, scene := range e.scenes {
+		if scene == e.activeScene {
+			e.activeScene = e.scenes[(i+1)%len(e.scenes)]
+			e.elapsedSinceSceneStart = 0
+			break
+		}
+	}
 }

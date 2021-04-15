@@ -91,22 +91,22 @@ func (i *Info) updateTxt() string {
 }
 
 func (i *Info) buildTimeText() *shapes.Text {
-	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
-	return shapes.NewText(&graphic,
+	return shapes.NewText(
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
 		Point{
-			X: 0,
-			Y: -1,
+			X: 1,
+			Y: 0,
 		},
 		TimeToText(i.now),
 		fonts.Bdf4x6,
 	)
 }
 func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
-	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
-	return shapes.NewText(&graphic,
+	return shapes.NewText(
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
 		Point{
 			X: c.Bounds().Max.X - 35,
-			Y: c.Bounds().Max.Y - 10,
+			Y: c.Bounds().Max.Y - 7,
 		},
 		i.updateTxt(),
 		fonts.Bdf4x6,
@@ -114,11 +114,11 @@ func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
 }
 
 func (i *Info) buildFPSText(c Canvas) *shapes.Text {
-	graphic := NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil))
-	return shapes.NewText(&graphic,
+	return shapes.NewText(
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
 		Point{
 			X: 0,
-			Y: c.Bounds().Max.Y - 6,
+			Y: c.Bounds().Max.Y - 7,
 		},
 		i.fpsTxt(),
 		fonts.Bdf4x6,

@@ -56,22 +56,35 @@ func (o *OctoLogo) Draw(canvas Canvas) error {
 }
 
 func (o *OctoLogo) buildRing() *Drawable {
-	graphic := NewGraphic(o.shape.Graphic, NewLayout(darkBlue, nil))
 	var ring Drawable
-	ring = shapes.NewRing(&graphic, o.center, o.radiusExt, o.radiusInt, true)
+	ring = shapes.NewRing(
+		NewGraphic(o.shape.Graphic, NewLayout(darkBlue, nil)),
+		o.center,
+		o.radiusExt,
+		o.radiusInt,
+		true,
+	)
 	return &ring
 }
 
 func (o *OctoLogo) buildEyeIn() *Drawable {
-	graphic := NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil))
 	var eye Drawable
-	eye = shapes.NewCircle(&graphic, o.center.AddXY(int(float64(o.radiusExt)/3), -int(float64(o.radiusExt)/3)), o.radiusEye, true)
+	eye = shapes.NewCircle(
+		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
+		o.center.AddXY(int(float64(o.radiusExt)/3), -int(float64(o.radiusExt)/3)),
+		o.radiusEye,
+		true,
+	)
 	return &eye
 }
 
 func (o *OctoLogo) buildEyeOut() *Drawable {
-	graphic := NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil))
 	var eye Drawable
-	eye = shapes.NewCircle(&graphic, o.center.AddXY(o.radiusExt-o.radiusEye, -(o.radiusExt-o.radiusEye)), o.radiusEye, true)
+	eye = shapes.NewCircle(
+		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
+		o.center.AddXY(o.radiusExt-o.radiusEye, -(o.radiusExt-o.radiusEye)),
+		o.radiusEye,
+		true,
+	)
 	return &eye
 }

@@ -8,30 +8,32 @@ import (
 )
 
 func Gameloop(c *Canvas, done chan struct{}) {
-	octoLogo := octoLogoComponent(*c)
-	//clock := clockComponent(*c)
-	movingDot := movingDotComponent(*c)
-	//heart := heartComponent(*c)
-	//hearts := heartsComponent(*c)
-	info := infoComponent(*c)
-	engine := NewEngine(c, []*Component{
-		&octoLogo,
-		//&clock,
-		&movingDot,
-		//&heart,
-		//&hearts,
-		&info,
+	infoCpnt := infoComponent(*c)
+	sceneDuration := 12 * time.Second
+	engine := NewEngine(c, []*Scene{
+		NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, heartComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, heartsComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
 }
 
-func infoComponent(c Canvas) Component {
-	return NewInfo(c)
+func infoComponent(c Canvas) *Component {
+	var component Component
+	component = NewInfo(c)
+	return &component
 }
 
-func heartComponent(c Canvas) Component {
-	return NewHeart(
+func heartComponent(c Canvas) *Component {
+	var component Component
+	component = NewHeart(
 		c,
+		nil,
 		Point{
 			X: c.Bounds().Max.X / 5,
 			Y: c.Bounds().Max.Y / 2,
@@ -39,14 +41,30 @@ func heartComponent(c Canvas) Component {
 		time.Duration(rand.Int63n(5000))*time.Millisecond,
 		rand.Float64(),
 		false)
+	return &component
 }
 
-func heartsComponent(c Canvas) Component {
-	return NewHearts(c, Point{}, 10)
+func heartsComponent(c Canvas) *Component {
+	var component Component
+	component = NewHearts(c, Point{}, 10)
+	return &component
 }
 
-func clockComponent(c Canvas) Component {
-	return NewClock(
+func happyBirthdayComponent(c Canvas) *Component {
+	var component Component
+	component = NewHappyBirthday(c)
+	return &component
+}
+
+func movingHeartsComponent(c Canvas) *Component {
+	var component Component
+	component = NewMovingHearts(c, Point{}, 10)
+	return &component
+}
+
+func clockComponent(c Canvas) *Component {
+	var component Component
+	component = NewClock(
 		c,
 		Point{
 			X: c.Bounds().Max.X / 2,
@@ -54,25 +72,29 @@ func clockComponent(c Canvas) Component {
 		},
 		(c.Bounds().Max.X-10)/2,
 	)
+	return &component
 }
 
-func movingDotComponent(c Canvas) Component {
-	return NewMovingDot(
+func movingDotComponent(c Canvas) *Component {
+	var component Component
+	component = NewMovingDot(
 		c,
 		Point{
-			X: 0,
-			Y: 0,
+			X: rand.Intn(64),
+			Y: rand.Intn(64),
 		},
 		FloatingPoint{
-			X: 25,
-			Y: 25,
+			X: Float64Between(32, 64),
+			Y: Float64Between(32, 64),
 		},
 		c.Bounds(),
 	)
+	return &component
 }
 
-func octoLogoComponent(c Canvas) Component {
-	return NewOctoLogo(
+func octoLogoComponent(c Canvas) *Component {
+	var component Component
+	component = NewOctoLogo(
 		c,
 		Point{
 			X: c.Bounds().Max.X / 2,
@@ -80,4 +102,5 @@ func octoLogoComponent(c Canvas) Component {
 		},
 		20,
 	)
+	return &component
 }
