@@ -56,8 +56,7 @@ func (o *OctoLogo) Draw(canvas Canvas) error {
 }
 
 func (o *OctoLogo) buildRing() *Drawable {
-	var ring Drawable
-	ring = shapes.NewRing(
+	var ring Drawable = shapes.NewRing(
 		NewGraphic(o.shape.Graphic, NewLayout(darkBlue, nil)),
 		o.center,
 		o.radiusExt,
@@ -68,8 +67,7 @@ func (o *OctoLogo) buildRing() *Drawable {
 }
 
 func (o *OctoLogo) buildEyeIn() *Drawable {
-	var eye Drawable
-	eye = shapes.NewCircle(
+	var eye Drawable = shapes.NewCircle(
 		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
 		o.center.AddXY(int(float64(o.radiusExt)/3), -int(float64(o.radiusExt)/3)),
 		o.radiusEye,
@@ -79,8 +77,7 @@ func (o *OctoLogo) buildEyeIn() *Drawable {
 }
 
 func (o *OctoLogo) buildEyeOut() *Drawable {
-	var eye Drawable
-	eye = shapes.NewCircle(
+	var eye Drawable = shapes.NewCircle(
 		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
 		o.center.AddXY(o.radiusExt-o.radiusEye, -(o.radiusExt-o.radiusEye)),
 		o.radiusEye,

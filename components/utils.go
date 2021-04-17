@@ -2,10 +2,16 @@ package components
 
 import (
 	"fmt"
+	"github.com/anthonynsimon/bild/transform"
 	. "github.com/gabz57/goledmatrix"
+	"image"
 	"image/color"
+	"image/draw"
+	"image/gif"
 	"math"
 	"math/rand"
+	"os"
+	"strconv"
 	"time"
 )
 
@@ -124,4 +130,98 @@ func OneOrMinusOne() float64 {
 		return -1
 	}
 	return 1
+}
+
+func ReadGif(imgPath *string, targetSize Point) (*[]image.Image, *[]time.Duration, *image.Rectangle) {
+
+	f, err := os.Open(*imgPath)
+	if err != nil {
+		panic(err)
+	}
+
+	g, err := gif.DecodeAll(f)
+	if err != nil {
+		panic(err)
+	}
+
+	durations := make([]time.Duration, len(g.Delay))
+	images := make([]image.Image, len(g.Image))
+	firstImage := g.Image[0]
+	adjTargetSize, _ := computeTargetSize(firstImage, targetSize)
+	images[0] = transform.Resize(firstImage, adjTargetSize.X, adjTargetSize.Y, transform.Linear)
+	durations[0] = time.Millisecond * time.Duration(g.Delay[0]) * 10
+	//writeBean(0, images)
+	img := firstImage
+	for i, nextImage := range g.Image {
+		if i == 0 {
+			continue
+		}
+
+		if firstImage.Rect != nextImage.Rect {
+			// Replace only a specific part of the gif
+			draw.Draw(img, img.Rect, nextImage, image.Point{}, draw.Over)
+		} else {
+			// Replace the whole image
+			img = nextImage
+		}
+		images[i] = transform.Resize(img, adjTargetSize.X, adjTargetSize.Y, transform.Linear)
+		//writeBean(i, images)
+		durations[i] = time.Millisecond * time.Duration(g.Delay[i]) * 10
+	}
+
+	return &images, &durations, &image.Rectangle{
+		Min: image.Point{},
+		Max: image.Point(targetSize),
+	}
+}
+
+func writeBean(i int, images []image.Image) {
+	myfile, err := os.Create("img/bean" + strconv.Itoa(i) + ".gif") // ... now lets save imag
+	if err != nil {
+		panic(err)
+	}
+	err = gif.Encode(myfile, images[i], nil)
+	if err != nil {
+		panic(err)
+	}
+}
+func ReadBeanGif() (*[]image.Image, *[]time.Duration, *image.Rectangle) {
+	durations := make([]time.Duration, 12)
+	images := make([]image.Image, 12)
+	for i := 0; i <= 11; i++ {
+		f, err := os.Open("img/bean" + strconv.Itoa(i) + ".gif")
+		if err != nil {
+			panic(err)
+		}
+
+		g, err := gif.DecodeAll(f)
+		if err != nil {
+			panic(err)
+		}
+
+		images[i] = g.Image[0]
+		durations[i] = 100 * time.Millisecond
+	}
+
+	return &images, &durations, &image.Rectangle{
+		Min: image.Point{},
+		Max: image.Point{X: 128, Y: 128},
+	}
+}
+
+// scale image to fit both target width and height
+func computeTargetSize(image *image.Paletted, targetSize Point) (Point, float64) {
+	originFullSize := image.Rect
+	originalMaxSize := originFullSize.Max
+	ratioX := float64(targetSize.X) / float64(originalMaxSize.X)
+	ratioY := float64(targetSize.Y) / float64(originalMaxSize.Y)
+	ratio := ratioX
+	if ratioX > ratioY {
+		ratio = ratioY
+	}
+	adjTargetSize := Point{
+		X: int(float64(originalMaxSize.X) * ratio),
+		Y: int(float64(originalMaxSize.Y) * ratio),
+	}
+	return adjTargetSize, ratio
 }

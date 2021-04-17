@@ -33,12 +33,8 @@ func NewHeartRed(canvas Canvas, parent *Graphic, initialPosition Point, fadeDura
 		heart:        shapes.NewFree(heartGraphic, redHeartPixels()),
 	}
 
-	var drawableHeartRed Drawable
-	drawableHeartRed = heart.heart
-
-	heart.shape.AddDrawable(Masked(
-		heart.mask,
-		&drawableHeartRed))
+	var drawableHeartRed Drawable = heart.heart
+	heart.shape.AddDrawable(Masked(heart.mask, &drawableHeartRed))
 	// hack to avoid flash on first rendering
 	heart.Update(0)
 

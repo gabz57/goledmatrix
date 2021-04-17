@@ -18,7 +18,7 @@ type HappyBirthday struct {
 	uText            *shapes.Text
 }
 
-func NewHappyBirthday(canvas Canvas) Component {
+func NewHappyBirthday(canvas Canvas) *HappyBirthday {
 	happyBirthdayGraphic := NewGraphic(nil, nil)
 	textLayout := NewLayout(ColorViolet, nil)
 	iLoveUTextLayout := NewLayout(ColorRed, nil)

@@ -3,6 +3,8 @@ module github.com/gabz57/goledmatrix
 go 1.16
 
 require (
+	github.com/anthonynsimon/bild v0.13.0
+	github.com/disintegration/imaging v1.6.2 // indirect
 	github.com/faiface/mainthread v0.0.0-20171120011319-8b78f0a41ae3
 	github.com/gosuri/uilive v0.0.4
 	github.com/mattn/go-isatty v0.0.12 // indirect

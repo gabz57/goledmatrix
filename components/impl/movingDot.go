@@ -16,10 +16,7 @@ type MovingDot struct {
 	elapsedSinceSceneStart time.Duration
 }
 
-func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint, bounds image.Rectangle) Component {
-
-	//var mask Canvas
-	//mask = NewSingleColorMask(c, ColorRed)
+func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint, bounds image.Rectangle) *MovingDot {
 	var accs []Acceleration
 	acceleration := NewConstantAcceleration(
 		0, // test value
@@ -41,7 +38,6 @@ func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint
 			initialPosition,
 		),
 		bounds: bounds,
-		//mask:   mask,
 	}
 	dot.dotAcceleration = acceleration
 	return &dot
@@ -59,15 +55,17 @@ func (m *MovingDot) Update(elapsedBetweenUpdate time.Duration) {
 		m.elapsedSinceSceneStart = 0
 	}
 	// advance the position by one step, make it bounce on bounds with exact values
-	m.dot.SetPosition(m.applyNextPosition(m.move.NextPosition(elapsedBetweenUpdate)).Int())
+	m.dot.SetPosition(
+		m.applyNextPosition(
+			m.move.NextPosition(elapsedBetweenUpdate)).Int())
 }
 
 func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity FloatingPoint) FloatingPoint {
 	var velocityCoefX, velocityCoefY float64 = 1, 1
 	var accelCoefX, accelCoefY float64 = 1, 1
-	if int(nextPosition.X) < 0 || int(nextPosition.X) >= m.bounds.Max.X {
+	if int(nextPosition.X) < m.bounds.Min.X || int(nextPosition.X) >= m.bounds.Max.X {
 		// moving to far to the LEFT or to the RIGHT, correcting overlaps
-		if int(nextPosition.X) < 0 {
+		if int(nextPosition.X) < m.bounds.Min.X {
 			nextPosition = FloatingPoint{
 				X: -nextPosition.X,
 				Y: nextPosition.Y,
@@ -78,12 +76,12 @@ func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity Float
 				Y: nextPosition.Y,
 			}
 		}
-		//stop moving LEFT or RIGHT
+		// reverse X velocity
 		velocityCoefX = -1
 	}
-	if int(nextPosition.Y) < 0 || int(nextPosition.Y) >= m.bounds.Max.Y {
+	if int(nextPosition.Y) < m.bounds.Min.Y || int(nextPosition.Y) >= m.bounds.Max.Y {
 		// moving to far to the TOP or to the BOTTOM, correcting overlaps
-		if int(nextPosition.Y) < 0 {
+		if int(nextPosition.Y) < m.bounds.Min.Y {
 			nextPosition = FloatingPoint{
 				X: nextPosition.X,
 				Y: -nextPosition.Y,
@@ -110,6 +108,5 @@ func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity Float
 }
 
 func (m *MovingDot) Draw(c Canvas) error {
-	return (*m).dot.Draw(c)
-	//return (*m).dot.Draw(m.mask)
+	return m.dot.Draw(c)
 }

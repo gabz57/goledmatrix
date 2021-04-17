@@ -37,6 +37,7 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o /out/goledmatrix-bin .
 FROM arm64v8/python:3.9.2-slim-buster AS bin
 RUN pip3 install gpiozero
 COPY ./fonts /usr/bin/fonts
+COPY ./img /usr/bin/img
 COPY ./resetmatrix.py .
 COPY ./entrypoint.sh .
 

@@ -3,7 +3,6 @@ package shapes
 import (
 	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
-	"time"
 )
 
 type Panel struct {
@@ -54,9 +53,6 @@ func NewPanel(parent *Graphic, layout *Layout, initialPosition Point, dimensions
 	}
 
 	return &p
-}
-
-func (p *Panel) Update(elapsedBetweenUpdate time.Duration) {
 }
 
 func (p *Panel) Draw(canvas Canvas) error {

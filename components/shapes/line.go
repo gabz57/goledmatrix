@@ -22,14 +22,8 @@ func NewLine(graphic *Graphic, start, end Point) *Line {
 func (l *Line) Draw(canvas Canvas) error {
 	offset := l.ComputedOffset()
 
-	start := Point{
-		X: offset.X + l.start.X,
-		Y: offset.Y + l.start.Y,
-	}
-	end := Point{
-		X: offset.X + l.end.X,
-		Y: offset.Y + l.end.Y,
-	}
+	start := offset.Add(l.start)
+	end := offset.Add(l.end)
 
 	dx := end.X - start.X
 	dy := end.Y - start.Y

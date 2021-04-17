@@ -53,7 +53,7 @@ var (
 	BdfhelvR12 = MatrixFont{"helvR12.bdf"}
 )
 
-var BdfFonts = make(map[MatrixFont]*bdf.Font)
+var bdfFonts = make(map[MatrixFont]*bdf.Font)
 
 func loadFonts() (map[MatrixFont]*bdf.Font, error) {
 	var matrixFonts = []MatrixFont{
@@ -96,13 +96,13 @@ func loadFonts() (map[MatrixFont]*bdf.Font, error) {
 			fmt.Println("Failed to parse Font bytes " + matrixFont.FileName)
 			return nil, err
 		}
-		BdfFonts[matrixFont] = fontPtr
+		bdfFonts[matrixFont] = fontPtr
 	}
 	_, _ = fmt.Fprintf(writer.Newline(), "Loaded all Fonts\n")
-	return BdfFonts, nil
+	return bdfFonts, nil
 }
 
 func GetFont(f MatrixFont) font.Face {
 	// TODO: lazy init fonts
-	return BdfFonts[f].NewFace()
+	return bdfFonts[f].NewFace()
 }

@@ -33,9 +33,7 @@ type Pixel struct {
 	C    *color.Color
 }
 
-type Point struct {
-	X, Y int
-}
+type Point image.Point
 
 type FloatingPoint struct {
 	X, Y float64

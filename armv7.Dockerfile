@@ -32,6 +32,7 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 FROM arm32v7/python:3.9.2-slim-buster AS bin
 RUN pip3 install gpiozero
 COPY ./fonts /usr/bin/fonts
+COPY ./img /usr/bin/img
 COPY ./resetmatrix.py .
 COPY ./entrypoint.sh .
 

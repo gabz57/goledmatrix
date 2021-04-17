@@ -24,10 +24,10 @@ type Info struct {
 
 var infoGraphic = NewGraphic(nil, nil)
 
-func NewInfo(c Canvas) Component {
+func NewInfo(c Canvas) *Info {
 	location, _ := time.LoadLocation("Europe/Paris")
 
-	info := Info{
+	i := Info{
 		now:           time.Now(),
 		lastFpsText:   time.Now(),
 		shape:         NewCompositeDrawable(infoGraphic),
@@ -36,22 +36,19 @@ func NewInfo(c Canvas) Component {
 		location:      location,
 	}
 
-	info.timeText = info.buildTimeText()
-	info.updateText = info.buildUpdateText(c)
-	info.fpsText = info.buildFPSText(c)
-	var drawableTimeText Drawable
-	drawableTimeText = info.timeText
-	info.shape.AddDrawable(&drawableTimeText)
+	i.timeText = i.buildTimeText()
+	var drawableTimeText Drawable = i.timeText
+	i.shape.AddDrawable(&drawableTimeText)
 
-	var drawableFpsText Drawable
-	drawableFpsText = info.fpsText
-	info.shape.AddDrawable(&drawableFpsText)
+	i.fpsText = i.buildFPSText(c)
+	var drawableFpsText Drawable = i.fpsText
+	i.shape.AddDrawable(&drawableFpsText)
 
-	var drawableUpdateText Drawable
-	drawableUpdateText = info.updateText
-	info.shape.AddDrawable(&drawableUpdateText)
+	i.updateText = i.buildUpdateText(c)
+	var drawableUpdateText Drawable = i.updateText
+	i.shape.AddDrawable(&drawableUpdateText)
 
-	return &info
+	return &i
 }
 
 func (i *Info) Update(elapsedBetweenUpdate time.Duration) {

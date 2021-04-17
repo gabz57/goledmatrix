@@ -13,21 +13,18 @@ type MovingHeart struct {
 }
 
 func NewMovingHeart(canvas Canvas, initialPosition Point, fadeDuration time.Duration, initialFade float64, initialFadeOut bool) *MovingHeart {
-	var accs []Acceleration
 	acceleration := NewConstantAcceleration(
 		10,
 		TOP,
 	)
-	accs = append(accs, *acceleration)
-
-	heart := MovingHeart{
+	return &MovingHeart{
 		move: NewMovement(
 			initialPosition.Floating(),
 			FloatingPoint{
 				X: 0,
 				Y: 0,
 			},
-			&accs,
+			&[]Acceleration{acceleration},
 		),
 		heart: NewHeart(
 			canvas,
@@ -36,10 +33,8 @@ func NewMovingHeart(canvas Canvas, initialPosition Point, fadeDuration time.Dura
 			fadeDuration,
 			initialFade,
 			initialFadeOut),
+		heartAcceleration: acceleration,
 	}
-	heart.heartAcceleration = acceleration
-	return &heart
-
 }
 
 func (m *MovingHeart) Update(elapsedBetweenUpdate time.Duration) {
@@ -49,7 +44,7 @@ func (m *MovingHeart) Update(elapsedBetweenUpdate time.Duration) {
 }
 
 func (m *MovingHeart) Draw(c Canvas) error {
-	return (*m).heart.Draw(c)
+	return m.heart.Draw(c)
 }
 
 func (m *MovingHeart) IsOut() bool {

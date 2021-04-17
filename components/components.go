@@ -34,11 +34,7 @@ func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
 	}
 }
 
-func (cd *CompositeDrawable) AddDrawable(drawable *Drawable) {
-	cd.Drawables = append(cd.Drawables, drawable)
-}
-
-func (cd *CompositeDrawable) AddDrawables(drawables []*Drawable) {
+func (cd *CompositeDrawable) AddDrawable(drawables ...*Drawable) {
 	for _, drawable := range drawables {
 		cd.Drawables = append(cd.Drawables, drawable)
 	}
@@ -47,6 +43,7 @@ func (cd *CompositeDrawable) AddDrawables(drawables []*Drawable) {
 func (cd *CompositeDrawable) Draw(canvas Canvas) error {
 	var err error
 	for _, drawable := range cd.Drawables {
+		// FIXME: apply cd.Graphic.ComputedOffset()
 		err = (*drawable).Draw(canvas)
 		if err != nil {
 			return err
@@ -77,10 +74,6 @@ type Graphic struct {
 	offset Point
 	//enabled true
 	//dirty   true // true for first rendering (static Graphics)
-}
-
-func (g *Graphic) setParent(parent *Graphic) {
-	g.parent = parent
 }
 
 func (g *Graphic) Layout() *Layout {
