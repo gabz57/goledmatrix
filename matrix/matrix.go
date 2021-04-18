@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"github.com/faiface/mainthread"
+	. "github.com/gabz57/goledmatrix/canvas"
 	"image/color"
 	"log"
 	"os"

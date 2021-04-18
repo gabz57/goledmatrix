@@ -8,23 +8,24 @@ import (
 	"time"
 )
 
-type MovingDot struct {
-	move                   *Movement
-	dot                    *shapes.Dot
-	dotAcceleration        *ConstantAcceleration
+type BouncingDot struct {
+	move *Movement
+	dot  *shapes.Dot
+	//dotAcceleration        *ConstantAcceleration
 	bounds                 image.Rectangle
 	elapsedSinceSceneStart time.Duration
 }
 
-func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint, bounds image.Rectangle) *MovingDot {
-	var accs []Acceleration
-	acceleration := NewConstantAcceleration(
-		0, // test value
-		0, // test value
-	)
-	accs = append(accs, *acceleration)
+var groundReaction Acceleration = NewConstantAcceleration(9.81, TOP)
+var noReaction Acceleration = NewConstantAcceleration(0, 0)
 
-	dot := MovingDot{
+func NewBouncingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint, initialBottomAcceleration float64, bounds image.Rectangle) *BouncingDot {
+	var accs []Acceleration
+	//acceleration := NewConstantAcceleration(0, 0)
+	//accs = append(accs, *acceleration)
+	accs = append(accs, NewConstantAcceleration(initialBottomAcceleration, BOTTOM))
+
+	dot := BouncingDot{
 		move: NewMovement(
 			initialPosition.Floating(),
 			FloatingPoint{
@@ -39,30 +40,25 @@ func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint
 		),
 		bounds: bounds,
 	}
-	dot.dotAcceleration = acceleration
+	//dot.dotAcceleration = acceleration
 	return &dot
 
 }
 
-func (m *MovingDot) Update(elapsedBetweenUpdate time.Duration) {
+func (m *BouncingDot) Update(elapsedBetweenUpdate time.Duration) {
 	// changing erratically of direction by changing the velocity
 	m.elapsedSinceSceneStart += elapsedBetweenUpdate
-	if m.elapsedSinceSceneStart > 2*time.Second {
-		m.move.SetVelocity(FloatingPoint{
-			X: OneOrMinusOne() * Float64Between(0, 64),
-			Y: OneOrMinusOne() * Float64Between(0, 64),
-		})
-		m.elapsedSinceSceneStart = 0
-	}
+
 	// advance the position by one step, make it bounce on bounds with exact values
 	m.dot.SetPosition(
 		m.applyNextPosition(
 			m.move.NextPosition(elapsedBetweenUpdate)).Int())
 }
 
-func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity FloatingPoint) FloatingPoint {
+// FIXME: losing some POWER when bouncing, while we expect to bounce infinitely (float approximation after time integration)
+func (m *BouncingDot) applyNextPosition(nextPosition FloatingPoint, velocity FloatingPoint) FloatingPoint {
 	var velocityCoefX, velocityCoefY float64 = 1, 1
-	var accelCoefX, accelCoefY float64 = 1, 1
+	//var accelCoefX, accelCoefY float64 = 1, 1
 	if int(nextPosition.X) < m.bounds.Min.X || int(nextPosition.X) >= m.bounds.Max.X {
 		// moving to far to the LEFT or to the RIGHT, correcting overlaps
 		if int(nextPosition.X) < m.bounds.Min.X {
@@ -99,14 +95,14 @@ func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity Float
 		X: velocity.X * velocityCoefX,
 		Y: velocity.Y * velocityCoefY,
 	})
-	var direction = DirectionToFloatingPoint(m.dotAcceleration.Direction())
-	m.dotAcceleration.SetDirection(FloatingPointToDirection(FloatingPoint{
-		X: direction.X * accelCoefX,
-		Y: direction.Y * accelCoefY,
-	}))
+	//var direction = DirectionToFloatingPoint(m.dotAcceleration.Direction())
+	//m.dotAcceleration.SetDirection(FloatingPointToDirection(FloatingPoint{
+	//	X: direction.X * accelCoefX,
+	//	Y: direction.Y * accelCoefY,
+	//}))
 	return nextPosition
 }
 
-func (m *MovingDot) Draw(c Canvas) error {
+func (m *BouncingDot) Draw(c Canvas) error {
 	return m.dot.Draw(c)
 }

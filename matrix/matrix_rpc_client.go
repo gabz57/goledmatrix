@@ -3,6 +3,7 @@ package matrix
 import (
 	"encoding/gob"
 	"fmt"
+	. "github.com/gabz57/goledmatrix/canvas"
 	"image/color"
 	"net/rpc"
 	"strconv"

@@ -2,7 +2,7 @@ package components
 
 import (
 	"fmt"
-	"github.com/gabz57/goledmatrix/matrix"
+	"github.com/gabz57/goledmatrix/canvas"
 	"github.com/gosuri/uilive"
 	"github.com/paulbellamy/ratecounter"
 	"time"
@@ -10,7 +10,7 @@ import (
 
 type (
 	Engine struct {
-		canvas                 *matrix.Canvas
+		canvas                 *canvas.Canvas
 		scenes                 []*Scene
 		activeScene            *Scene
 		elapsedSinceSceneStart time.Duration
@@ -28,7 +28,7 @@ func NewScene(component []*Component, duration time.Duration) *Scene {
 	}
 }
 
-func NewEngine(canvas *matrix.Canvas, scenes []*Scene) Engine {
+func NewEngine(canvas *canvas.Canvas, scenes []*Scene) Engine {
 	return Engine{
 		canvas:      canvas,
 		scenes:      scenes,

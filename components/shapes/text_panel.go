@@ -1,9 +1,9 @@
 package shapes
 
 import (
-	"github.com/gabz57/goledmatrix/components"
+	. "github.com/gabz57/goledmatrix/canvas"
+	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/fonts"
-	. "github.com/gabz57/goledmatrix/matrix"
 	"image/color"
 	"time"
 )
@@ -14,12 +14,12 @@ type TextPanel struct {
 	value        string
 	font         fonts.MatrixFont
 	cornerRadius int
-	graphic      *components.Graphic
-	textGraphic  *components.Graphic
+	graphic      *Graphic
+	textGraphic  *Graphic
 }
 
-func NewTextPanel(text string, textColor color.Color, panelLayout *components.Layout, position, dimension Point, cornerRadius int, fill, border bool, font fonts.MatrixFont) *TextPanel {
-	var textPanelGraphic = components.NewOffsetGraphic(nil, panelLayout, position)
+func NewTextPanel(text string, textColor color.Color, panelLayout *Layout, position, dimension Point, cornerRadius int, fill, border bool, font fonts.MatrixFont) *TextPanel {
+	var textPanelGraphic = NewOffsetGraphic(nil, panelLayout, position)
 	panel := TextPanel{
 		graphic:      textPanelGraphic,
 		panel:        NewPanel(textPanelGraphic, panelLayout, Point{}, dimension, cornerRadius, fill, border),
@@ -27,7 +27,7 @@ func NewTextPanel(text string, textColor color.Color, panelLayout *components.La
 		font:         font,
 		cornerRadius: cornerRadius,
 	}
-	panel.textGraphic = components.NewGraphic(textPanelGraphic, components.NewLayout(textColor, nil))
+	panel.textGraphic = NewGraphic(textPanelGraphic, NewLayout(textColor, nil))
 	panel.SetText(text)
 	return &panel
 }

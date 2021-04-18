@@ -3,6 +3,7 @@ package matrix
 import (
 	"fmt"
 	"github.com/faiface/mainthread"
+	. "github.com/gabz57/goledmatrix/canvas"
 	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/screen"
 	"golang.org/x/mobile/event/lifecycle"

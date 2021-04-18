@@ -1,8 +1,8 @@
 package impl
 
 import (
+	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
-	. "github.com/gabz57/goledmatrix/matrix"
 	"math/rand"
 	"time"
 )
@@ -11,17 +11,29 @@ func Gameloop(c *Canvas, done chan struct{}) {
 	infoCpnt := infoComponent(*c)
 	sceneDuration := 12 * time.Second
 	engine := NewEngine(c, []*Scene{
-		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
 		NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{marioComponent(*c), infoCpnt}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, heartComponent(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, heartsComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, birthdayCakeComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt}, sceneDuration),
+		NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{
+		//	infoCpnt,
+		//	//bouncingDotComponent(*c, 10, 90),
+		//	//bouncingDotComponent(*c, 20, 90),
+		//	//bouncingDotComponent(*c, 30, 90),
+		//	//bouncingDotComponent(*c, 40, 90),
+		//	bouncingDotComponent(*c, 50, 90),
+		//	//bouncingDotComponent(*c, 60, 90),
+		//	//bouncingDotComponent(*c, 70, 90),
+		//	//bouncingDotComponent(*c, 80, 90),
+		//	//bouncingDotComponent(*c, 90, 90),
+		//}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, heartComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, heartsComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, birthdayCakeComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
 }
@@ -81,6 +93,7 @@ func birthdayCakeComponent(c Canvas) *Component {
 		})
 	return &component
 }
+
 func beanComponent(c Canvas) *Component {
 	var component Component = NewBeanNDot(c)
 	return &component
@@ -97,6 +110,22 @@ func movingDotComponent(c Canvas) *Component {
 			X: Float64Between(32, 64),
 			Y: Float64Between(32, 64),
 		}, c.Bounds())
+	return &component
+}
+
+func bouncingDotComponent(c Canvas, x int, bottomAcceleration float64) *Component {
+	var component Component = NewBouncingDot(
+		c,
+		Point{
+			X: x,
+			Y: 10,
+		},
+		FloatingPoint{
+			X: 0,
+			Y: 0,
+		},
+		bottomAcceleration,
+		c.Bounds())
 	return &component
 }
 

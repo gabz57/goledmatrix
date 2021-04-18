@@ -1,4 +1,4 @@
-package matrix
+package canvas
 
 import (
 	"image"
@@ -25,8 +25,12 @@ type (
 	}
 )
 
+func Position(x, y, w int) int {
+	return x + (y * w)
+}
+
 func (c *StaticCanvasMask) Set(x, y int, ledColor color.Color) {
-	position := c.position(x, y)
+	position := Position(x, y, c.Bounds().Dx())
 	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
 		(*c.GetLeds())[position] = c.colors[position]
 	}
@@ -38,7 +42,7 @@ func NewSingleColorMask(canvas Canvas, maskColor color.Color) *StaticCanvasMask 
 	var mask = make([]color.Color, max.X*max.Y)
 	for col := 0; col < max.X; col++ {
 		for row := 0; row < max.Y; row++ {
-			mask[canvas.position(col, row)] = maskColor
+			mask[Position(col, row, canvas.Bounds().Dx())] = maskColor
 		}
 	}
 	return NewCanvasMask(canvas, mask)
@@ -58,7 +62,7 @@ func NewShadedColorCanvasMask(canvas Canvas) *ShadedColorCanvasMask {
 }
 
 func (c *ShadedColorCanvasMask) Set(x, y int, ledColor color.Color) {
-	position := c.position(x, y)
+	position := Position(x, y, c.Mask.Bounds().Dx())
 	if x >= 0 && y >= 0 && position < len(*c.GetLeds()) {
 		center := Point{
 			X: c.Bounds().Max.X / 2,

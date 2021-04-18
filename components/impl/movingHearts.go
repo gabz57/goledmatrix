@@ -1,8 +1,8 @@
 package impl
 
 import (
+	. "github.com/gabz57/goledmatrix/canvas"
 	"github.com/gabz57/goledmatrix/components"
-	. "github.com/gabz57/goledmatrix/matrix"
 	"math/rand"
 	"time"
 )

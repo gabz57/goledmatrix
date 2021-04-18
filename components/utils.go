@@ -3,7 +3,7 @@ package components
 import (
 	"fmt"
 	"github.com/anthonynsimon/bild/transform"
-	. "github.com/gabz57/goledmatrix/matrix"
+	. "github.com/gabz57/goledmatrix/canvas"
 	"image"
 	"image/color"
 	"image/draw"

@@ -1,8 +1,8 @@
 package impl
 
 import (
-	"github.com/gabz57/goledmatrix/components"
-	. "github.com/gabz57/goledmatrix/matrix"
+	. "github.com/gabz57/goledmatrix/canvas"
+	. "github.com/gabz57/goledmatrix/components"
 	"math/rand"
 	"time"
 )
@@ -45,7 +45,7 @@ func generateHeart(canvas Canvas, maxX int, maxY int) *Heart {
 			X: rand.Intn(maxX),
 			Y: rand.Intn(maxY),
 		},
-		time.Duration(components.Int64Between(2000, 5000))*time.Millisecond,
+		time.Duration(Int64Between(2000, 5000))*time.Millisecond,
 		1,
 		false)
 }

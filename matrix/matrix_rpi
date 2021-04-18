@@ -37,6 +37,7 @@ o->inverse_colors = inverse_colors != 0 ? 1 : 0;
 import "C"
 import (
 	"fmt"
+	. "github.com/gabz57/goledmatrix/canvas"
 	"github.com/gosuri/uilive"
 	"image/color"
 	"unsafe"
