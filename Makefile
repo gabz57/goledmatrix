@@ -1,5 +1,5 @@
-all: ledmatrix64/build
-.PHONY: ledmatrix64/build
+all: ledmatrix64/push
+.PHONY: ledmatrix64/push
 
 #ledmatrix32/build:
 #	@docker buildx build . -f armv7.Dockerfile \

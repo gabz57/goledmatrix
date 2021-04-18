@@ -1,14 +1,14 @@
 package main
 
 import (
-	"github.com/gabz57/goledmatrix"
 	"github.com/gabz57/goledmatrix/components/impl"
+	"github.com/gabz57/goledmatrix/matrix"
 )
 
 func main() {
-	goledmatrix.RunMatrices(goLedApplication)
+	matrix.RunMatrices(goLedApplication)
 }
 
 func goLedApplication() {
-	goledmatrix.Run(impl.Gameloop)
+	matrix.Run(impl.Gameloop)
 }

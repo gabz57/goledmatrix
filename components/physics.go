@@ -1,7 +1,7 @@
 package components
 
 import (
-	"github.com/gabz57/goledmatrix"
+	. "github.com/gabz57/goledmatrix/matrix"
 	"time"
 )
 
@@ -12,7 +12,7 @@ const TOP float64 = 270
 
 type Acceleration interface {
 	// Returns (dVx, dVy) in Pixels per second
-	NextVelocityDelta(dtInSeconds float64) goledmatrix.FloatingPoint
+	NextVelocityDelta(dtInSeconds float64) FloatingPoint
 	// Direction in Degrees, reference is RIGHT
 	Direction() float64
 }
@@ -29,8 +29,8 @@ func NewConstantAcceleration(acceleration, direction float64) *ConstantAccelerat
 	}
 }
 
-func (a ConstantAcceleration) NextVelocityDelta(dtInSeconds float64) goledmatrix.FloatingPoint {
-	return RotateOrigin(goledmatrix.FloatingPoint{
+func (a ConstantAcceleration) NextVelocityDelta(dtInSeconds float64) FloatingPoint {
+	return RotateOrigin(FloatingPoint{
 		X: a.acceleration * dtInSeconds,
 		Y: 0,
 	}, a.direction)
@@ -52,20 +52,20 @@ var Gravity Acceleration = ConstantAcceleration{acceleration: 9.81, direction: B
 
 type Physics interface {
 	// Compute and return the next position and velocity
-	NextPosition(dt time.Duration) (goledmatrix.FloatingPoint, goledmatrix.FloatingPoint)
+	NextPosition(dt time.Duration) (FloatingPoint, FloatingPoint)
 }
 
 type Movement struct {
-	initialPosition goledmatrix.FloatingPoint // keep local floating dXY for accurate moves
-	dXY             goledmatrix.FloatingPoint // keep local floating dXY for accurate moves
-	velocity        goledmatrix.FloatingPoint // in Pixel per second
-	accelerations   *[]Acceleration           // in Pixel per second2
+	initialPosition FloatingPoint   // keep local floating dXY for accurate moves
+	dXY             FloatingPoint   // keep local floating dXY for accurate moves
+	velocity        FloatingPoint   // in Pixel per second
+	accelerations   *[]Acceleration // in Pixel per second2
 }
 
-func NewMovement(initialPosition, initialVelocity goledmatrix.FloatingPoint, accelerations *[]Acceleration) *Movement {
+func NewMovement(initialPosition, initialVelocity FloatingPoint, accelerations *[]Acceleration) *Movement {
 	return &Movement{
 		initialPosition: initialPosition,
-		dXY:             goledmatrix.FloatingPoint{},
+		dXY:             FloatingPoint{},
 		velocity:        initialVelocity,
 		accelerations:   accelerations,
 	}
@@ -73,7 +73,7 @@ func NewMovement(initialPosition, initialVelocity goledmatrix.FloatingPoint, acc
 
 // TODO: consider max values for accelerations
 // Return the next position to use
-func (m *Movement) NextPosition(duration time.Duration) (goledmatrix.FloatingPoint, goledmatrix.FloatingPoint) {
+func (m *Movement) NextPosition(duration time.Duration) (FloatingPoint, FloatingPoint) {
 	dtInSeconds := float64(duration.Nanoseconds()) / 1000000000
 	for _, acceleration := range *m.accelerations {
 		m.velocity = m.velocity.Add(acceleration.NextVelocityDelta(dtInSeconds))
@@ -85,10 +85,10 @@ func (m *Movement) NextPosition(duration time.Duration) (goledmatrix.FloatingPoi
 	return m.initialPosition.Add(m.dXY), m.velocity
 }
 
-func (m *Movement) SetVelocity(velocity goledmatrix.FloatingPoint) {
+func (m *Movement) SetVelocity(velocity FloatingPoint) {
 	m.velocity = velocity
 }
 
-func (m *Movement) Velocity() goledmatrix.FloatingPoint {
+func (m *Movement) Velocity() FloatingPoint {
 	return m.velocity
 }

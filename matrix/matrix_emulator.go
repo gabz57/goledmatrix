@@ -1,4 +1,4 @@
-package goledmatrix
+package matrix
 
 import (
 	"fmt"
@@ -231,11 +231,11 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 						m.drawBackground(sz)
 						max := (*canvas).Bounds().Max
 						var canva Canvas
-						canva = &CanvasImpl{
-							w:    max.X,
-							h:    max.Y,
-							leds: evn.leds,
-						}
+						canva = NewSimpleCanvas(
+							max.X,
+							max.Y,
+							&evn.leds,
+						)
 						err = m.Render(&canva)
 						if err != nil {
 							panic(err)

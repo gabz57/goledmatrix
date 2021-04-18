@@ -1,7 +1,7 @@
 package components
 
 import (
-	. "github.com/gabz57/goledmatrix"
+	. "github.com/gabz57/goledmatrix/matrix"
 	"image/color"
 	"time"
 )

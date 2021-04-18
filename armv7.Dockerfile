@@ -12,8 +12,8 @@ ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
 
 COPY ./. /go/src/github.com/gabz57/goledmatrix
 # overwrite BuildMatrix method with Hardware binding
-COPY ./matrix_rpi /go/src/github.com/gabz57/goledmatrix/matrix_rpi.go
-COPY ./matrix_builder_rpi /go/src/github.com/gabz57/goledmatrix/matrix_builder.go
+COPY ./matrix/matrix_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_rpi.go
+COPY ./matrix/matrix_builder_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_builder.go
 
 ## To drive hardware matrix via GPIO on RPi
 ## fetch origial C library via Git submodule & build it
@@ -22,8 +22,8 @@ RUN git submodule update --init
 ## Note: only building the library for librgbmatrix.a file (skipping samples which makes compilation fail)
 RUN make -C ./lib
 
-## build Go DEMO application
-WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
+## build Go application
+WORKDIR /go/src/github.com/gabz57/goledmatrix
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 
 

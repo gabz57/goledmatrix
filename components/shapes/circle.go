@@ -1,8 +1,8 @@
 package shapes
 
 import (
-	. "github.com/gabz57/goledmatrix"
 	. "github.com/gabz57/goledmatrix/components"
+	. "github.com/gabz57/goledmatrix/matrix"
 )
 
 type Circle struct {

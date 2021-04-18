@@ -1,4 +1,4 @@
-package goledmatrix
+package matrix
 
 import (
 	"image"

@@ -16,7 +16,7 @@ RUN git submodule update --init
 RUN make -C ./lib
 
 ## build Go DEMO application
-WORKDIR /go/src/github.com/gabz57/goledmatrix/demo/_local
+WORKDIR /go/src/github.com/gabz57/goledmatrix
 RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm GOARM=7 go build -o /out/example .
 
 
@@ -33,6 +33,7 @@ RUN pip3 install gpiozero
 ## TODO ? COPY --from=builder # compiled C library
 COPY --from=builder /out/example /usr/bin/goledmatrix
 COPY ./fonts /usr/bin/fonts
+COPY ./img /usr/bin/img
 COPY ./resetmatrix.py .
 
 COPY ./entrypoint.sh .

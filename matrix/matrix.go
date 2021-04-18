@@ -1,4 +1,4 @@
-package goledmatrix
+package matrix
 
 import (
 	"errors"
@@ -197,6 +197,7 @@ func Run(gameloop func(c *Canvas, done chan struct{})) {
 	fmt.Println("matrix.MainThread()")
 	matrix.MainThread(canvas, done)
 }
+
 func run(gameloop func(c *Canvas, done chan struct{}), canvas *Canvas, done chan struct{}) {
 	func() {
 		// avoid drawing to early as emulator might not be ready, eventually fixed

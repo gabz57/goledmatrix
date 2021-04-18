@@ -1,4 +1,4 @@
-package goledmatrix
+package matrix
 
 import (
 	"fmt"
@@ -91,6 +91,15 @@ func NewCanvas(config *MatrixConfig, m *Matrix) *Canvas {
 		matrix: m,
 	}
 	return &canvas
+}
+
+func NewSimpleCanvas(x, y int, leds *[]color.Color) Canvas {
+	var canvas Canvas = &CanvasImpl{
+		w:    x,
+		h:    y,
+		leds: *leds,
+	}
+	return canvas
 }
 
 func (c *CanvasImpl) register(matrix *Matrix) {

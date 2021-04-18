@@ -1,9 +1,9 @@
 package shapes
 
 import (
-	"github.com/gabz57/goledmatrix"
 	"github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/fonts"
+	. "github.com/gabz57/goledmatrix/matrix"
 	"image/color"
 	"time"
 )
@@ -18,11 +18,11 @@ type TextPanel struct {
 	textGraphic  *components.Graphic
 }
 
-func NewTextPanel(text string, textColor color.Color, panelLayout *components.Layout, position, dimension goledmatrix.Point, cornerRadius int, fill, border bool, font fonts.MatrixFont) *TextPanel {
+func NewTextPanel(text string, textColor color.Color, panelLayout *components.Layout, position, dimension Point, cornerRadius int, fill, border bool, font fonts.MatrixFont) *TextPanel {
 	var textPanelGraphic = components.NewOffsetGraphic(nil, panelLayout, position)
 	panel := TextPanel{
 		graphic:      textPanelGraphic,
-		panel:        NewPanel(textPanelGraphic, panelLayout, goledmatrix.Point{}, dimension, cornerRadius, fill, border),
+		panel:        NewPanel(textPanelGraphic, panelLayout, Point{}, dimension, cornerRadius, fill, border),
 		value:        text,
 		font:         font,
 		cornerRadius: cornerRadius,
@@ -36,7 +36,7 @@ func (t *TextPanel) Update(elapsedBetweenUpdate time.Duration) {
 
 }
 
-func (t *TextPanel) Draw(canvas goledmatrix.Canvas) error {
+func (t *TextPanel) Draw(canvas Canvas) error {
 	err := t.panel.Draw(canvas)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ func (t *TextPanel) SetText(text string) {
 		xAdjust = 1
 		yAdjust = 5
 	}
-	var textPosition = goledmatrix.Point{
+	var textPosition = Point{
 		X: -xAdjust,
 		Y: -yAdjust,
 	}
