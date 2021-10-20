@@ -60,9 +60,9 @@ func DefaultLayout() *Layout {
 	}
 }
 
-func NewLayout(fColor, bgColor color.Color) *Layout {
+func NewLayout(fgColor, bgColor color.Color) *Layout {
 	return &Layout{
-		color:           fColor,
+		color:           fgColor,
 		backgroundColor: bgColor,
 	}
 }
