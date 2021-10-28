@@ -44,7 +44,7 @@ func NewMovingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoint
 
 }
 
-func (m *MovingDot) Update(elapsedBetweenUpdate time.Duration) {
+func (m *MovingDot) Update(elapsedBetweenUpdate time.Duration) bool {
 	// changing erratically of direction by changing the velocity
 	m.elapsedSinceSceneStart += elapsedBetweenUpdate
 	if m.elapsedSinceSceneStart > 2*time.Second {
@@ -58,6 +58,8 @@ func (m *MovingDot) Update(elapsedBetweenUpdate time.Duration) {
 	m.dot.SetPosition(
 		m.applyNextPosition(
 			m.move.NextPosition(elapsedBetweenUpdate)).Int())
+
+	return true
 }
 
 func (m *MovingDot) applyNextPosition(nextPosition FloatingPoint, velocity FloatingPoint) FloatingPoint {

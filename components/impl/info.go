@@ -51,21 +51,22 @@ func NewInfo(c Canvas) *Info {
 	return &i
 }
 
-func (i *Info) Update(elapsedBetweenUpdate time.Duration) {
+func (i *Info) Update(elapsedBetweenUpdate time.Duration) bool {
 	now := time.Now().In(i.location)
 
 	defer i.updateCounter.Incr(1)
 	if now.Sub(i.now).Milliseconds() < 10 {
-		return
+		return true
 	}
 	i.now = now
 	i.timeText.SetText(TimeToText(i.now))
 	if now.Sub(i.lastFpsText).Milliseconds() < 100 {
-		return
+		return true
 	}
 	i.lastFpsText = now
 	i.fpsText.SetText(i.fpsTxt())
 	i.updateText.SetText(i.updateTxt())
+	return true
 }
 
 func (i *Info) Draw(canvas Canvas) error {
@@ -89,7 +90,7 @@ func (i *Info) updateTxt() string {
 
 func (i *Info) buildTimeText() *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
 		Point{
 			X: 1,
 			Y: 0,
@@ -100,7 +101,7 @@ func (i *Info) buildTimeText() *shapes.Text {
 }
 func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
 		Point{
 			X: c.Bounds().Max.X - 35,
 			Y: c.Bounds().Max.Y - 7,
@@ -112,7 +113,7 @@ func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
 
 func (i *Info) buildFPSText(c Canvas) *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, nil)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
 		Point{
 			X: 0,
 			Y: c.Bounds().Max.Y - 7,

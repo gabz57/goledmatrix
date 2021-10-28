@@ -7,7 +7,7 @@ import (
 )
 
 type Component interface {
-	// Controllable // for handling user/external events
+	// Controllable // watch for user/external events
 	Updatable
 	Drawable
 }
@@ -15,7 +15,7 @@ type Component interface {
 type Updatable interface {
 	// Update is called at its own rate to avoid depending on rendering time,
 	// thus we can compute speed depending on this constant rate
-	Update(elapsedBetweenUpdate time.Duration)
+	Update(elapsedBetweenUpdate time.Duration) bool
 }
 
 type Drawable interface {
@@ -91,11 +91,11 @@ func (g *Graphic) SetOffset(offset Point) {
 	g.offset = offset
 }
 
-func Masked(mask Canvas, drawable *Drawable) *Drawable {
+func Masked(mask *Canvas, drawable *Drawable) *Drawable {
 	var d Drawable
 	d = &MaskedDrawable{
 		drawable: drawable,
-		mask:     &mask,
+		mask:     mask,
 	}
 	return &d
 }

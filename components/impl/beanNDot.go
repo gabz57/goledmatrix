@@ -50,9 +50,10 @@ func NewBeanNDot(c Canvas) *BeanNDot {
 			}),
 	}
 }
-func (b *BeanNDot) Update(elapsedBetweenUpdate time.Duration) {
+func (b *BeanNDot) Update(elapsedBetweenUpdate time.Duration) bool {
 	b.beanGif.Update(elapsedBetweenUpdate)
 	b.movingDot.Update(elapsedBetweenUpdate)
+	return true
 }
 
 func (b *BeanNDot) Draw(canvas Canvas) error {

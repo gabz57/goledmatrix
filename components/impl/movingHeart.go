@@ -37,10 +37,13 @@ func NewMovingHeart(canvas Canvas, initialPosition Point, fadeDuration time.Dura
 	}
 }
 
-func (m *MovingHeart) Update(elapsedBetweenUpdate time.Duration) {
-	m.heart.Update(elapsedBetweenUpdate)
+func (m *MovingHeart) Update(elapsedBetweenUpdate time.Duration) bool {
+	dirty := false
+	dirty = m.heart.Update(elapsedBetweenUpdate) || dirty
 	position, _ := m.move.NextPosition(elapsedBetweenUpdate)
 	m.heart.SetPosition(position.Int())
+
+	return dirty
 }
 
 func (m *MovingHeart) Draw(c Canvas) error {

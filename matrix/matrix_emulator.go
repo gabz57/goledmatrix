@@ -11,6 +11,7 @@ import (
 	"golang.org/x/mobile/event/size"
 	"image"
 	"image/color"
+	"image/draw"
 	"os"
 )
 
@@ -27,13 +28,9 @@ type MatrixEmulator struct {
 	PixelPitchToGutterRatio int
 	Margin                  int
 
-	w       screen.Window
 	s       screen.Screen
+	w       screen.Window
 	isReady bool
-}
-
-func (m *MatrixEmulator) IsEmulator() bool {
-	return true
 }
 
 func NewMatrixEmulator(config *MatrixConfig) (c Matrix, err error) {
@@ -108,28 +105,24 @@ func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
 
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas *Canvas) error {
-	//start := time.Now()
-	//var cnt = 0
 	if m.w != nil {
-		//var fillDuration = time.Duration(0)
-		//var fillStart time.Time
+		matrixRectangle := m.matrixWithMarginsRect()
+		buffer, err := m.s.NewBuffer(matrixRectangle.Max)
+		if err != nil {
+			return err
+		}
 
 		var ledColor color.Color
 		for x := 0; x < m.Width; x++ {
 			for y := 0; y < m.Height; y++ {
 				ledColor = (*canvas).At(x, y)
-
 				if ledColor != nil {
-					//fillStart = time.Now()
-
-					m.w.Fill(m.ledRect(x, y), ledColor, screen.Over)
-					//fillDuration += time.Now().Sub(fillStart)
-					//cnt++
+					draw.Draw(buffer.RGBA(), m.ledRect(x, y), image.NewUniform(ledColor), image.Point{}, draw.Over)
 				}
 				ledColor = nil
 			}
 		}
-		//fmt.Println("Render.m.w.fill " + strconv.Itoa(cnt) + " after " + strconv.FormatInt(time.Now().Sub(start).Milliseconds(), 10) + "ms")
+		m.w.Upload(image.Point{}, buffer, matrixRectangle)
 		m.w.Publish()
 	}
 	return nil
@@ -191,11 +184,13 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 			var err error
 			m.s = s
 			// Calculate initial window size based on whatever our gutter/pixel pitch currently is.
-			dims := m.matrixWithMarginsRect()
+			//dims := m.matrixWithMarginsRect()
 			m.w, err = s.NewWindow(&screen.NewWindowOptions{
 				Title:  windowTitle,
-				Width:  dims.Max.X,
-				Height: dims.Max.Y,
+				Width:  1551,
+				Height: 1551,
+				//Width:  dims.Max.X,
+				//Height: dims.Max.Y,
 			})
 
 			if err != nil {

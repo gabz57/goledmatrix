@@ -49,13 +49,16 @@ func generateMovingHeart(canvas Canvas, maxX int, maxY int) *MovingHeart {
 		false)
 }
 
-func (h *MovingHearts) Update(elapsedBetweenUpdate time.Duration) {
+func (h *MovingHearts) Update(elapsedBetweenUpdate time.Duration) bool {
+	dirty := false
 	for i, heart := range h.hearts {
-		heart.Update(elapsedBetweenUpdate)
+		dirty = heart.Update(elapsedBetweenUpdate) || dirty
 		if heart.IsOut() {
 			h.replaceHeart(i)
+			dirty = true
 		}
 	}
+	return dirty
 }
 
 func (h *MovingHearts) Draw(canvas Canvas) error {

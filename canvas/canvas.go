@@ -1,7 +1,6 @@
 package canvas
 
 import (
-	"golang.org/x/image/font"
 	"image"
 	"image/color"
 )
@@ -11,7 +10,6 @@ import (
 type Canvas interface {
 	image.Image
 	Set(x, y int, ledColor color.Color)
-	DrawLabel(x, y int, label string, ledColor color.Color, face font.Face)
 	Render() error
 	Clear()
 	Close() error
@@ -69,12 +67,4 @@ func (fp FloatingPoint) Int() Point {
 		X: int(fp.X),
 		Y: int(fp.Y),
 	}
-}
-
-type TextCanvas struct {
-	Canvas
-}
-
-func (tc *TextCanvas) At(x, y int) color.Color {
-	return color.Black
 }

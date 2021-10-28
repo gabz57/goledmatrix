@@ -20,11 +20,15 @@ type Img struct {
 	elapsedSinceGifStart time.Duration
 }
 
-func (i *Img) Update(elapsedBetweenUpdate time.Duration) {
+func (i *Img) Update(elapsedBetweenUpdate time.Duration) bool {
 	if i.elapsedSinceGifStart > *i.activeDuration {
 		i.runNextImage()
+		i.elapsedSinceGifStart += elapsedBetweenUpdate
+		return true
+	} else {
+		i.elapsedSinceGifStart += elapsedBetweenUpdate
+		return false
 	}
-	i.elapsedSinceGifStart += elapsedBetweenUpdate
 }
 
 func (i *Img) Draw(canvas Canvas) error {

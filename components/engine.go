@@ -50,6 +50,8 @@ func (e *Engine) Run(done chan struct{}) {
 	previous := time.Now()
 	lag := time.Duration(0)
 	fmt.Println("Starting Canvas Engine !")
+	dirty := true
+
 LOOP:
 	for {
 		// print and updates to console without writing on a new line each time
@@ -72,17 +74,23 @@ LOOP:
 		}
 		// using lag to catch up missing updates when UI renders to slow
 		for lag >= UpdateDuration {
-			e.updateGame(UpdateDuration)
+			dirty = e.updateGame(UpdateDuration) || dirty
 			updateCounter.Incr(1)
 			lag -= UpdateDuration
 			e.elapsedSinceSceneStart += UpdateDuration
+			if lag >= UpdateDuration {
+				continue
+			}
 			select {
 			case <-time.After(UpdateDurationInNanos - time.Now().Sub(current)):
 			}
 		}
 
-		e.render()
-		renderCounter.Incr(1)
+		if dirty == true {
+			dirty = false
+			e.render()
+			renderCounter.Incr(1)
+		}
 
 		select {
 		case <-time.After(FrameDurationInNanos - time.Now().Sub(current)):
@@ -94,23 +102,32 @@ func (e *Engine) processInput() {
 	// pipe user input events to be handled in respective component(s)
 }
 
-func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) {
-	for _, component := range e.activeScene.components {
-		(*component).Update(elapsedBetweenUpdate)
-	}
+func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) bool {
+	return e.activeScene.Update(elapsedBetweenUpdate)
 }
 
 // Draw the components into the canvas and renders its content
 func (e *Engine) render() error {
-	(*e.canvas).Clear()
-	for _, component := range e.activeScene.components {
-		err := (*component).Draw(*e.canvas)
+	return e.activeScene.Render(e.canvas)
+}
+
+func (s *Scene) Update(elapsedBetweenUpdate time.Duration) bool {
+	dirtyScene := false
+	for _, component := range s.components {
+		dirtyScene = (*component).Update(elapsedBetweenUpdate) || dirtyScene
+	}
+	return dirtyScene
+}
+
+func (s *Scene) Render(c *canvas.Canvas) error {
+	(*c).Clear()
+	for _, component := range s.components {
+		err := (*component).Draw(*c)
 		if err != nil {
 			return err
 		}
 	}
-	err := (*e.canvas).Render()
-	return err
+	return (*c).Render()
 }
 
 func (e *Engine) runNextScene() {

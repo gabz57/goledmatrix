@@ -37,9 +37,9 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
-	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-7, radius/2-6), "OCTO"))
+	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
 
-	c.shape.AddDrawable(Masked(mask, c.buildStaticContourCircle()))
+	c.shape.AddDrawable(Masked(&mask, c.buildStaticContourCircle()))
 	c.shape.AddDrawable(c.buildStaticCenter())
 	c.shape.AddDrawable(c.buildStaticHours()...)
 	c.shape.AddDrawable(c.buildStaticMinutes()...)
@@ -53,7 +53,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
 	var drawableMinute Drawable = c.rotatingMinute
-	c.shape.AddDrawable(Masked(mask, &drawableMinute))
+	c.shape.AddDrawable(Masked(&mask, &drawableMinute))
 
 	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
 	var drawableMinuteDot Drawable = c.rotatingMinuteDot
@@ -61,7 +61,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	c.rotatingHour = c.buildRotatingHour(hour, min)
 	var drawableHour Drawable = c.rotatingHour
-	c.shape.AddDrawable(Masked(mask, &drawableHour))
+	c.shape.AddDrawable(Masked(&mask, &drawableHour))
 
 	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
 	var drawableHourDot Drawable = c.rotatingHourDot
@@ -70,11 +70,11 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	return &c
 }
 
-func (c *Clock) Update(elapsedBetweenUpdate time.Duration) {
+func (c *Clock) Update(elapsedBetweenUpdate time.Duration) bool {
 	now := time.Now().In(c.location)
 	if now.Sub(c.now).Milliseconds() < 10 {
 		// skip
-		return
+		return false
 	}
 	c.now = now
 	hour, min, sec := c.now.Clock()
@@ -99,6 +99,7 @@ func (c *Clock) Update(elapsedBetweenUpdate time.Duration) {
 	c.rotatingSecond.SetPosition(
 		c.secondDotPosition(angleDegreesSecond(sec, c.now)),
 	)
+	return true
 }
 
 func (c *Clock) Draw(canvas Canvas) error {
@@ -118,7 +119,7 @@ func angleDegreesSecond(sec int, now time.Time) float64 {
 }
 
 func (c *Clock) buildStaticText(position Point, txt string) *Drawable {
-	var circle Drawable = shapes.NewText(NewGraphic(c.shape.Graphic, nil), position, txt, fonts.Bdf4x6)
+	var circle Drawable = shapes.NewText(NewGraphic(c.shape.Graphic, NewLayout(ColorWhite, ColorBlack)), position, txt, fonts.Bdf4x6)
 	return &circle
 }
 

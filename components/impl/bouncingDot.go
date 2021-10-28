@@ -45,7 +45,7 @@ func NewBouncingDot(c Canvas, initialPosition Point, initialVelocity FloatingPoi
 
 }
 
-func (m *BouncingDot) Update(elapsedBetweenUpdate time.Duration) {
+func (m *BouncingDot) Update(elapsedBetweenUpdate time.Duration) bool {
 	// changing erratically of direction by changing the velocity
 	m.elapsedSinceSceneStart += elapsedBetweenUpdate
 
@@ -53,6 +53,7 @@ func (m *BouncingDot) Update(elapsedBetweenUpdate time.Duration) {
 	m.dot.SetPosition(
 		m.applyNextPosition(
 			m.move.NextPosition(elapsedBetweenUpdate)).Int())
+	return true
 }
 
 // FIXME: losing some POWER when bouncing, while we expect to bounce infinitely (float approximation after time integration)

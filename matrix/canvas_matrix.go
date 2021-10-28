@@ -3,8 +3,6 @@ package matrix
 import (
 	"fmt"
 	. "github.com/gabz57/goledmatrix/canvas"
-	"golang.org/x/image/font"
-	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
 )
@@ -56,12 +54,17 @@ func (c *CanvasImpl) At(x, y int) color.Color {
 	return c.leds[Position(x, y, c.w)]
 }
 
+func (c *CanvasImpl) GetLeds() *[]color.Color {
+	return &c.leds
+}
+
 // Set set LED at position x,y to the provided 24-bit color value
 func (c *CanvasImpl) Set(x, y int, ledColor color.Color) {
 	//c.leds[c.position(x, y)] = color.RGBAModel.Convert(ledColor)
-	position := Position(x, y, c.w)
-	if x >= 0 && y >= 0 && position < len(c.leds) {
-		c.leds[position] = color.RGBAModel.Convert(ledColor)
+	point := image.Point{X: x, Y: y}
+	//if x >= 0 && x < 0 && y >= 0 && position < len(c.leds) {
+	if point.In(c.Bounds()) {
+		c.leds[Position(x, y, c.w)] = color.RGBAModel.Convert(ledColor)
 	}
 }
 
@@ -71,16 +74,54 @@ func (c *CanvasImpl) SetPoint(point Point, ledColor color.Color) {
 	}
 }
 
-func (c *CanvasImpl) DrawLabel(x, y int, label string, ledColor color.Color, face font.Face) {
-	var canvas Canvas
-	canvas = c
-	d := &font.Drawer{
-		Dst:  &TextCanvas{Canvas: canvas},
-		Src:  image.NewUniform(ledColor),
-		Face: face,
-		Dot:  fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)},
-	}
-	d.DrawString(label)
+//
+////func (c *CanvasImpl) DrawLabel(x, y int, label string, face font.Face, ledColor color.Color) {
+////	var canvas Canvas
+////	canvas = c
+////	d := &font.Drawer{
+////		Dst:  &TextCanvas{Canvas: canvas},
+////		Src:  image.NewUniform(ledColor),
+////		Face: face,
+////		Dot:  fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)},
+////	}
+////	d.DrawString(label)
+////}
+////
+//func (c *CanvasImpl) DrawLabel(x, y int, label string, face font.Face, textColor color.Color) {
+//	var txtImageBuffer = c.Bounds()
+//	var leds = make([]color.Color, txtImageBuffer.Dx()*txtImageBuffer.Dy())
+//	var imgDst = NewSimpleCanvas(txtImageBuffer.Dx(), txtImageBuffer.Dy(), &leds)
+//	for rX := 0; rX < txtImageBuffer.Max.X; rX++ {
+//		for rY := 0; rY < txtImageBuffer.Max.Y; rY++ {
+//			imgDst.Set(rX, rY, color.Black)
+//		}
+//	}
+//
+//	d := font.Drawer{
+//		Dst:  imgDst,
+//		Src:  &image.Uniform{C: color.White},
+//		Face: face,
+//		Dot:  fixed.Point26_6{Y: face.Metrics().Height},
+//	}
+//	d.DrawString(label)
+//	txtWidth := d.MeasureString(label).Ceil()
+//	txtHeight := face.Metrics().Height.Ceil()
+//	for rX := 0; rX < txtWidth; rX++ {
+//		for rY := 0; rY < txtHeight; rY++ {
+//			at := imgDst.At(rX, rY)
+//			if at != color.Black {
+//				r, g, b, _ := at.RGBA()
+//				if r != 0 && g != 0 && b != 0 {
+//					c.Set(x+rX, y+rY, textColor)
+//				}
+//			}
+//		}
+//	}
+//}
+
+// Clear set all the leds on the matrix to nil
+func (c *CanvasImpl) Clear() {
+	c.leds = make([]color.Color, c.w*c.h)
 }
 
 func (c *CanvasImpl) Render() error {
@@ -91,11 +132,6 @@ func (c *CanvasImpl) Render() error {
 		return err
 	}
 	return nil
-}
-
-// Clear set all the leds on the matrix to nil
-func (c *CanvasImpl) Clear() {
-	c.leds = make([]color.Color, c.w*c.h)
 }
 
 // Close clears the canvas and closes all the matrix
@@ -110,8 +146,4 @@ func (c *CanvasImpl) Close() error {
 		return err
 	}
 	return err
-}
-
-func (c *CanvasImpl) GetLeds() *[]color.Color {
-	return &c.leds
 }

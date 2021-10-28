@@ -3,6 +3,7 @@ package impl
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
+	"github.com/gabz57/goledmatrix/scenes"
 	"math/rand"
 	"time"
 )
@@ -11,11 +12,12 @@ func Gameloop(c *Canvas, done chan struct{}) {
 	infoCpnt := infoComponent(*c)
 	sceneDuration := 12 * time.Second
 	engine := NewEngine(c, []*Scene{
-		NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, clockComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{marioComponent(*c), infoCpnt}, sceneDuration),
-		NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{
 		//	infoCpnt,
 		//	//bouncingDotComponent(*c, 10, 90),
@@ -30,10 +32,16 @@ func Gameloop(c *Canvas, done chan struct{}) {
 		//}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, heartComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, heartsComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, birthdayCakeComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, birthdayCakeComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, meteoLocalComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c)}, sceneDuration),
+		////NewScene([]*Component{infoCpnt, photoComponent(*c)}, sceneDuration),
+		////NewScene([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration),
+		////NewScene([]*Component{infoCpnt, nextBirthdaysComponent(*c)}, sceneDuration),
+		////NewScene([]*Component{infoCpnt, focusComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
 }
@@ -69,7 +77,7 @@ func clockComponent(c Canvas) *Component {
 
 func marioComponent(c Canvas) *Component {
 	var component Component = NewImages(
-		"img/gif.gif",
+		"img/mario.gif",
 		Point{
 			X: (c.Bounds().Max.X - 32) / 2,
 			Y: (c.Bounds().Max.Y - 32) / 2,
@@ -155,5 +163,39 @@ func movingHeartsComponent(c Canvas) *Component {
 
 func happyBirthdayComponent(c Canvas) *Component {
 	var component Component = NewHappyBirthday(c)
+	return &component
+}
+
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
+
+func meteoLocalComponent(c Canvas) *Component {
+	var component Component = scenes.NewMeteoCurrentComponent(c, "94016")
+	return &component
+}
+
+func meteoForecastComponent(c Canvas) *Component {
+	var component Component = scenes.NewMeteoForecastComponent(c, "94016")
+	return &component
+}
+
+func photoComponent(c Canvas) *Component {
+	var component Component = scenes.NewPhotoComponent(c)
+	return &component
+}
+
+func photoGalleryComponent(c Canvas) *Component {
+	var component Component = scenes.NewPhotoGalleryComponent(c)
+	return &component
+}
+
+func nextBirthdaysComponent(c Canvas) *Component {
+	var component Component = scenes.NewNextBirthdaysComponent(c)
+	return &component
+}
+
+func focusComponent(c Canvas) *Component {
+	var component Component = scenes.NewFocusComponent(c)
 	return &component
 }

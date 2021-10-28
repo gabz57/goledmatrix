@@ -34,17 +34,19 @@ func NewHeartRed(canvas Canvas, parent *Graphic, initialPosition Point, fadeDura
 	}
 
 	var drawableHeartRed Drawable = heart.heart
-	heart.shape.AddDrawable(Masked(heart.mask, &drawableHeartRed))
+	var cMask Canvas = heart.mask
+	heart.shape.AddDrawable(Masked(&cMask, &drawableHeartRed))
 	// hack to avoid flash on first rendering
 	heart.Update(0)
 
 	return &heart
 }
 
-func (h *HeartRed) Update(elapsedBetweenUpdate time.Duration) {
+func (h *HeartRed) Update(elapsedBetweenUpdate time.Duration) bool {
 	h.step = float64(elapsedBetweenUpdate) / float64(h.fadeDuration)
 	h.fade, h.fadeOut = nextFadeValue(true, h.fadeOut, h.fade, h.step)
 	h.mask.SetFade(h.fade)
+	return true
 }
 
 func (h *HeartRed) IsFaded() bool {

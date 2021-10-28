@@ -48,7 +48,8 @@ func NewOctoLogo(canvas Canvas, center Point, radiusExt int) *OctoLogo {
 	return &logo
 }
 
-func (o *OctoLogo) Update(elapsedBetweenUpdate time.Duration) {
+func (o *OctoLogo) Update(elapsedBetweenUpdate time.Duration) bool {
+	return false
 }
 
 func (o *OctoLogo) Draw(canvas Canvas) error {

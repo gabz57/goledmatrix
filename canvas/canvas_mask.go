@@ -7,7 +7,7 @@ import (
 )
 
 type (
-	// Canvas wrapper to replace pixels color with colors from the colors
+	// Canvas wrapper to replace pixels color
 	Mask interface {
 		Canvas
 		Set(x, y int, ledColor color.Color)
@@ -22,6 +22,11 @@ type (
 	ColorFaderCanvasMask struct {
 		Mask
 		fade float64
+	}
+	VisibleMask struct {
+		Mask
+		visibleArea image.Rectangle
+		offset      image.Point
 	}
 )
 
@@ -55,6 +60,7 @@ func NewCanvasMask(canvas Canvas, colors []color.Color) *StaticCanvasMask {
 	}
 }
 
+// used in clock.go to color the large circle
 func NewShadedColorCanvasMask(canvas Canvas) *ShadedColorCanvasMask {
 	return &ShadedColorCanvasMask{
 		Mask: canvas,
@@ -153,4 +159,26 @@ func (c *ColorFaderCanvasMask) Set(x, y int, ledColor color.Color) {
 		B: uint8((1 - c.fade) * float64(uint8(b))),
 		A: uint8(a),
 	})
+}
+
+func NewVisibleMask(canvas Canvas, visibleArea image.Rectangle) *VisibleMask {
+	return &VisibleMask{
+		Mask:        canvas,
+		visibleArea: visibleArea,
+	}
+}
+
+func (c *VisibleMask) GetOffset() image.Point {
+	return c.offset
+}
+
+func (c *VisibleMask) SetOffset(offset image.Point) {
+	c.offset = offset
+}
+
+func (c *VisibleMask) Set(x, y int, ledColor color.Color) {
+	targetXY := image.Point{X: x, Y: y}.Add(c.offset)
+	if targetXY.In(c.visibleArea) {
+		c.Mask.Set(targetXY.X, targetXY.Y, ledColor)
+	}
 }

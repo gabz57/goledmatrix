@@ -79,10 +79,11 @@ func NewHappyBirthday(canvas Canvas) *HappyBirthday {
 	return &c
 }
 
-func (c *HappyBirthday) Update(elapsedBetweenUpdate time.Duration) {
+func (c *HappyBirthday) Update(elapsedBetweenUpdate time.Duration) bool {
 	c.tatianaTextPanel.Update(elapsedBetweenUpdate)
 	c.movingHearts.Update(elapsedBetweenUpdate)
 	c.redHeart.Update(elapsedBetweenUpdate)
+	return true
 }
 
 func (c *HappyBirthday) Draw(canvas Canvas) error {

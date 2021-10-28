@@ -11,11 +11,11 @@ import (
 type TextPanel struct {
 	panel        *Panel
 	text         *Text
-	value        string
 	font         fonts.MatrixFont
 	cornerRadius int
 	graphic      *Graphic
 	textGraphic  *Graphic
+	dirty        bool
 }
 
 func NewTextPanel(text string, textColor color.Color, panelLayout *Layout, position, dimension Point, cornerRadius int, fill, border bool, font fonts.MatrixFont) *TextPanel {
@@ -23,17 +23,17 @@ func NewTextPanel(text string, textColor color.Color, panelLayout *Layout, posit
 	panel := TextPanel{
 		graphic:      textPanelGraphic,
 		panel:        NewPanel(textPanelGraphic, panelLayout, Point{}, dimension, cornerRadius, fill, border),
-		value:        text,
 		font:         font,
 		cornerRadius: cornerRadius,
+		dirty:        true,
 	}
 	panel.textGraphic = NewGraphic(textPanelGraphic, NewLayout(textColor, nil))
 	panel.SetText(text)
 	return &panel
 }
 
-func (t *TextPanel) Update(elapsedBetweenUpdate time.Duration) {
-
+func (t *TextPanel) Update(elapsedBetweenUpdate time.Duration) bool {
+	return t.dirty
 }
 
 func (t *TextPanel) Draw(canvas Canvas) error {
@@ -41,7 +41,12 @@ func (t *TextPanel) Draw(canvas Canvas) error {
 	if err != nil {
 		return err
 	}
-	return t.text.Draw(canvas)
+	err = t.text.Draw(canvas)
+	if err != nil {
+		return err
+	}
+	t.dirty = false
+	return err
 }
 
 func (t *TextPanel) SetText(text string) {
@@ -78,4 +83,5 @@ func (t *TextPanel) SetText(text string) {
 	}
 
 	t.text = NewText(t.textGraphic, textPosition, text, t.font)
+	t.dirty = true
 }

@@ -24,8 +24,8 @@ func NewImages(imgPath string, position Point, targetSize Point) *Images {
 	return &images
 }
 
-func (i *Images) Update(elapsedBetweenUpdate time.Duration) {
-	i.gif.Update(elapsedBetweenUpdate)
+func (i *Images) Update(elapsedBetweenUpdate time.Duration) bool {
+	return i.gif.Update(elapsedBetweenUpdate)
 }
 
 func (i *Images) Draw(canvas Canvas) error {
