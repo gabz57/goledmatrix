@@ -36,7 +36,11 @@ func Gameloop(c *Canvas, done chan struct{}) {
 		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, meteoLocalComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "94016")}, sceneDuration), // Cachan
+		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "57176")}, sceneDuration), // Diebling
+		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "75112")}, sceneDuration), // Paris 12 arr
+		//NewScene([]*Component{meteoIconsComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{meteoIcons16Component(*c)}, sceneDuration),
 		////NewScene([]*Component{infoCpnt, photoComponent(*c)}, sceneDuration),
 		////NewScene([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration),
 		////NewScene([]*Component{infoCpnt, nextBirthdaysComponent(*c)}, sceneDuration),
@@ -175,8 +179,17 @@ func meteoLocalComponent(c Canvas) *Component {
 	return &component
 }
 
-func meteoForecastComponent(c Canvas) *Component {
-	var component Component = scenes.NewMeteoForecastComponent(c, "94016")
+func meteoForecastComponent(c Canvas, insee string) *Component {
+	var component Component = scenes.NewMeteoForecastComponent(c, insee)
+	return &component
+}
+func meteoIcons16Component(c Canvas) *Component {
+	var component Component = scenes.NewMeteoIcons16Component(c)
+	return &component
+}
+
+func meteoIconsComponent(c Canvas) *Component {
+	var component Component = scenes.NewMeteoIconsComponent(c)
 	return &component
 }
 

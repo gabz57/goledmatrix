@@ -117,7 +117,7 @@ func (m *MeteoCurrent) updateTextContent() {
 
 var monthReplacerFR = strings.NewReplacer(
 	"January", "Janvier",
-	"February", "Févier",
+	"February", "Février",
 	"March", "Mars",
 	"April", "Avril",
 	"May", "Mai",
@@ -128,6 +128,20 @@ var monthReplacerFR = strings.NewReplacer(
 	"October", "Octobre",
 	"November", "Novembre",
 	"December", "Décembre")
+var shortMonthReplacerFR = strings.NewReplacer(
+	"January", "Jan",
+	"February", "Fév",
+	"March", "Mar",
+	"April", "Avr",
+	"May", "Mai",
+	"June", "Jui",
+	"July", "Jui",
+	"August", "Aoû",
+	"September", "Sep",
+	"October", "Oct",
+	"November", "Nov",
+	"December", "Déc")
+
 var dayReplacerFR = strings.NewReplacer(
 	"Monday", "Lundi",
 	"Tuesday", "Mardi",
@@ -140,12 +154,16 @@ var dayReplacerFR = strings.NewReplacer(
 func localizeFR(dateTime string) string {
 	return monthReplacerFR.Replace(dayReplacerFR.Replace(dateTime))
 }
+
+func localizeShortFR(dateTime string) string {
+	return shortMonthReplacerFR.Replace(dayReplacerFR.Replace(dateTime))
+}
 func formatDateTime(dateTime time.Time) string {
-	return localizeFR(dateTime.Format("_2 January 15:04"))
+	return localizeShortFR(dateTime.Format("_2 January 06 15:04"))
 }
 
 func formatDate(dateTime time.Time) string {
-	return localizeFR(dateTime.Format("Monday _2 January"))
+	return localizeShortFR(dateTime.Format("Monday 2 January"))
 }
 
 func (m *MeteoCurrent) updateDatetime() bool {

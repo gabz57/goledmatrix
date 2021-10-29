@@ -4,12 +4,13 @@ import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
+	"strings"
 	"time"
 )
 
 type Images struct {
 	shape *CompositeDrawable
-	gif   *shapes.Img
+	img   *shapes.Img
 }
 
 func NewImages(imgPath string, position Point, targetSize Point) *Images {
@@ -17,25 +18,36 @@ func NewImages(imgPath string, position Point, targetSize Point) *Images {
 	images := Images{
 		shape: NewCompositeDrawable(
 			graphic),
-		gif: buildGif(graphic, &imgPath, targetSize),
+		img: buildImg(graphic, &imgPath, targetSize),
 	}
-	var drawableMario Drawable = images.gif
-	images.shape.AddDrawable(&drawableMario)
+	var drawableImg Drawable = images.img
+	images.shape.AddDrawable(&drawableImg)
 	return &images
 }
 
 func (i *Images) Update(elapsedBetweenUpdate time.Duration) bool {
-	return i.gif.Update(elapsedBetweenUpdate)
+	return i.img.Update(elapsedBetweenUpdate)
 }
 
 func (i *Images) Draw(canvas Canvas) error {
 	return i.shape.Draw(canvas)
 }
 
-func buildGif(graphic *Graphic, imgPath *string, size Point) *shapes.Img {
-	return shapes.NewGif(
-		NewGraphic(graphic, nil),
-		imgPath,
-		size,
-	)
+func buildImg(graphic *Graphic, imgPath *string, size Point) *shapes.Img {
+	if strings.HasSuffix(*imgPath, ".gif") {
+		return shapes.NewGif(
+			NewGraphic(graphic, nil),
+			imgPath,
+			size,
+		)
+	}
+	if strings.HasSuffix(*imgPath, ".png") {
+		return shapes.NewPng(
+			NewGraphic(graphic, nil),
+			imgPath,
+			size,
+		)
+	}
+	return nil
+	//panic(errors.New("Cannot read " + *imgPath))
 }

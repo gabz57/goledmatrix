@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"image/draw"
 	"image/gif"
+	"image/png"
 	"math"
 	"math/rand"
 	"os"
@@ -173,6 +174,29 @@ func ReadGif(imgPath *string, targetSize Point) (*[]image.Image, *[]time.Duratio
 		Min: image.Point{},
 		Max: image.Point(targetSize),
 	}
+}
+func ReadPng(imgPath *string) *image.Image {
+	f, err := os.Open(*imgPath)
+	if err != nil {
+		panic(err)
+	}
+
+	pngImg, err := png.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+
+	return &pngImg
+	//var rgba image.RGBA = *image.NewRGBA(pngImg.Bounds())
+	//max := pngImg.Bounds().Max
+	//for x := 0; x < max.X; x++ {
+	//	for y := 0; y < max.Y; y++ {
+	//		rgba.Set(x, y, pngImg.At(x, y))
+	//		//rgba.Set(x, y, ColorGreen)
+	//	}
+	//}
+	//var a image.Image = &rgba
+	//return &a
 }
 
 func writeBean(i int, images []image.Image) {
