@@ -74,51 +74,6 @@ func (c *CanvasImpl) SetPoint(point Point, ledColor color.Color) {
 	}
 }
 
-//
-////func (c *CanvasImpl) DrawLabel(x, y int, label string, face font.Face, ledColor color.Color) {
-////	var canvas Canvas
-////	canvas = c
-////	d := &font.Drawer{
-////		Dst:  &TextCanvas{Canvas: canvas},
-////		Src:  image.NewUniform(ledColor),
-////		Face: face,
-////		Dot:  fixed.Point26_6{X: fixed.Int26_6(x * 64), Y: fixed.Int26_6(y * 64)},
-////	}
-////	d.DrawString(label)
-////}
-////
-//func (c *CanvasImpl) DrawLabel(x, y int, label string, face font.Face, textColor color.Color) {
-//	var txtImageBuffer = c.Bounds()
-//	var leds = make([]color.Color, txtImageBuffer.Dx()*txtImageBuffer.Dy())
-//	var imgDst = NewSimpleCanvas(txtImageBuffer.Dx(), txtImageBuffer.Dy(), &leds)
-//	for rX := 0; rX < txtImageBuffer.Max.X; rX++ {
-//		for rY := 0; rY < txtImageBuffer.Max.Y; rY++ {
-//			imgDst.Set(rX, rY, color.Black)
-//		}
-//	}
-//
-//	d := font.Drawer{
-//		Dst:  imgDst,
-//		Src:  &image.Uniform{C: color.White},
-//		Face: face,
-//		Dot:  fixed.Point26_6{Y: face.Metrics().Height},
-//	}
-//	d.DrawString(label)
-//	txtWidth := d.MeasureString(label).Ceil()
-//	txtHeight := face.Metrics().Height.Ceil()
-//	for rX := 0; rX < txtWidth; rX++ {
-//		for rY := 0; rY < txtHeight; rY++ {
-//			at := imgDst.At(rX, rY)
-//			if at != color.Black {
-//				r, g, b, _ := at.RGBA()
-//				if r != 0 && g != 0 && b != 0 {
-//					c.Set(x+rX, y+rY, textColor)
-//				}
-//			}
-//		}
-//	}
-//}
-
 // Clear set all the leds on the matrix to nil
 func (c *CanvasImpl) Clear() {
 	c.leds = make([]color.Color, c.w*c.h)

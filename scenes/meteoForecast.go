@@ -73,11 +73,11 @@ func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 		dateTimeTextValue:  "",
 	}
 
-	m.cityText = shapes.NewScrollingText(meteoForecastGraphic, canvas, "Prévisions à ...", font, Point{X: 2, Y: 0}, image.Rect(0, 0, 88, 7), 10*time.Second)
+	m.cityText = shapes.NewScrollingText(meteoForecastGraphic, canvas, "Prévisions à ...", font, Point{X: 2, Y: 0}, image.Rect(0, 0, 88, 7), 12*time.Second)
 	var drawableCityText Drawable = m.cityText
 	m.shape.AddDrawable(&drawableCityText)
 
-	m.dateTimeText = shapes.NewScrollingText(meteoForecastGraphic, canvas, m.dateTimeTextValue, font, Point{X: 95, Y: 0}, image.Rect(0, 0, 31, 7), 10*time.Second)
+	m.dateTimeText = shapes.NewScrollingText(meteoForecastGraphic, canvas, m.dateTimeTextValue, font, Point{X: 95, Y: 0}, image.Rect(0, 0, 31, 7), 12*time.Second)
 	var drawableDateTimeText Drawable = m.dateTimeText
 	m.shape.AddDrawable(&drawableDateTimeText)
 
@@ -92,10 +92,10 @@ func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 	var offset = 18
 	var currentOffset = 0
 	for i := 0; i < nbDays; i++ {
-		m.dateText[i] = shapes.NewScrollingText(graphics, canvas, "", font, Point{X: 2, Y: currentOffset}, image.Rect(0, 0, 78, 7), 10*time.Second)
+		m.dateText[i] = shapes.NewScrollingText(graphics, canvas, "", font, Point{X: 2, Y: currentOffset}, image.Rect(0, 0, 78, 7), 12*time.Second)
 		var drawableDateText Drawable = m.dateText[i]
 		m.shape.AddDrawable(&drawableDateText)
-		m.weatherText[i] = shapes.NewScrollingText(graphics, canvas, "", font, Point{X: 2, Y: 7 + currentOffset}, image.Rect(0, 0, 78, 7), 10*time.Second)
+		m.weatherText[i] = shapes.NewScrollingText(graphics, canvas, "", font, Point{X: 2, Y: 7 + currentOffset}, image.Rect(0, 0, 78, 7), 12*time.Second)
 		var drawableWeatherText Drawable = m.weatherText[i]
 		m.shape.AddDrawable(&drawableWeatherText)
 

@@ -2,6 +2,7 @@ package shapes
 
 import (
 	"github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/masks"
 	"github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/fonts"
 	"image"
@@ -10,16 +11,13 @@ import (
 
 type ScrollingText struct {
 	visibleArea image.Rectangle
-	mask        *canvas.VisibleMask
+	visibleMask *masks.VisibleMask
 	text        *Text
 	delay       time.Duration
 	duration    time.Duration
 	elapsed     time.Duration
 	maxScroll   int
 	masked      *components.Drawable
-
-	//pauseStart bool
-	//pauseEnd bool
 }
 
 func NewScrollingText(graphic *components.Graphic, c canvas.Canvas, txt string, f fonts.MatrixFont, position canvas.Point, visibleArea image.Rectangle, duration time.Duration) *ScrollingText {
@@ -29,16 +27,15 @@ func NewScrollingText(graphic *components.Graphic, c canvas.Canvas, txt string, 
 	}).Add(image.Point(graphic.ComputedOffset()))
 	st := ScrollingText{
 		visibleArea: visible,
-		mask:        canvas.NewVisibleMask(c, visible),
+		visibleMask: masks.NewVisibleMask(visible),
 		text:        NewText(graphic, position, txt, f),
 		duration:    duration,
-		delay:       2000 * time.Millisecond,
+		delay:       time.Duration(float64(duration.Nanoseconds()) * 0.15),
 		elapsed:     0,
 	}
+	var mask canvas.Mask = st.visibleMask
 	var drawableText components.Drawable = st.text
-	var cMask canvas.Canvas = st.mask
-	st.masked = components.Masked(&cMask, &drawableText)
-
+	st.masked = components.MaskDrawable(&mask, &drawableText)
 	st.SetText(txt)
 	return &st
 }
@@ -49,7 +46,7 @@ func (st *ScrollingText) Draw(canvas canvas.Canvas) error {
 
 func (st *ScrollingText) Update(elapsedBetweenUpdate time.Duration) bool {
 	st.elapsed += elapsedBetweenUpdate
-	if st.elapsed > (st.duration + 3*st.delay) {
+	if st.elapsed >= st.duration {
 		st.elapsed = 0
 	}
 	return st.updateOffset()
@@ -62,35 +59,35 @@ func (st *ScrollingText) updateOffset() bool {
 	// nextOffsetX: [0 to maxScroll]
 	nextOffset := st.computeNextOffset()
 
-	if st.mask.GetOffset().Eq(nextOffset) {
+	if st.visibleMask.GetOffset().Eq(nextOffset) {
 		return false
 	} else {
-		st.mask.SetOffset(nextOffset)
+		st.visibleMask.SetOffset(nextOffset)
 		return true
 	}
 }
 
 func (st *ScrollingText) computeNextOffset() image.Point {
 	var ratio float64 = 0
-	if st.elapsed > st.delay {
-		if st.elapsed < (st.delay + st.duration/2) {
-			// advance
-			ratio = float64(st.elapsed.Milliseconds()-st.delay.Milliseconds()) / float64(st.duration.Milliseconds()/2)
-			if ratio > 1 {
-				ratio = 1
-			}
-		} else if st.elapsed < (2*st.delay + st.duration/2) {
-			// pause at the end
+	if st.elapsed < st.delay {
+		ratio = 0
+	} else if st.elapsed < (st.duration/2 - st.delay) {
+		// advance
+		ratio = float64(st.elapsed.Milliseconds()-st.delay.Milliseconds()) / float64(st.duration.Milliseconds()/2-2*st.delay.Milliseconds())
+		if ratio > 1 {
 			ratio = 1
-		} else {
-			// backward
-			ratio = float64(1) - float64(st.elapsed.Milliseconds()-2*st.delay.Milliseconds()-st.duration.Milliseconds()/2)/float64(st.duration.Milliseconds()/2)
-			if ratio < 0 {
-				ratio = 0
-			}
 		}
+	} else if st.elapsed > (st.delay + st.duration/2) {
+		// backward
+		ratio = float64(1) - float64(st.elapsed.Milliseconds()-(st.duration.Milliseconds()/2+st.delay.Milliseconds()))/float64(st.duration.Milliseconds()/2-2*st.delay.Milliseconds())
+		if ratio < 0 {
+			ratio = 0
+		}
+	} else {
+		// pause at the end
+		ratio = 1
 	}
-	//println("ratio" + strconv.FormatFloat(ratio, 'f', 3, 64))
+	//println("ratio " + strconv.FormatFloat(ratio, 'f', 2, 64), st.elapsed.String())
 	nextOffset := image.Point{
 		X: -int(float64(st.maxScroll) * ratio),
 		Y: 0,

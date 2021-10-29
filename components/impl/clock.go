@@ -2,6 +2,7 @@ package impl
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/masks"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"github.com/gabz57/goledmatrix/fonts"
@@ -25,8 +26,8 @@ type Clock struct {
 
 func NewClock(canvas Canvas, center Point, radius int) Component {
 	location, _ := time.LoadLocation("Europe/Paris")
-	var mask Canvas
-	mask = NewShadedColorCanvasMask(canvas)
+	var shadedColorCanvasMask = masks.NewShadedColorCanvasMask(canvas.Bounds())
+	var canvasMask Mask = shadedColorCanvasMask
 
 	c := Clock{
 		now:      time.Now(),
@@ -39,7 +40,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
 
-	c.shape.AddDrawable(Masked(&mask, c.buildStaticContourCircle()))
+	c.shape.AddDrawable(MaskDrawable(&canvasMask, c.buildStaticContourCircle()))
 	c.shape.AddDrawable(c.buildStaticCenter())
 	c.shape.AddDrawable(c.buildStaticHours()...)
 	c.shape.AddDrawable(c.buildStaticMinutes()...)
@@ -53,7 +54,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
 	var drawableMinute Drawable = c.rotatingMinute
-	c.shape.AddDrawable(Masked(&mask, &drawableMinute))
+	c.shape.AddDrawable(MaskDrawable(&canvasMask, &drawableMinute))
 
 	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
 	var drawableMinuteDot Drawable = c.rotatingMinuteDot
@@ -61,7 +62,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	c.rotatingHour = c.buildRotatingHour(hour, min)
 	var drawableHour Drawable = c.rotatingHour
-	c.shape.AddDrawable(Masked(&mask, &drawableHour))
+	c.shape.AddDrawable(MaskDrawable(&canvasMask, &drawableHour))
 
 	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
 	var drawableHourDot Drawable = c.rotatingHourDot

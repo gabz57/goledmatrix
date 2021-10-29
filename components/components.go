@@ -22,36 +22,6 @@ type Drawable interface {
 	Draw(canvas Canvas) error
 }
 
-type CompositeDrawable struct {
-	Graphic   *Graphic
-	Drawables []*Drawable
-}
-
-func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
-	return &CompositeDrawable{
-		Graphic:   graphic,
-		Drawables: []*Drawable{},
-	}
-}
-
-func (cd *CompositeDrawable) AddDrawable(drawables ...*Drawable) {
-	for _, drawable := range drawables {
-		cd.Drawables = append(cd.Drawables, drawable)
-	}
-}
-
-func (cd *CompositeDrawable) Draw(canvas Canvas) error {
-	var err error
-	for _, drawable := range cd.Drawables {
-		// FIXME: apply cd.Graphic.ComputedOffset()
-		err = (*drawable).Draw(canvas)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 type Layout struct {
 	color           color.Color
 	backgroundColor color.Color
@@ -91,21 +61,26 @@ func (g *Graphic) SetOffset(offset Point) {
 	g.offset = offset
 }
 
-func Masked(mask *Canvas, drawable *Drawable) *Drawable {
-	var d Drawable
-	d = &MaskedDrawable{
+type MaskedDrawable struct {
+	drawable *Drawable
+	mask     *Mask
+}
+
+func MaskDrawable(mask *Mask, drawable *Drawable) *Drawable {
+	var maskedDrawable Drawable = &MaskedDrawable{
 		drawable: drawable,
 		mask:     mask,
 	}
-	return &d
-}
-
-type MaskedDrawable struct {
-	drawable *Drawable
-	mask     *Canvas
+	return &maskedDrawable
 }
 
 // override Drawable.Draw method to perform indirection with mask
-func (m MaskedDrawable) Draw(canvas Canvas) error {
-	return (*m.drawable).Draw(*m.mask)
+func (md MaskedDrawable) Draw(canvas Canvas) error {
+	var c = wrapMask(md.mask, &canvas)
+	return (*md.drawable).Draw(*c)
+}
+
+func wrapMask(mask *Mask, c *Canvas) *Canvas {
+	var canvas Canvas = NewMaskAdapter(c, mask)
+	return &canvas
 }

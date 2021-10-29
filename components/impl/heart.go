@@ -2,6 +2,7 @@ package impl
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/masks"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"image/color"
@@ -16,7 +17,7 @@ const (
 type Heart struct {
 	shape        *CompositeDrawable
 	heart        *shapes.Free
-	mask         *ColorFaderCanvasMask
+	mask         *masks.ColorFaderCanvasMask
 	fadeOut      bool
 	fade         float64
 	fadeDuration time.Duration
@@ -30,13 +31,12 @@ func NewHeart(canvas Canvas, parent *Graphic, initialPosition Point, fadeDuratio
 		fade:         initialFade,
 		fadeOut:      initialFadeOut,
 		fadeDuration: fadeDuration,
-		mask:         NewColorFaderMask(canvas),
+		mask:         masks.NewColorFaderMask(),
 		heart:        shapes.NewFree(heartGraphic, heartPixels()),
 	}
-
+	var mask Mask = heart.mask
 	var drawableHeart Drawable = heart.heart
-	var cMask Canvas = heart.mask
-	heart.shape.AddDrawable(Masked(&cMask, &drawableHeart))
+	heart.shape.AddDrawable(MaskDrawable(&mask, &drawableHeart))
 	// to avoid flash on first rendering
 	heart.Update(0)
 

@@ -15,18 +15,7 @@ type (
 		activeScene            *Scene
 		elapsedSinceSceneStart time.Duration
 	}
-	Scene struct {
-		components []*Component
-		duration   time.Duration
-	}
 )
-
-func NewScene(component []*Component, duration time.Duration) *Scene {
-	return &Scene{
-		components: component,
-		duration:   duration,
-	}
-}
 
 func NewEngine(canvas *canvas.Canvas, scenes []*Scene) Engine {
 	return Engine{
@@ -109,25 +98,6 @@ func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) bool {
 // Draw the components into the canvas and renders its content
 func (e *Engine) render() error {
 	return e.activeScene.Render(e.canvas)
-}
-
-func (s *Scene) Update(elapsedBetweenUpdate time.Duration) bool {
-	dirtyScene := false
-	for _, component := range s.components {
-		dirtyScene = (*component).Update(elapsedBetweenUpdate) || dirtyScene
-	}
-	return dirtyScene
-}
-
-func (s *Scene) Render(c *canvas.Canvas) error {
-	(*c).Clear()
-	for _, component := range s.components {
-		err := (*component).Draw(*c)
-		if err != nil {
-			return err
-		}
-	}
-	return (*c).Render()
 }
 
 func (e *Engine) runNextScene() {

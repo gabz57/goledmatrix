@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// I know this is a bad practice, but this token is limited
+//to 500 call/day and only helps to retrieve weather data
 var API_TOKEN = "7dd633b15368426444bba6c2d798fa3fe132358e5e4a1f905a37fdfd9a5f06e5"
 
 const meteoDataValidDuration = 10 * time.Minute
@@ -256,7 +258,7 @@ func (m *MeteoConceptClient) ForecastDaily() (*ForecastDayResponse, error) {
 }
 
 func (m *MeteoConceptClient) getForecastDailyResponse() (*ForecastDayResponse, error) {
-	fmt.Println("getForecastDaily ...")
+	fmt.Println("getForecastDaily ", m.insee)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.meteo-concept.com/api/forecast/daily?token="+API_TOKEN+"&insee="+m.insee, nil)
 	if err != nil {

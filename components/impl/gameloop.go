@@ -3,6 +3,7 @@ package impl
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
+	"github.com/gabz57/goledmatrix/components/effect"
 	"github.com/gabz57/goledmatrix/scenes"
 	"math/rand"
 	"time"
@@ -11,10 +12,11 @@ import (
 func Gameloop(c *Canvas, done chan struct{}) {
 	infoCpnt := infoComponent(*c)
 	sceneDuration := 12 * time.Second
+	var fadeEffect CanvasEffect = effect.NewFadeInOutSceneEffect(&sceneDuration)
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, clockComponent(*c)}, sceneDuration),
+		NewScene([]*Component{infoCpnt, clockComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{marioComponent(*c), infoCpnt}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
@@ -36,9 +38,9 @@ func Gameloop(c *Canvas, done chan struct{}) {
 		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, meteoLocalComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "94016")}, sceneDuration), // Cachan
-		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "57176")}, sceneDuration), // Diebling
-		NewScene([]*Component{infoCpnt, meteoForecastComponent(*c, "75112")}, sceneDuration), // Paris 12 arr
+		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "94016")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Cachan
+		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "57176")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Diebling
+		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "75112")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Paris 12 arr
 		//NewScene([]*Component{meteoIconsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{meteoIcons16Component(*c)}, sceneDuration),
 		////NewScene([]*Component{infoCpnt, photoComponent(*c)}, sceneDuration),

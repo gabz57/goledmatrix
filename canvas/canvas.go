@@ -21,6 +21,10 @@ type Pixel struct {
 	C    *color.Color
 }
 
+func Position(x, y, w int) int {
+	return x + (y * w)
+}
+
 type Point image.Point
 
 type FloatingPoint struct {
