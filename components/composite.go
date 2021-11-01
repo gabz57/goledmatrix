@@ -1,6 +1,8 @@
 package components
 
-import "github.com/gabz57/goledmatrix/canvas"
+import (
+	"github.com/gabz57/goledmatrix/canvas"
+)
 
 type CompositeDrawable struct {
 	Graphic   *Graphic
@@ -17,6 +19,15 @@ func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
 func (cd *CompositeDrawable) AddDrawable(drawables ...*Drawable) {
 	for _, drawable := range drawables {
 		cd.Drawables = append(cd.Drawables, drawable)
+	}
+}
+
+func (cd *CompositeDrawable) RemoveDrawable(d *Drawable) {
+	for index, drawable := range cd.Drawables {
+		if *drawable == *d {
+			cd.Drawables = append(cd.Drawables[:index], cd.Drawables[index+1:]...)
+			return
+		}
 	}
 }
 

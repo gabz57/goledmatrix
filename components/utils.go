@@ -1,6 +1,7 @@
 package components
 
 import (
+	"errors"
 	"fmt"
 	"github.com/anthonynsimon/bild/transform"
 	. "github.com/gabz57/goledmatrix/canvas"
@@ -8,13 +9,19 @@ import (
 	"image/color"
 	"image/draw"
 	"image/gif"
+	"image/jpeg"
 	"image/png"
+	"io/ioutil"
 	"math"
 	"math/rand"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
+
+var randomSource = rand.NewSource(time.Now().UnixNano())
+var Random = rand.New(randomSource)
 
 var Origin = Point{}
 var None = Origin
@@ -113,7 +120,7 @@ func DirectionToFloatingPoint(direction float64) FloatingPoint {
 func Int64Between(low, high int64) int64 {
 	var gen int64
 	for gen < low {
-		gen = rand.Int63n(high)
+		gen = Random.Int63n(high)
 	}
 	return gen
 }
@@ -121,13 +128,13 @@ func Int64Between(low, high int64) int64 {
 func Float64Between(low, high float64) float64 {
 	var gen float64
 	for gen <= low {
-		gen = rand.Float64() * high
+		gen = Random.Float64() * high
 	}
 	return gen
 }
 
 func OneOrMinusOne() float64 {
-	if rand.Intn(1) == 0 {
+	if Random.Intn(1) == 0 {
 		return -1
 	}
 	return 1
@@ -175,6 +182,7 @@ func ReadGif(imgPath *string, targetSize Point) (*[]image.Image, *[]time.Duratio
 		Max: image.Point(targetSize),
 	}
 }
+
 func ReadPng(imgPath *string) *image.Image {
 	f, err := os.Open(*imgPath)
 	if err != nil {
@@ -187,20 +195,24 @@ func ReadPng(imgPath *string) *image.Image {
 	}
 
 	return &pngImg
-	//var rgba image.RGBA = *image.NewRGBA(pngImg.Bounds())
-	//max := pngImg.Bounds().Max
-	//for x := 0; x < max.X; x++ {
-	//	for y := 0; y < max.Y; y++ {
-	//		rgba.Set(x, y, pngImg.At(x, y))
-	//		//rgba.Set(x, y, ColorGreen)
-	//	}
-	//}
-	//var a image.Image = &rgba
-	//return &a
+}
+
+func ReadJpg(imgPath *string) *image.Image {
+	f, err := os.Open(*imgPath)
+	if err != nil {
+		panic(err)
+	}
+
+	img, err := jpeg.Decode(f)
+	if err != nil {
+		panic(err)
+	}
+
+	return &img
 }
 
 func writeBean(i int, images []image.Image) {
-	myfile, err := os.Create("img/bean" + strconv.Itoa(i) + ".gif") // ... now lets save imag
+	myfile, err := os.Create("img/bean/bean" + strconv.Itoa(i) + ".gif") // ... now lets save imag
 	if err != nil {
 		panic(err)
 	}
@@ -213,7 +225,7 @@ func ReadBeanGif() (*[]image.Image, *[]time.Duration, *image.Rectangle) {
 	durations := make([]time.Duration, 12)
 	images := make([]image.Image, 12)
 	for i := 0; i <= 11; i++ {
-		f, err := os.Open("img/bean" + strconv.Itoa(i) + ".gif")
+		f, err := os.Open("img/bean/bean" + strconv.Itoa(i) + ".gif")
 		if err != nil {
 			panic(err)
 		}
@@ -248,4 +260,38 @@ func computeTargetSize(image *image.Paletted, targetSize Point) (Point, float64)
 		Y: int(float64(originalMaxSize.Y) * ratio),
 	}
 	return adjTargetSize, ratio
+}
+
+var ImagesSuffixes = []string{".jpg", ".png", ".gif"}
+
+func RandomFile(dir string, suffixes []string) (*string, error) {
+	files, err := ioutil.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+	if len(files) == 0 {
+		return nil, errors.New("no files in " + dir)
+	}
+	var validImgIndex = -1
+	var nbTests = 0
+	// avoid infinite loop using size of directory
+	for validImgIndex == -1 && nbTests < len(files) {
+		var imgIndex = Random.Intn(len(files))
+		name := files[imgIndex].Name()
+		println("Testing :", name)
+		if !files[imgIndex].IsDir() {
+			for _, suffix := range suffixes {
+				if strings.HasSuffix(name, suffix) {
+					validImgIndex = imgIndex
+					break
+				}
+			}
+		}
+		nbTests++
+	}
+	if validImgIndex == -1 {
+		return nil, errors.New("no valid files found in " + dir)
+	}
+	randomFileName := dir + "/" + files[validImgIndex].Name()
+	return &randomFileName, nil
 }

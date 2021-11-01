@@ -3,7 +3,6 @@ package impl
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	"github.com/gabz57/goledmatrix/components"
-	"math/rand"
 	"time"
 )
 
@@ -29,7 +28,7 @@ func NewMovingHearts(canvas Canvas, origin Point, nbMovingHearts int) *MovingHea
 }
 
 func (h *MovingHearts) addHeart() {
-	time.Sleep(time.Duration(rand.Int63n(2000)) * time.Millisecond)
+	time.Sleep(time.Duration(components.Random.Int63n(2000)) * time.Millisecond)
 	h.hearts = append(h.hearts, generateMovingHeart(*h.canvas, h.maxX, h.maxY))
 }
 
@@ -41,8 +40,8 @@ func generateMovingHeart(canvas Canvas, maxX int, maxY int) *MovingHeart {
 	return NewMovingHeart(
 		canvas,
 		Point{
-			X: rand.Intn(maxX),
-			Y: rand.Intn(maxY),
+			X: components.Random.Intn(maxX),
+			Y: components.Random.Intn(maxY),
 		},
 		time.Duration(components.Int64Between(2000, 5000))*time.Millisecond,
 		1,

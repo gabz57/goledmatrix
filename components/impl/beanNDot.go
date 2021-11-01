@@ -5,7 +5,6 @@ import (
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"image"
-	"math/rand"
 	"time"
 )
 
@@ -21,23 +20,23 @@ func NewBeanNDot(c Canvas) *BeanNDot {
 			graphic,
 			Point{X: 128, Y: 78},
 			100*time.Millisecond,
-			"img/bean0.gif",
-			"img/bean1.gif",
-			"img/bean2.gif",
-			"img/bean3.gif",
-			"img/bean4.gif",
-			"img/bean5.gif",
-			"img/bean6.gif",
-			"img/bean7.gif",
-			"img/bean8.gif",
-			"img/bean9.gif",
-			"img/bean10.gif",
-			"img/bean11.gif",
+			"img/bean/bean0.gif",
+			"img/bean/bean1.gif",
+			"img/bean/bean2.gif",
+			"img/bean/bean3.gif",
+			"img/bean/bean4.gif",
+			"img/bean/bean5.gif",
+			"img/bean/bean6.gif",
+			"img/bean/bean7.gif",
+			"img/bean/bean8.gif",
+			"img/bean/bean9.gif",
+			"img/bean/bean10.gif",
+			"img/bean/bean11.gif",
 		),
 		movingDot: NewMovingDot(
 			c,
 			Point{
-				X: rand.Intn(128),
+				X: Random.Intn(128),
 				Y: int(Int64Between(79, 128)),
 			},
 			FloatingPoint{

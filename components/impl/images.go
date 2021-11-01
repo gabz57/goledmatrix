@@ -4,7 +4,6 @@ import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
-	"strings"
 	"time"
 )
 
@@ -18,7 +17,7 @@ func NewImages(imgPath string, position Point, targetSize Point) *Images {
 	images := Images{
 		shape: NewCompositeDrawable(
 			graphic),
-		img: buildImg(graphic, &imgPath, targetSize),
+		img: shapes.NewImg(graphic, &imgPath, targetSize),
 	}
 	var drawableImg Drawable = images.img
 	images.shape.AddDrawable(&drawableImg)
@@ -31,23 +30,4 @@ func (i *Images) Update(elapsedBetweenUpdate time.Duration) bool {
 
 func (i *Images) Draw(canvas Canvas) error {
 	return i.shape.Draw(canvas)
-}
-
-func buildImg(graphic *Graphic, imgPath *string, size Point) *shapes.Img {
-	if strings.HasSuffix(*imgPath, ".gif") {
-		return shapes.NewGif(
-			NewGraphic(graphic, nil),
-			imgPath,
-			size,
-		)
-	}
-	if strings.HasSuffix(*imgPath, ".png") {
-		return shapes.NewPng(
-			NewGraphic(graphic, nil),
-			imgPath,
-			size,
-		)
-	}
-	return nil
-	//panic(errors.New("Cannot read " + *imgPath))
 }

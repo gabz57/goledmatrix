@@ -5,18 +5,19 @@ import (
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/effect"
 	"github.com/gabz57/goledmatrix/scenes"
-	"math/rand"
 	"time"
 )
 
 func Gameloop(c *Canvas, done chan struct{}) {
-	infoCpnt := infoComponent(*c)
+	//infoCpnt := infoComponent(*c)
 	sceneDuration := 12 * time.Second
 	var fadeEffect CanvasEffect = effect.NewFadeInOutSceneEffect(&sceneDuration)
+	photoGallery := photoGalleryComponent(*c)
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
-		NewScene([]*Component{infoCpnt, clockComponent(*c)}, sceneDuration),
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ clockComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		////NewSceneWithEffect([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
 		//NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{marioComponent(*c), infoCpnt}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
@@ -38,14 +39,16 @@ func Gameloop(c *Canvas, done chan struct{}) {
 		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, meteoLocalComponent(*c)}, sceneDuration),
-		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "94016")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Cachan
-		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "57176")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Diebling
-		NewSceneWithEffect([]*Component{infoCpnt, meteoForecastComponent(*c, "75112")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Paris 12 arr
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoForecastComponent(*c, "94016")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Cachan
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoForecastComponent(*c, "57176")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Diebling
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoForecastComponent(*c, "75112")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Paris 12 arr
+		NewSceneWithEffect([]*Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []*CanvasEffect{&fadeEffect}),
 		//NewScene([]*Component{meteoIconsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{meteoIcons16Component(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, photoComponent(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration),
-		////NewScene([]*Component{infoCpnt, nextBirthdaysComponent(*c)}, sceneDuration),
+		//NewScene([]*Component{infoCpnt, photoComponent(*c)}, sceneDuration),
+		//NewSceneWithEffect([]*Component{infoCpnt, nextAnniversariesComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
 		////NewScene([]*Component{infoCpnt, focusComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt}, sceneDuration),
 	})
@@ -117,8 +120,8 @@ func movingDotComponent(c Canvas) *Component {
 	var component Component = NewMovingDot(
 		c,
 		Point{
-			X: rand.Intn(64),
-			Y: rand.Intn(64),
+			X: Random.Intn(64),
+			Y: Random.Intn(64),
 		},
 		FloatingPoint{
 			X: Float64Between(32, 64),
@@ -151,8 +154,8 @@ func heartComponent(c Canvas) *Component {
 			X: c.Bounds().Max.X / 5,
 			Y: c.Bounds().Max.Y / 2,
 		},
-		time.Duration(rand.Int63n(5000))*time.Millisecond,
-		rand.Float64(),
+		time.Duration(Random.Int63n(5000))*time.Millisecond,
+		Random.Float64(),
 		false)
 	return &component
 }
@@ -205,8 +208,8 @@ func photoGalleryComponent(c Canvas) *Component {
 	return &component
 }
 
-func nextBirthdaysComponent(c Canvas) *Component {
-	var component Component = scenes.NewNextBirthdaysComponent(c)
+func nextAnniversariesComponent(c Canvas) *Component {
+	var component Component = scenes.NewNextAnniversariesComponent(c)
 	return &component
 }
 

@@ -70,7 +70,7 @@ func readIcons16(canvas Canvas, dir string, files []fs.FileInfo, offset image.Po
 		if strings.HasSuffix(file.Name(), ".png") {
 			path := dir + "/" + file.Name()
 			println(file.Name(), position.String())
-			icons = append(icons, funcName(nil, position, path, targetSize))
+			icons = append(icons, buildImg(position, path, targetSize))
 		}
 		position = position.Add(image.Point{X: padding})
 		if !position.Add(image.Point{X: length, Y: length}).In(canvas.Bounds()) {

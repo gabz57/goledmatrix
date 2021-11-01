@@ -70,7 +70,7 @@ func readIcons(canvas Canvas, dir string, files []fs.FileInfo, offset image.Poin
 		if strings.HasSuffix(file.Name(), ".png") {
 			path := dir + "/" + file.Name()
 			println(file.Name(), position.String())
-			icons = append(icons, funcName(nil, position, path, targetSize))
+			icons = append(icons, buildImg(position, path, targetSize))
 		}
 		position = position.Add(image.Point{X: padding})
 		if !position.Add(image.Point{X: 12, Y: 12}).In(canvas.Bounds()) {
@@ -80,9 +80,9 @@ func readIcons(canvas Canvas, dir string, files []fs.FileInfo, offset image.Poin
 	return icons
 }
 
-func funcName(parent *Graphic, position image.Point, path string, targetSize Point) shapes.Img {
-	return *shapes.NewPng(
-		NewOffsetGraphic(parent, nil, Point{X: position.X, Y: position.Y}),
+func buildImg(position image.Point, path string, targetSize Point) shapes.Img {
+	return *shapes.NewImg(
+		NewOffsetGraphic(nil, nil, Point{X: position.X, Y: position.Y}),
 		&path,
 		targetSize,
 	)
