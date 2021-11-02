@@ -21,6 +21,15 @@ This project uses Docker BuildX to build and prepare the different targets :
 - **linux/arm64** (for RPi 3B+ with more recent OS in 64-bit)
 // Note arm64 might not work and need further tests
 
+
+MacBook:
+```sh
+# https://gobot.io/documentation/platforms/joystick/
+brew install sdl2
+# https://github.com/gopherdata/gophernotes/issues/82
+brew install pkg-config
+```
+
 ### To do only once : 
 Setup Docker BuildX (⚠️ One must also ensure that experimental mode is enabled in Docker)
 ```sh

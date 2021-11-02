@@ -1,0 +1,33 @@
+{
+  "name": "Custom Dualshock4 Controller",
+  "guid": "2222",
+  "axis": [
+    {"name": "left_x", "id": 0},
+    {"name": "left_y", "id": 1},
+    {"name": "right_x", "id": 3},
+    {"name": "right_y", "id": 4},
+    {"name": "??", "id": 2},
+    {"name": "l2", "id": 6},
+    {"name": "r2", "id": 5}
+  ],
+  "buttons": [
+    {"name": "square", "id": 2},
+    {"name": "triangle", "id": 3},
+    {"name": "circle", "id": 1},
+    {"name": "x", "id": 0},
+    {"name": "l1", "id": 9},
+    {"name": "r1", "id": 10},
+    {"name": "share", "id": 4},
+    {"name": "options", "id": 6},
+    {"name": "home", "id": 5},
+    {"name": "down", "id": 12},
+    {"name": "up", "id": 11},
+    {"name": "left", "id": 13},
+    {"name": "right", "id": 14},
+    {"name": "l3", "id": 7},
+    {"name": "r3", "id": 8}
+  ],
+  "Hats": [
+    {"hat": 0, "name": "released", "id": 0}
+  ]
+}

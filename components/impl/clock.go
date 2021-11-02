@@ -10,18 +10,23 @@ import (
 	"time"
 )
 
+const nbRotatingSeconds = 30
+
 type Clock struct {
-	shape             *CompositeDrawable
-	now               time.Time
-	center            Point
-	radius            int
-	text              *shapes.Text
-	rotatingHour      *shapes.Line
-	rotatingHourDot   *shapes.Dot
-	rotatingMinute    *shapes.Line
-	rotatingMinuteDot *shapes.Dot
-	rotatingSecond    *shapes.Dot
-	location          *time.Location
+	shape               *CompositeDrawable
+	now                 time.Time
+	center              Point
+	radius              int
+	text                *shapes.Text
+	rotatingHour        *shapes.Line
+	rotatingHourDot     *shapes.Dot
+	rotatingMinute      *shapes.Line
+	rotatingMinuteDot   *shapes.Dot
+	rotatingSeconds     []*shapes.Dot
+	rotatingSecondIndex int
+	rotatingSecondMasks []*masks.ColorFaderCanvasMask
+
+	location *time.Location
 }
 
 func NewClock(canvas Canvas, center Point, radius int) Component {
@@ -30,11 +35,13 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	var canvasMask Mask = shadedColorCanvasMask
 
 	c := Clock{
-		now:      time.Now(),
-		center:   center,
-		radius:   radius,
-		shape:    NewCompositeDrawable(NewGraphic(nil, nil)),
-		location: location,
+		now:                 time.Now(),
+		center:              center,
+		radius:              radius,
+		shape:               NewCompositeDrawable(NewGraphic(nil, nil)),
+		location:            location,
+		rotatingSeconds:     make([]*shapes.Dot, nbRotatingSeconds),
+		rotatingSecondMasks: make([]*masks.ColorFaderCanvasMask, nbRotatingSeconds),
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
@@ -47,10 +54,18 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	now := time.Now().In(c.location)
 	hour, min, sec := now.Clock()
-
-	c.rotatingSecond = c.buildRotatingSecond(sec)
-	var drawableSecond Drawable = c.rotatingSecond
-	c.shape.AddDrawable(&drawableSecond)
+	for i := 0; i < nbRotatingSeconds; i++ {
+		c.rotatingSeconds[i] = c.buildRotatingSecond(sec)
+		var drawableSecond Drawable = c.rotatingSeconds[i]
+		c.rotatingSecondMasks[i] = masks.NewColorFaderMask()
+		c.rotatingSecondMasks[i].SetFade(float64(nbRotatingSeconds-i) / float64(nbRotatingSeconds))
+		var mask Mask = c.rotatingSecondMasks[i]
+		c.shape.AddDrawable(MaskDrawable(&mask, &drawableSecond))
+		//c.shape.AddDrawable(&drawableSecond)
+	}
+	//c.rotatingSecond = c.buildRotatingSecond(sec)
+	//var drawableSecond Drawable = c.rotatingSecond
+	//c.shape.AddDrawable(&drawableSecond)
 
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
 	var drawableMinute Drawable = c.rotatingMinute
@@ -72,35 +87,38 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 }
 
 func (c *Clock) Update(elapsedBetweenUpdate time.Duration) bool {
-	now := time.Now().In(c.location)
-	if now.Sub(c.now).Milliseconds() < 10 {
-		// skip
-		return false
-	}
-	c.now = now
+	updated := false
+	c.now = time.Now().In(c.location)
 	hour, min, sec := c.now.Clock()
 
-	aDHour := angleDegreesHour(hour, min)
-	c.rotatingHour.SetLine(
-		c.center,
-		c.hourLineEnd(aDHour),
-	)
-	c.rotatingHourDot.SetPosition(
-		c.hourLineEnd(aDHour),
-	)
+	hourEnd := c.hourLineEnd(angleDegreesHour(hour, min))
+	if hourEnd.X != c.rotatingHourDot.GetPosition().X || hourEnd.Y != c.rotatingHourDot.GetPosition().Y {
+		c.rotatingHourDot.SetPosition(hourEnd)
+		c.rotatingHour.SetLine(c.center, hourEnd)
+		updated = true
+	}
 
-	c.rotatingMinute.SetLine(
-		c.center,
-		c.minuteLineEnd(angleDegreesMinute(min, sec)),
-	)
-	c.rotatingMinuteDot.SetPosition(
-		c.minuteLineEnd(angleDegreesMinute(min, sec)),
-	)
+	end := c.minuteLineEnd(angleDegreesMinute(min, sec))
+	if end.X != c.rotatingMinuteDot.GetPosition().X || end.Y != c.rotatingMinuteDot.GetPosition().Y {
+		c.rotatingMinuteDot.SetPosition(end)
+		c.rotatingMinute.SetLine(c.center, end)
+		updated = true
+	}
 
-	c.rotatingSecond.SetPosition(
-		c.secondDotPosition(angleDegreesSecond(sec, c.now)),
-	)
-	return true
+	position := c.secondDotPosition(angleDegreesSecond(sec, c.now))
+	currentPosition := c.rotatingSeconds[c.rotatingSecondIndex].GetPosition()
+	if position.X != currentPosition.X || position.Y != currentPosition.Y {
+		// move index
+		c.rotatingSecondIndex = (c.rotatingSecondIndex + 1) % nbRotatingSeconds
+
+		c.rotatingSeconds[c.rotatingSecondIndex].SetPosition(position)
+		for i := nbRotatingSeconds - 1; i >= 0; i-- {
+			fade := float64(nbRotatingSeconds-i) / float64(nbRotatingSeconds)
+			c.rotatingSecondMasks[(c.rotatingSecondIndex+i)%nbRotatingSeconds].SetFade(fade)
+		}
+		updated = true
+	}
+	return updated
 }
 
 func (c *Clock) Draw(canvas Canvas) error {
