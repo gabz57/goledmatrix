@@ -19,7 +19,7 @@ type Canvas interface {
 
 type Pixel struct {
 	X, Y int
-	C    *color.Color
+	C    color.Color
 }
 
 func Position(x, y, w int) int {

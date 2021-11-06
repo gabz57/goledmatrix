@@ -36,7 +36,7 @@ func NewPanel(parent *Graphic, layout *Layout, initialPosition Point, dimensions
 
 	if fill {
 		// FIXME: adapt size when no border ??
-		var fillLayout = NewLayout(*p.shape.Graphic.Layout().BackgroundColor(), nil)
+		var fillLayout = NewLayout(p.shape.Graphic.Layout().BackgroundColor(), nil)
 		p.shape.AddDrawable(*p.buildFillingCenter(fillLayout))
 		if cornerRadius > 0 {
 			p.shape.AddDrawable(*p.buildFillingLeft(fillLayout))

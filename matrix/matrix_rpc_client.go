@@ -45,11 +45,11 @@ func (m *MatrixRpcClient) Geometry() (width, height int) {
 	return reply.Width, reply.Height
 }
 
-func (m *MatrixRpcClient) RenderMethod(canvas *Canvas) error {
+func (m *MatrixRpcClient) RenderMethod(canvas Canvas) error {
 	return m.Render(canvas)
 }
 
-func (m *MatrixRpcClient) Render(canvas *Canvas) error {
+func (m *MatrixRpcClient) Render(canvas Canvas) error {
 	var reply *RenderReply
 	start := time.Now()
 	err := m.client.Call("MatrixRPCServer.Render", &RenderArgs{
@@ -60,9 +60,9 @@ func (m *MatrixRpcClient) Render(canvas *Canvas) error {
 	return err
 }
 
-func toRpcPixels(canvas *Canvas) (pixels []RpcPixel) {
-	width := (*canvas).Bounds().Max.X
-	for i, c := range *(*canvas).GetLeds() {
+func toRpcPixels(canvas Canvas) (pixels []RpcPixel) {
+	width := canvas.Bounds().Max.X
+	for i, c := range *canvas.GetLeds() {
 		if c != nil {
 			pixels = append(pixels, RpcPixel{
 				X: i % width,
@@ -79,7 +79,7 @@ func (m *MatrixRpcClient) Close() error {
 	return m.client.Call("MatrixRPCServer.Close", &CloseArgs{}, &reply)
 }
 
-func (m *MatrixRpcClient) MainThread(_ *Canvas, done chan struct{}) {
+func (m *MatrixRpcClient) MainThread(_ Canvas, done chan struct{}) {
 	select {
 	case <-done:
 		break

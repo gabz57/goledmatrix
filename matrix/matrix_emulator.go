@@ -96,15 +96,15 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 	return m.Width, m.Height
 }
 
-func (m *MatrixEmulator) RenderMethod(c *Canvas) error {
+func (m *MatrixEmulator) RenderMethod(c Canvas) error {
 	m.Send(UploadEvent{
-		leds: *(*c).GetLeds(),
+		leds: *c.GetLeds(),
 	})
 	return nil
 }
 
 // Render update the display with the data from the canvas content
-func (m *MatrixEmulator) Render(canvas *Canvas) error {
+func (m *MatrixEmulator) Render(canvas Canvas) error {
 	if m.w != nil {
 		matrixRectangle := m.matrixWithMarginsRect()
 		buffer, err := m.s.NewBuffer(matrixRectangle.Max)
@@ -115,7 +115,7 @@ func (m *MatrixEmulator) Render(canvas *Canvas) error {
 		var ledColor color.Color
 		for x := 0; x < m.Width; x++ {
 			for y := 0; y < m.Height; y++ {
-				ledColor = (*canvas).At(x, y)
+				ledColor = canvas.At(x, y)
 				if ledColor != nil {
 					draw.Draw(buffer.RGBA(), m.ledRect(x, y), image.NewUniform(ledColor), image.Point{}, draw.Over)
 				}
@@ -177,7 +177,7 @@ func (m *MatrixEmulator) calculateGutterForViewableArea(size image.Point) int {
 	return maxGutterInY
 }
 
-func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
+func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 	mainthread.Call(func() {
 		driver.Main(func(s screen.Screen) {
 			fmt.Println("emulator.MainThread")
@@ -225,14 +225,12 @@ func (m *MatrixEmulator) MainThread(canvas *Canvas, done chan struct{}) {
 				case UploadEvent:
 					if m.isReady {
 						m.drawBackground(sz)
-						max := (*canvas).Bounds().Max
-						var canva Canvas
-						canva = NewSimpleCanvas(
+						max := canvas.Bounds().Max
+						err = m.Render(NewSimpleCanvas(
 							max.X,
 							max.Y,
 							&evn.leds,
-						)
-						err = m.Render(&canva)
+						))
 						if err != nil {
 							panic(err)
 						}

@@ -36,7 +36,7 @@ func (t *Text) Draw(canvas Canvas) error {
 	//max := canvas.Bounds().Max
 	for _, pixel := range t.pixels {
 		//if pixel.X < max.X && pixel.Y < max.Y {
-		canvas.Set(pixel.X, pixel.Y, *pixel.C)
+		canvas.Set(pixel.X, pixel.Y, pixel.C)
 		//}
 	}
 	return nil

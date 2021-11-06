@@ -35,15 +35,15 @@ type Layout struct {
 	backgroundColor color.Color
 }
 
-func (l *Layout) Color() *color.Color {
-	return &l.color
+func (l *Layout) Color() color.Color {
+	return l.color
 }
 
-func (l *Layout) BackgroundColor() *color.Color {
+func (l *Layout) BackgroundColor() color.Color {
 	if l.backgroundColor != nil {
-		return &l.backgroundColor
+		return l.backgroundColor
 	}
-	return &l.color
+	return l.color
 }
 
 type Graphic struct {
@@ -70,25 +70,24 @@ func (g *Graphic) SetOffset(offset Point) {
 }
 
 type MaskedDrawable struct {
-	drawable *Drawable
-	mask     *Mask
+	drawable Drawable
+	mask     Mask
 }
 
-func MaskDrawable(mask *Mask, drawable *Drawable) *Drawable {
-	var maskedDrawable Drawable = &MaskedDrawable{
+func MaskDrawable(mask Mask, drawable Drawable) Drawable {
+	return &MaskedDrawable{
 		drawable: drawable,
 		mask:     mask,
 	}
-	return &maskedDrawable
 }
 
 // override Drawable.Draw method to perform indirection with mask
 func (md MaskedDrawable) Draw(canvas Canvas) error {
-	var c = wrapMask(md.mask, &canvas)
-	return (*md.drawable).Draw(*c)
+	var c = wrapMask(md.mask, canvas)
+	return md.drawable.Draw(c)
 }
 
-func wrapMask(mask *Mask, c *Canvas) *Canvas {
+func wrapMask(mask Mask, c Canvas) Canvas {
 	var canvas Canvas = NewMaskAdapter(c, mask)
-	return &canvas
+	return canvas
 }

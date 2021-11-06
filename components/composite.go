@@ -6,21 +6,21 @@ import (
 
 type CompositeDrawable struct {
 	Graphic   *Graphic
-	Drawables []*Drawable
+	Drawables []Drawable
 }
 
 func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
 	return &CompositeDrawable{
 		Graphic:   graphic,
-		Drawables: []*Drawable{},
+		Drawables: []Drawable{},
 	}
 }
 
 func (cd *CompositeDrawable) AddDrawable(drawable Drawable) {
-	cd.Drawables = append(cd.Drawables, &drawable)
+	cd.Drawables = append(cd.Drawables, drawable)
 }
 
-func (cd *CompositeDrawable) AddDrawables(drawables ...*Drawable) {
+func (cd *CompositeDrawable) AddDrawables(drawables ...Drawable) {
 	for _, drawable := range drawables {
 		cd.Drawables = append(cd.Drawables, drawable)
 	}
@@ -28,7 +28,7 @@ func (cd *CompositeDrawable) AddDrawables(drawables ...*Drawable) {
 
 func (cd *CompositeDrawable) RemoveDrawable(d Drawable) {
 	for index, drawable := range cd.Drawables {
-		if *drawable == d {
+		if drawable == d {
 			cd.Drawables = append(cd.Drawables[:index], cd.Drawables[index+1:]...)
 			return
 		}
@@ -38,8 +38,7 @@ func (cd *CompositeDrawable) RemoveDrawable(d Drawable) {
 func (cd *CompositeDrawable) Draw(canvas canvas.Canvas) error {
 	var err error
 	for _, drawable := range cd.Drawables {
-		// FIXME: apply cd.Graphic.ComputedOffset()
-		err = (*drawable).Draw(canvas)
+		err = drawable.Draw(canvas)
 		if err != nil {
 			return err
 		}

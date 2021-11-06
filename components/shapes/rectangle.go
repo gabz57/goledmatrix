@@ -33,19 +33,19 @@ func (r *Rectangle) Draw(canvas Canvas) error {
 
 	color := r.Layout().Color()
 	for y := start.Y; y <= end.Y; y++ {
-		canvas.Set(start.X, y, *color)
-		canvas.Set(end.X, y, *color)
+		canvas.Set(start.X, y, color)
+		canvas.Set(end.X, y, color)
 	}
 	for x := start.X + 1; x < end.X; x++ {
-		canvas.Set(x, start.Y, *color)
-		canvas.Set(x, end.Y, *color)
+		canvas.Set(x, start.Y, color)
+		canvas.Set(x, end.Y, color)
 	}
 
 	if r.fill {
 		fillColor := r.Layout().BackgroundColor()
 		for x := start.X + 1; x < end.X; x++ {
 			for y := start.Y + 1; y < end.Y; y++ {
-				canvas.Set(x, y, *fillColor)
+				canvas.Set(x, y, fillColor)
 			}
 		}
 	}

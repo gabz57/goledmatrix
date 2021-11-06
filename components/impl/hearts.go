@@ -7,7 +7,7 @@ import (
 )
 
 type Hearts struct {
-	canvas     *Canvas
+	canvas     Canvas
 	hearts     []*Heart
 	origin     Point
 	maxX, maxY int
@@ -16,7 +16,7 @@ type Hearts struct {
 func NewHearts(canvas Canvas, origin Point, nbHearts int) *Hearts {
 	max := canvas.Bounds().Max
 	h := Hearts{
-		canvas: &canvas,
+		canvas: canvas,
 		origin: origin,
 		maxX:   max.X - origin.X - HeartWidth,
 		maxY:   max.Y - origin.Y - HeartHeight,
@@ -29,11 +29,11 @@ func NewHearts(canvas Canvas, origin Point, nbHearts int) *Hearts {
 
 func (h *Hearts) addHeart() {
 	time.Sleep(time.Duration(Random.Int63n(2000)) * time.Millisecond)
-	h.hearts = append(h.hearts, generateHeart(*h.canvas, h.maxX, h.maxY))
+	h.hearts = append(h.hearts, generateHeart(h.canvas, h.maxX, h.maxY))
 }
 
 func (h *Hearts) replaceHeart(i int) {
-	h.hearts[i] = generateHeart(*h.canvas, h.maxX, h.maxY)
+	h.hearts[i] = generateHeart(h.canvas, h.maxX, h.maxY)
 }
 
 func generateHeart(canvas Canvas, maxX int, maxY int) *Heart {

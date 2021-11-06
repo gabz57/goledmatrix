@@ -17,7 +17,7 @@ func init() {
 
 type MatrixRPCServer struct {
 	m         *Matrix
-	c         *Canvas
+	c         Canvas
 	timestamp int64
 }
 
@@ -45,11 +45,11 @@ type RenderArgs struct {
 type RenderReply struct{}
 
 func (m *MatrixRPCServer) Render(args *RenderArgs, _ *RenderReply) error {
-	defer (*m.c).Clear()
+	defer m.c.Clear()
 	for _, pixel := range args.Pixels {
-		(*m.c).Set(pixel.X, pixel.Y, pixel.C)
+		m.c.Set(pixel.X, pixel.Y, pixel.C)
 	}
-	return (*m.c).Render()
+	return m.c.Render()
 }
 
 type CloseArgs struct{}
@@ -60,14 +60,14 @@ func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
 	return (*m.m).Close()
 }
 
-func Serve(matrix *Matrix) func(c *Canvas, done chan struct{}) {
-	return func(c *Canvas, done chan struct{}) {
+func Serve(matrix *Matrix) func(c Canvas, done chan struct{}) {
+	return func(c Canvas, done chan struct{}) {
 		serve(matrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")
 	}
 }
 
-func serve(m *Matrix, c *Canvas) {
+func serve(m *Matrix, c Canvas) {
 	server := MatrixRPCServer{m: m, c: c}
 	rpc.Register(&server)
 	rpc.HandleHTTP()

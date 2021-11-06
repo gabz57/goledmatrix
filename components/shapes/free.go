@@ -20,7 +20,7 @@ func NewFree(graphic *Graphic, pixels []Pixel) *Free {
 func (f *Free) Draw(canvas Canvas) error {
 	offset := f.ComputedOffset()
 	for _, pixel := range f.pixels {
-		canvas.Set(offset.X+pixel.X, offset.Y+pixel.Y, *pixel.C)
+		canvas.Set(offset.X+pixel.X, offset.Y+pixel.Y, pixel.C)
 	}
 	return nil
 }

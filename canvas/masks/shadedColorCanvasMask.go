@@ -24,10 +24,10 @@ func NewShadedColorCanvasMask(bounds image.Rectangle) *ShadedColorCanvasMask {
 		},
 	}
 }
-func (m *ShadedColorCanvasMask) AdaptPixel() func(canvas *Canvas, x int, y int, color *color.Color) {
-	return func(canvas *Canvas, x int, y int, color *color.Color) {
+func (m *ShadedColorCanvasMask) AdaptPixel() func(canvas Canvas, x int, y int, color *color.Color) {
+	return func(canvas Canvas, x int, y int, color *color.Color) {
 		if (image.Point{X: x, Y: y}).In(m.bounds) {
-			(*canvas).Set(x, y, shadedAroundCenterColor(m.bounds.Max, m.center, x, y))
+			canvas.Set(x, y, shadedAroundCenterColor(m.bounds.Max, m.center, x, y))
 		}
 	}
 }

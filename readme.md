@@ -154,14 +154,14 @@ func goLedApplication() {
     Run(Gameloop)
 }
 
-func Gameloop(c *Canvas, done chan struct{}) {
+func Gameloop(c Canvas, done chan struct{}) {
     // Your code starts here
     // Example (note: declaring scene with duration might change in a close future, 
     // allowing to run a single scene without duration, 
     // and changing the way they end
     sceneDuration := 12 * time.Second
     engine := NewEngine(c, []*Scene{
-        NewScene([]*Component{myComponent(*c)}, sceneDuration),
+        NewScene([]Component{myComponent(*c)}, sceneDuration),
     })
     engine.Run(done)
 }

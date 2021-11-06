@@ -83,7 +83,7 @@ func (c *CircleBL) contourCircleBL(pixels *[]Pixel, radius int, center Point) {
 
 func (c *CircleBL) Draw(canvas Canvas) error {
 	for _, pixel := range c.pixels {
-		canvas.Set(pixel.X, pixel.Y, *pixel.C)
+		canvas.Set(pixel.X, pixel.Y, pixel.C)
 	}
 	return nil
 }

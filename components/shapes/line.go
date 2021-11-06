@@ -45,7 +45,7 @@ func (l *Line) Draw(canvas Canvas) error {
 		gradient = (dy << shift) / dx
 		y = 0x8000 + (posStart.Y << shift)
 		for x = posStart.X; x <= posEnd.X; x++ {
-			canvas.Set(x, y>>shift, *l.Layout().Color())
+			canvas.Set(x, y>>shift, l.Layout().Color())
 			y += gradient
 		}
 	} else if dy != 0 {
@@ -58,11 +58,11 @@ func (l *Line) Draw(canvas Canvas) error {
 		gradient = (dx << shift) / dy
 		x = 0x8000 + (posStart.X << shift)
 		for y = posStart.Y; y <= posEnd.Y; y++ {
-			canvas.Set(x>>shift, y, *l.Layout().Color())
+			canvas.Set(x>>shift, y, l.Layout().Color())
 			x += gradient
 		}
 	} else {
-		canvas.Set(posStart.X, posStart.Y, *l.Layout().Color())
+		canvas.Set(posStart.X, posStart.Y, l.Layout().Color())
 	}
 	return nil
 }

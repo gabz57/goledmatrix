@@ -11,7 +11,7 @@ import (
 
 type (
 	Engine struct {
-		canvas                 *canvas.Canvas
+		canvas                 canvas.Canvas
 		scenes                 []*Scene
 		activeScene            *Scene
 		elapsedSinceSceneStart time.Duration
@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func NewEngine(canvas *canvas.Canvas, scenes []*Scene) Engine {
+func NewEngine(canvas canvas.Canvas, scenes []*Scene) Engine {
 	return Engine{
 		canvas:      canvas,
 		scenes:      scenes,

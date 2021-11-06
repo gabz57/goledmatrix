@@ -22,10 +22,10 @@ func (fe *FadeInOutSceneEffect) Update(elapsedBetweenUpdate time.Duration) bool 
 	return fe.updateFadeValue()
 }
 
-func (fe *FadeInOutSceneEffect) AdaptPixel() func(canvas *canvas.Canvas, x int, y int, color *color.Color) {
-	return func(canvas *canvas.Canvas, x int, y int, colorPt *color.Color) {
+func (fe *FadeInOutSceneEffect) AdaptPixel() func(canvas canvas.Canvas, x int, y int, color *color.Color) {
+	return func(canvas canvas.Canvas, x int, y int, colorPt *color.Color) {
 		r, g, b, a := (*colorPt).RGBA()
-		(*canvas).Set(x, y, color.RGBA{
+		canvas.Set(x, y, color.RGBA{
 			R: uint8((1 - fe.fade) * float64(uint8(r))),
 			G: uint8((1 - fe.fade) * float64(uint8(g))),
 			B: uint8((1 - fe.fade) * float64(uint8(b))),

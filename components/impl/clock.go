@@ -44,11 +44,11 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 		rotatingSecondMasks: make([]*masks.ColorFaderCanvasMask, nbRotatingSeconds),
 	}
 
-	c.shape.AddDrawable(*c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
-	c.shape.AddDrawable(*c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
+	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
+	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
 
-	c.shape.AddDrawable(*MaskDrawable(&canvasMask, c.buildStaticContourCircle()))
-	c.shape.AddDrawable(*c.buildStaticCenter())
+	c.shape.AddDrawables(MaskDrawable(canvasMask, c.buildStaticContourCircle()))
+	c.shape.AddDrawable(c.buildStaticCenter())
 	c.shape.AddDrawables(c.buildStaticHours()...)
 	c.shape.AddDrawables(c.buildStaticMinutes()...)
 
@@ -56,28 +56,22 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	hour, min, sec := now.Clock()
 	for i := 0; i < nbRotatingSeconds; i++ {
 		c.rotatingSeconds[i] = c.buildRotatingSecond(sec)
-		var drawableSecond Drawable = c.rotatingSeconds[i]
 		c.rotatingSecondMasks[i] = masks.NewColorFaderMask()
 		c.rotatingSecondMasks[i].SetFade(float64(nbRotatingSeconds-i) / float64(nbRotatingSeconds))
-		var mask Mask = c.rotatingSecondMasks[i]
-		c.shape.AddDrawable(*MaskDrawable(&mask, &drawableSecond))
+		c.shape.AddDrawable(MaskDrawable(c.rotatingSecondMasks[i], c.rotatingSeconds[i]))
 		//c.shape.AddDrawable(&drawableSecond)
 	}
 	//c.rotatingSecond = c.buildRotatingSecond(sec)
-	//var drawableSecond Drawable = c.rotatingSecond
-	//c.shape.AddDrawable(&drawableSecond)
+	//c.shape.AddDrawable(c.rotatingSecond)
 
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
-	var drawableMinute Drawable = c.rotatingMinute
-	c.shape.AddDrawable(*MaskDrawable(&canvasMask, &drawableMinute))
+	c.shape.AddDrawable(MaskDrawable(canvasMask, c.rotatingMinute))
 
 	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
-	var drawableMinuteDot Drawable = c.rotatingMinuteDot
-	c.shape.AddDrawable(*&drawableMinuteDot)
+	c.shape.AddDrawable(c.rotatingMinuteDot)
 
 	c.rotatingHour = c.buildRotatingHour(hour, min)
-	var drawableHour Drawable = c.rotatingHour
-	c.shape.AddDrawable(*MaskDrawable(&canvasMask, &drawableHour))
+	c.shape.AddDrawable(MaskDrawable(canvasMask, c.rotatingHour))
 
 	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
 	c.shape.AddDrawable(c.rotatingHourDot)
@@ -136,31 +130,28 @@ func angleDegreesSecond(sec int, now time.Time) float64 {
 	return (float64(sec) + (float64(now.Nanosecond()) / 1000000000)) * 6
 }
 
-func (c *Clock) buildStaticText(position Point, txt string) *Drawable {
-	var circle Drawable = shapes.NewText(NewGraphic(c.shape.Graphic, NewLayout(ColorWhite, ColorBlack)), position, txt, fonts.Bdf4x6)
-	return &circle
+func (c *Clock) buildStaticText(position Point, txt string) Drawable {
+	return shapes.NewText(NewGraphic(c.shape.Graphic, NewLayout(ColorWhite, ColorBlack)), position, txt, fonts.Bdf4x6)
 }
 
-func (c *Clock) buildStaticContourCircle() *Drawable {
-	var circle Drawable = shapes.NewCircle(NewGraphic(c.shape.Graphic, nil), c.center, c.radius, false)
-	return &circle
+func (c *Clock) buildStaticContourCircle() Drawable {
+	return shapes.NewCircle(NewGraphic(c.shape.Graphic, nil), c.center, c.radius, false)
 }
 
-func (c *Clock) buildStaticCenter() *Drawable {
-	var dot Drawable = shapes.NewDot(NewGraphic(c.shape.Graphic, nil), c.center)
-	return &dot
+func (c *Clock) buildStaticCenter() Drawable {
+	return shapes.NewDot(NewGraphic(c.shape.Graphic, nil), c.center)
 }
 
-func (c *Clock) buildStaticHours() []*Drawable {
-	drawables := make([]*Drawable, 12)
+func (c *Clock) buildStaticHours() []Drawable {
+	drawables := make([]Drawable, 12)
 	for hour := 0; hour < 12; hour++ {
 		drawables[hour] = c.buildStaticHour(hour)
 	}
 	return drawables
 }
 
-func (c *Clock) buildStaticHour(hour int) *Drawable {
-	var line Drawable = shapes.NewLine(
+func (c *Clock) buildStaticHour(hour int) Drawable {
+	return shapes.NewLine(
 		NewGraphic(c.shape.Graphic, nil),
 		Rotate(Point{
 			X: c.center.X,
@@ -171,26 +162,24 @@ func (c *Clock) buildStaticHour(hour int) *Drawable {
 			Y: c.center.Y - c.radius + 2,
 		}, c.center, angleDegreesHour(hour, 0)),
 	)
-	return &line
 }
 
-func (c *Clock) buildStaticMinutes() []*Drawable {
-	drawables := make([]*Drawable, 60)
+func (c *Clock) buildStaticMinutes() []Drawable {
+	drawables := make([]Drawable, 60)
 	for minutes := 0; minutes < 60; minutes++ {
 		drawables[minutes] = c.buildStaticMinute(c.center, c.radius, minutes)
 	}
 	return drawables
 }
 
-func (c *Clock) buildStaticMinute(center Point, radius int, minute int) *Drawable {
-	var dot Drawable = shapes.NewDot(
+func (c *Clock) buildStaticMinute(center Point, radius int, minute int) Drawable {
+	return shapes.NewDot(
 		NewGraphic(c.shape.Graphic, nil),
 		Rotate(Point{
 			X: center.X,
 			Y: center.Y - radius + 2,
 		}, center, angleDegreesMinute(minute, 0)),
 	)
-	return &dot
 }
 
 func (c *Clock) buildRotatingHour(hour, min int) *shapes.Line {

@@ -11,13 +11,13 @@ import (
 
 type ScrollingText struct {
 	visibleArea image.Rectangle
-	visibleMask *masks.VisibleMask
-	text        *Text
+	visibleMask masks.VisibleMask
+	text        Text
 	delay       time.Duration
 	duration    time.Duration
 	elapsed     time.Duration
 	maxScroll   int
-	masked      *components.Drawable
+	masked      components.Drawable
 }
 
 func NewScrollingText(graphic *components.Graphic, c canvas.Canvas, txt string, f fonts.MatrixFont, position canvas.Point, visibleArea image.Rectangle, duration time.Duration) *ScrollingText {
@@ -27,21 +27,19 @@ func NewScrollingText(graphic *components.Graphic, c canvas.Canvas, txt string, 
 	}).Add(image.Point(graphic.ComputedOffset()))
 	st := ScrollingText{
 		visibleArea: visible,
-		visibleMask: masks.NewVisibleMask(visible),
-		text:        NewText(graphic, position, txt, f),
+		visibleMask: *masks.NewVisibleMask(visible),
+		text:        *NewText(graphic, position, txt, f),
 		duration:    duration,
 		delay:       time.Duration(float64(duration.Nanoseconds()) * 0.15),
 		elapsed:     0,
 	}
-	var mask canvas.Mask = st.visibleMask
-	var drawableText components.Drawable = st.text
-	st.masked = components.MaskDrawable(&mask, &drawableText)
+	st.masked = components.MaskDrawable(&st.visibleMask, &st.text)
 	st.SetText(txt)
 	return &st
 }
 
 func (st *ScrollingText) Draw(canvas canvas.Canvas) error {
-	return (*st.masked).Draw(canvas)
+	return st.masked.Draw(canvas)
 }
 
 func (st *ScrollingText) Update(elapsedBetweenUpdate time.Duration) bool {

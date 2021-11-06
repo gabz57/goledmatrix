@@ -135,7 +135,7 @@ func (r *Ring) ring(pixels *[]Pixel, radius int, center Point) {
 
 func (r *Ring) Draw(canvas Canvas) error {
 	for _, pixel := range r.pixels {
-		canvas.Set(pixel.X, pixel.Y, *pixel.C)
+		canvas.Set(pixel.X, pixel.Y, pixel.C)
 	}
 	return nil
 }

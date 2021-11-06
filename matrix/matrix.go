@@ -22,11 +22,11 @@ type Matrix interface {
 	Config() *MatrixConfig
 	Geometry() (width, height int)
 	// Render update the display with the data from the canvas content
-	Render(canvas *Canvas) error
-	RenderMethod(canvas *Canvas) error
+	Render(canvas Canvas) error
+	RenderMethod(canvas Canvas) error
 	Close() error
 
-	MainThread(canvas *Canvas, done chan struct{})
+	MainThread(canvas Canvas, done chan struct{})
 	// extension method to delay Render in UI thread via UI custom event,
 	Send(event interface{})
 }
@@ -172,7 +172,7 @@ type UploadEvent struct {
 	leds []color.Color
 }
 
-func Run(gameloop func(c *Canvas, done chan struct{})) {
+func Run(gameloop func(c Canvas, done chan struct{})) {
 	fmt.Println("Running...")
 	config, err := ReadConfigFlags()
 	if err != nil {
@@ -182,12 +182,12 @@ func Run(gameloop func(c *Canvas, done chan struct{})) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	canvas := NewCanvas(config, &matrix)
-	defer (*canvas).Close()
+	canvas := *NewCanvas(config, &matrix)
+	defer canvas.Close()
 
 	done := make(chan struct{})
 	// Starting game loop on a separate routine
-	go run(func(c *Canvas, done chan struct{}) {
+	go run(func(c Canvas, done chan struct{}) {
 		if config.Server {
 			Serve(&matrix)
 		} else {
@@ -207,7 +207,7 @@ func Run(gameloop func(c *Canvas, done chan struct{})) {
 	matrix.MainThread(canvas, done)
 }
 
-func run(gameloop func(c *Canvas, done chan struct{}), canvas *Canvas, done chan struct{}) {
+func run(gameloop func(c Canvas, done chan struct{}), canvas Canvas, done chan struct{}) {
 	func() {
 		// avoid drawing to early as emulator might not be ready, eventually fixed
 		<-time.After(100 * time.Millisecond)

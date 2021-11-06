@@ -25,11 +25,11 @@ func (c *VisibleMask) SetOffset(offset image.Point) {
 	c.offset = offset
 }
 
-func (c *VisibleMask) AdaptPixel() func(canvas *Canvas, x int, y int, color *color.Color) {
-	return func(canvas *Canvas, x int, y int, color *color.Color) {
+func (c *VisibleMask) AdaptPixel() func(canvas Canvas, x int, y int, color *color.Color) {
+	return func(canvas Canvas, x int, y int, color *color.Color) {
 		targetXY := image.Point{X: x, Y: y}.Add(c.offset)
 		if targetXY.In(c.visibleArea) {
-			(*canvas).Set(targetXY.X, targetXY.Y, *color)
+			canvas.Set(targetXY.X, targetXY.Y, *color)
 		}
 	}
 }

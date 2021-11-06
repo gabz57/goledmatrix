@@ -126,16 +126,16 @@ func (m *MatrixHardware) Geometry() (width, height int) {
 	return m.width, m.height
 }
 
-func (m *MatrixHardware) RenderMethod(canvas *Canvas) error {
+func (m *MatrixHardware) RenderMethod(canvas Canvas) error {
 	return m.Render(canvas)
 }
 
 // Render update the display with the data from the LED buffer
-func (m *MatrixHardware) Render(canvas *Canvas) error {
+func (m *MatrixHardware) Render(canvas Canvas) error {
 	//start := time.Now()
-	canvasSize := (*canvas).Bounds().Max
+	canvasSize := canvas.Bounds().Max
 	leds := make([]C.uint32_t, canvasSize.X*canvasSize.Y)
-	for i, led := range *(*canvas).GetLeds() {
+	for i, led := range *canvas.GetLeds() {
 		if led != nil {
 			leds[i] = C.uint32_t(colorToUint32(led))
 		}
@@ -174,7 +174,7 @@ func colorToUint32(c color.Color) uint32 {
 	return (red>>8)<<16 | (green>>8)<<8 | blue>>8
 }
 
-func (m *MatrixHardware) MainThread(_ *Canvas, done chan struct{}) {
+func (m *MatrixHardware) MainThread(_ Canvas, done chan struct{}) {
 	select {
 	case <-done:
 		break

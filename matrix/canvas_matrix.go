@@ -82,7 +82,7 @@ func (c *CanvasImpl) Clear() {
 func (c *CanvasImpl) Render() error {
 	var canvas Canvas
 	canvas = c
-	err := (*c.matrix).RenderMethod(&canvas)
+	err := (*c.matrix).RenderMethod(canvas)
 	if err != nil {
 		return err
 	}
