@@ -37,16 +37,13 @@ func NewInfo(c Canvas) *Info {
 	}
 
 	i.timeText = i.buildTimeText()
-	var drawableTimeText Drawable = i.timeText
-	i.shape.AddDrawable(&drawableTimeText)
+	i.shape.AddDrawable(i.timeText)
 
 	i.fpsText = i.buildFPSText(c)
-	var drawableFpsText Drawable = i.fpsText
-	i.shape.AddDrawable(&drawableFpsText)
+	i.shape.AddDrawable(i.fpsText)
 
 	i.updateText = i.buildUpdateText(c)
-	var drawableUpdateText Drawable = i.updateText
-	i.shape.AddDrawable(&drawableUpdateText)
+	i.shape.AddDrawable(i.updateText)
 
 	return &i
 }

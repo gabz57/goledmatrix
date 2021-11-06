@@ -2,10 +2,18 @@ package components
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/controller"
 	"image/color"
 	"time"
 )
 
+type ControllableComponent interface {
+	Component
+	Controllable
+}
+type Controllable interface {
+	Control(gamepad *controller.Gamepad)
+}
 type Component interface {
 	// Controllable // watch for user/external events
 	Updatable

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/gabz57/goledmatrix/components/impl"
 	"github.com/gabz57/goledmatrix/matrix"
 )
 
@@ -10,7 +9,7 @@ func main() {
 }
 
 func goLedApplication() {
-	matrix.Run(impl.Gameloop)
+	matrix.Run(Gameloop)
 }
 
 //

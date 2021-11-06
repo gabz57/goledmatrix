@@ -19,8 +19,7 @@ func NewImages(imgPath string, position Point, targetSize Point) *Images {
 			graphic),
 		img: shapes.NewImg(graphic, &imgPath, targetSize),
 	}
-	var drawableImg Drawable = images.img
-	images.shape.AddDrawable(&drawableImg)
+	images.shape.AddDrawable(images.img)
 	return &images
 }
 

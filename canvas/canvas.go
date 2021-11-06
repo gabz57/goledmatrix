@@ -3,6 +3,7 @@ package canvas
 import (
 	"image"
 	"image/color"
+	"strconv"
 )
 
 // Canvas is a image.Image representation of a LED matrix, it implements
@@ -25,10 +26,20 @@ func Position(x, y, w int) int {
 	return x + (y * w)
 }
 
+type Positionable interface {
+	SetPosition(position Point)
+
+	GetPosition() *Point
+}
+
 type Point image.Point
 
 type FloatingPoint struct {
 	X, Y float64
+}
+
+func (fp FloatingPoint) String() string {
+	return "(" + strconv.FormatFloat(fp.X, 'f', 2, 64) + "," + strconv.FormatFloat(fp.Y, 'f', 2, 64) + ")"
 }
 
 func (p *Point) Floating() FloatingPoint {

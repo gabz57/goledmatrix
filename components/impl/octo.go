@@ -41,9 +41,9 @@ func NewOctoLogo(canvas Canvas, center Point, radiusExt int) *OctoLogo {
 		radiusInt: radiusInt,
 		radiusEye: int(float64(radiusExt-radiusInt) * 1 / 2),
 	}
-	logo.shape.AddDrawable(logo.buildRing())
-	logo.shape.AddDrawable(logo.buildEyeIn())
-	logo.shape.AddDrawable(logo.buildEyeOut())
+	logo.shape.AddDrawable(*logo.buildRing())
+	logo.shape.AddDrawable(*logo.buildEyeIn())
+	logo.shape.AddDrawable(*logo.buildEyeOut())
 
 	return &logo
 }

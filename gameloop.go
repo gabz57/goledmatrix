@@ -1,9 +1,10 @@
-package impl
+package main
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/effect"
+	"github.com/gabz57/goledmatrix/components/impl"
 	"github.com/gabz57/goledmatrix/scenes"
 	"time"
 )
@@ -16,8 +17,8 @@ func Gameloop(c *Canvas, done chan struct{}) {
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, octoLogoComponent(*c), clockComponent(*c)}, sceneDuration),
-		NewSceneWithEffect([]*Component{ /*infoCpnt, */ clockComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
-		////NewSceneWithEffect([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		//NewSceneWithEffect([]*Component{ /*infoCpnt, */ clockComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		//NewSceneWithEffect([]*Component{infoCpnt, photoGalleryComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
 		//NewScene([]*Component{infoCpnt, beanComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{marioComponent(*c), infoCpnt}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, movingDotComponent(*c)}, sceneDuration),
@@ -38,7 +39,8 @@ func Gameloop(c *Canvas, done chan struct{}) {
 		//NewScene([]*Component{infoCpnt, birthdayCakeComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, movingHeartsComponent(*c)}, sceneDuration),
 		//NewScene([]*Component{infoCpnt, happyBirthdayComponent(*c)}, sceneDuration),
-		//NewScene([]*Component{infoCpnt, meteoLocalComponent(*c)}, sceneDuration),
+		//NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoLocalComponent(*c)}, sceneDuration, []*CanvasEffect{&fadeEffect}),
+		gamepadDemo(c, fadeEffect),
 		//NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoForecastComponent(*c, "94016")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Cachan
 		//NewSceneWithEffect([]*Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []*CanvasEffect{&fadeEffect}),
 		//NewSceneWithEffect([]*Component{ /*infoCpnt, */ meteoForecastComponent(*c, "57176")}, sceneDuration, []*CanvasEffect{&fadeEffect}), // Diebling
@@ -55,13 +57,18 @@ func Gameloop(c *Canvas, done chan struct{}) {
 	engine.Run(done)
 }
 
+func gamepadDemo(c *Canvas, fadeEffect CanvasEffect) *Scene {
+	gamepadDemoComponent := scenes.NewGamePadDemoComponent(*c)
+	return NewControlledScene([]Component{ /*infoCpnt, */ gamepadDemoComponent}, []*CanvasEffect{&fadeEffect}, gamepadDemoComponent.Controller())
+}
+
 func infoComponent(c Canvas) *Component {
-	var component Component = NewInfo(c)
+	var component Component = impl.NewInfo(c)
 	return &component
 }
 
 func octoLogoComponent(c Canvas) *Component {
-	var component Component = NewOctoLogo(
+	var component Component = impl.NewOctoLogo(
 		c,
 		Point{
 			X: c.Bounds().Max.X / 2,
@@ -73,7 +80,7 @@ func octoLogoComponent(c Canvas) *Component {
 }
 
 func clockComponent(c Canvas) *Component {
-	var component Component = NewClock(
+	var component Component = impl.NewClock(
 		c,
 		Point{
 			X: c.Bounds().Max.X / 2,
@@ -85,7 +92,7 @@ func clockComponent(c Canvas) *Component {
 }
 
 func marioComponent(c Canvas) *Component {
-	var component Component = NewImages(
+	var component Component = impl.NewImages(
 		"img/mario.gif",
 		Point{
 			X: (c.Bounds().Max.X - 32) / 2,
@@ -98,7 +105,7 @@ func marioComponent(c Canvas) *Component {
 }
 
 func birthdayCakeComponent(c Canvas) *Component {
-	var component Component = NewImages(
+	var component Component = impl.NewImages(
 		"img/birthday-cake.gif",
 		Point{
 			X: (c.Bounds().Max.X - 100) / 2,
@@ -112,12 +119,12 @@ func birthdayCakeComponent(c Canvas) *Component {
 }
 
 func beanComponent(c Canvas) *Component {
-	var component Component = NewBeanNDot(c)
+	var component Component = impl.NewBeanNDot(c)
 	return &component
 }
 
 func movingDotComponent(c Canvas) *Component {
-	var component Component = NewMovingDot(
+	var component Component = impl.NewMovingDot(
 		c,
 		Point{
 			X: Random.Intn(64),
@@ -131,7 +138,7 @@ func movingDotComponent(c Canvas) *Component {
 }
 
 func bouncingDotComponent(c Canvas, x int, bottomAcceleration float64) *Component {
-	var component Component = NewBouncingDot(
+	var component Component = impl.NewBouncingDot(
 		c,
 		Point{
 			X: x,
@@ -147,7 +154,7 @@ func bouncingDotComponent(c Canvas, x int, bottomAcceleration float64) *Componen
 }
 
 func heartComponent(c Canvas) *Component {
-	var component Component = NewHeart(
+	var component Component = impl.NewHeart(
 		c,
 		nil,
 		Point{
@@ -161,23 +168,28 @@ func heartComponent(c Canvas) *Component {
 }
 
 func heartsComponent(c Canvas) *Component {
-	var component Component = NewHearts(c, Point{}, 10)
+	var component Component = impl.NewHearts(c, Point{}, 10)
 	return &component
 }
 
 func movingHeartsComponent(c Canvas) *Component {
-	var component Component = NewMovingHearts(c, Point{}, 10)
+	var component Component = impl.NewMovingHearts(c, Point{}, 10)
 	return &component
 }
 
 func happyBirthdayComponent(c Canvas) *Component {
-	var component Component = NewHappyBirthday(c)
+	var component Component = impl.NewHappyBirthday(c)
 	return &component
 }
 
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
+
+func gamePadDemo(c Canvas) *Component {
+	var component Component = scenes.NewGamePadDemoComponent(c)
+	return &component
+}
 
 func meteoLocalComponent(c Canvas) *Component {
 	var component Component = scenes.NewMeteoCurrentComponent(c, "94016")

@@ -39,11 +39,9 @@ func (p *Photo) Update(elapsedBetweenUpdate time.Duration) bool {
 		if err != nil {
 			panic(err)
 		}
-		var drawableImage Drawable = p.image
-		p.shape.RemoveDrawable(&drawableImage)
+		p.shape.RemoveDrawable(p.image)
 		p.image = shapes.NewImg(p.graphic, file, Point{X: 128, Y: 128})
-		drawableImage = p.image
-		p.shape.AddDrawable(&drawableImage)
+		p.shape.AddDrawable(p.image)
 		return true
 	}
 	return false

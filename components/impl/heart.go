@@ -36,7 +36,7 @@ func NewHeart(canvas Canvas, parent *Graphic, initialPosition Point, fadeDuratio
 	}
 	var mask Mask = heart.mask
 	var drawableHeart Drawable = heart.heart
-	heart.shape.AddDrawable(MaskDrawable(&mask, &drawableHeart))
+	heart.shape.AddDrawable(*MaskDrawable(&mask, &drawableHeart))
 	// to avoid flash on first rendering
 	heart.Update(0)
 

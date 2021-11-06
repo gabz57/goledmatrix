@@ -44,13 +44,13 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 		rotatingSecondMasks: make([]*masks.ColorFaderCanvasMask, nbRotatingSeconds),
 	}
 
-	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
-	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
+	c.shape.AddDrawable(*c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
+	c.shape.AddDrawable(*c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
 
-	c.shape.AddDrawable(MaskDrawable(&canvasMask, c.buildStaticContourCircle()))
-	c.shape.AddDrawable(c.buildStaticCenter())
-	c.shape.AddDrawable(c.buildStaticHours()...)
-	c.shape.AddDrawable(c.buildStaticMinutes()...)
+	c.shape.AddDrawable(*MaskDrawable(&canvasMask, c.buildStaticContourCircle()))
+	c.shape.AddDrawable(*c.buildStaticCenter())
+	c.shape.AddDrawables(c.buildStaticHours()...)
+	c.shape.AddDrawables(c.buildStaticMinutes()...)
 
 	now := time.Now().In(c.location)
 	hour, min, sec := now.Clock()
@@ -60,7 +60,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 		c.rotatingSecondMasks[i] = masks.NewColorFaderMask()
 		c.rotatingSecondMasks[i].SetFade(float64(nbRotatingSeconds-i) / float64(nbRotatingSeconds))
 		var mask Mask = c.rotatingSecondMasks[i]
-		c.shape.AddDrawable(MaskDrawable(&mask, &drawableSecond))
+		c.shape.AddDrawable(*MaskDrawable(&mask, &drawableSecond))
 		//c.shape.AddDrawable(&drawableSecond)
 	}
 	//c.rotatingSecond = c.buildRotatingSecond(sec)
@@ -69,19 +69,18 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 
 	c.rotatingMinute = c.buildRotatingMinute(min, sec)
 	var drawableMinute Drawable = c.rotatingMinute
-	c.shape.AddDrawable(MaskDrawable(&canvasMask, &drawableMinute))
+	c.shape.AddDrawable(*MaskDrawable(&canvasMask, &drawableMinute))
 
 	c.rotatingMinuteDot = c.buildRotatingMinuteDot(min, sec)
 	var drawableMinuteDot Drawable = c.rotatingMinuteDot
-	c.shape.AddDrawable(&drawableMinuteDot)
+	c.shape.AddDrawable(*&drawableMinuteDot)
 
 	c.rotatingHour = c.buildRotatingHour(hour, min)
 	var drawableHour Drawable = c.rotatingHour
-	c.shape.AddDrawable(MaskDrawable(&canvasMask, &drawableHour))
+	c.shape.AddDrawable(*MaskDrawable(&canvasMask, &drawableHour))
 
 	c.rotatingHourDot = c.buildRotatingHourDot(hour, min)
-	var drawableHourDot Drawable = c.rotatingHourDot
-	c.shape.AddDrawable(&drawableHourDot)
+	c.shape.AddDrawable(c.rotatingHourDot)
 
 	return &c
 }

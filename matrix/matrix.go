@@ -195,6 +195,14 @@ func Run(gameloop func(c *Canvas, done chan struct{})) {
 		}
 	}, canvas, done)
 
+	//// Disconnect controller when a program is terminated
+	//signals := make(chan os.Signal, 1)
+	//signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
+	//go func() {
+	//	<-signals
+	//	done <- struct{}{}
+	//}()
+
 	fmt.Println("matrix.MainThread()")
 	matrix.MainThread(canvas, done)
 }

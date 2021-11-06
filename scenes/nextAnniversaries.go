@@ -75,8 +75,7 @@ func NewNextAnniversariesComponent(canvas Canvas) *NextAnniversaries {
 	//font := fonts.Bdf5x7
 	fontSmall := fonts.Bdf4x6
 	na.titleText = shapes.NewText(graphic, Point{X: 2, Y: 5}, "Prochains anniversaires", fontSmall)
-	var drawableTitleText Drawable = na.titleText
-	na.shape.AddDrawable(&drawableTitleText)
+	na.shape.AddDrawable(na.titleText)
 
 	graphics := NewOffsetGraphic(graphic, nil, Point{Y: 10})
 	var offset = 18
@@ -85,16 +84,13 @@ func NewNextAnniversariesComponent(canvas Canvas) *NextAnniversaries {
 	for i := 0; i < nbPersonsDisplayed; i++ {
 
 		na.nameTexts[i] = shapes.NewText(graphics, Point{X: 2, Y: 1 + currentOffset}, "", fontSmall)
-		var drawableNameText Drawable = na.nameTexts[i]
-		na.shape.AddDrawable(&drawableNameText)
+		na.shape.AddDrawable(na.nameTexts[i])
 
 		na.anniversaryTexts[i] = shapes.NewText(graphics, Point{X: 2, Y: 7 + currentOffset}, "", fontSmall)
-		var drawableAnniversaryText Drawable = na.anniversaryTexts[i]
-		na.shape.AddDrawable(&drawableAnniversaryText)
+		na.shape.AddDrawable(na.anniversaryTexts[i])
 
 		na.nbDaysTexts[i] = shapes.NewText(graphics, Point{X: 90, Y: 7 + currentOffset}, "", fontSmall)
-		var drawableNbDaysText Drawable = na.nbDaysTexts[i]
-		na.shape.AddDrawable(&drawableNbDaysText)
+		na.shape.AddDrawable(na.nbDaysTexts[i])
 
 		currentOffset += offset
 	}

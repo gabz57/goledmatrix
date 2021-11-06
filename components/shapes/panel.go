@@ -28,28 +28,28 @@ func NewPanel(parent *Graphic, layout *Layout, initialPosition Point, dimensions
 	}
 
 	if border {
-		p.shape.AddDrawable(p.buildTopLine())
-		p.shape.AddDrawable(p.buildBottomLine())
-		p.shape.AddDrawable(p.buildLeftLine())
-		p.shape.AddDrawable(p.buildRightLine())
+		p.shape.AddDrawable(*p.buildTopLine())
+		p.shape.AddDrawable(*p.buildBottomLine())
+		p.shape.AddDrawable(*p.buildLeftLine())
+		p.shape.AddDrawable(*p.buildRightLine())
 	}
 
 	if fill {
 		// FIXME: adapt size when no border ??
 		var fillLayout = NewLayout(*p.shape.Graphic.Layout().BackgroundColor(), nil)
-		p.shape.AddDrawable(p.buildFillingCenter(fillLayout))
+		p.shape.AddDrawable(*p.buildFillingCenter(fillLayout))
 		if cornerRadius > 0 {
-			p.shape.AddDrawable(p.buildFillingLeft(fillLayout))
-			p.shape.AddDrawable(p.buildFillingRight(fillLayout))
+			p.shape.AddDrawable(*p.buildFillingLeft(fillLayout))
+			p.shape.AddDrawable(*p.buildFillingRight(fillLayout))
 		}
 	}
 
 	if cornerRadius > 0 {
 		// FIXME: adapt circle size when no border ??
-		p.shape.AddDrawable(p.buildTopLeftCorner())
-		p.shape.AddDrawable(p.buildTopRightCorner())
-		p.shape.AddDrawable(p.buildBottomLeftCorner())
-		p.shape.AddDrawable(p.buildBottomRightCorner())
+		p.shape.AddDrawable(*p.buildTopLeftCorner())
+		p.shape.AddDrawable(*p.buildTopRightCorner())
+		p.shape.AddDrawable(*p.buildBottomLeftCorner())
+		p.shape.AddDrawable(*p.buildBottomRightCorner())
 	}
 
 	return &p

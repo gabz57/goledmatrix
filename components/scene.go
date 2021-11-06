@@ -2,28 +2,65 @@ package components
 
 import (
 	"github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/controller"
 	"image/color"
 	"time"
 )
 
 type Scene struct {
-	components []*Component
-	duration   time.Duration
+	components []Component
+	duration   *time.Duration
 	effects    []*CanvasEffect
+	controller SceneController
 }
 
-func NewScene(components []*Component, duration time.Duration) *Scene {
+func NewScene(components []Component, duration time.Duration) *Scene {
 	return &Scene{
 		components: components,
-		duration:   duration,
+		duration:   &duration,
 	}
 }
 
-func NewSceneWithEffect(components []*Component, duration time.Duration, effects []*CanvasEffect) *Scene {
+func NewControlledScene(components []Component, effects []*CanvasEffect, controller SceneController) *Scene {
 	return &Scene{
 		components: components,
-		duration:   duration,
+		duration:   nil,
 		effects:    effects,
+		controller: controller,
+	}
+}
+
+func NewSceneWithEffect(components []Component, duration time.Duration, effects []*CanvasEffect) *Scene {
+	return &Scene{
+		components: components,
+		duration:   &duration,
+		effects:    effects,
+	}
+}
+
+var nbMaxEventProcessed = 0
+
+func (s *Scene) Control(gamepad *controller.Gamepad) {
+	if s.controller == nil {
+		return
+	}
+	//var nbEventProcessed = 0
+	for {
+		select {
+		case event := <-(*(*gamepad).EventChannel()):
+			s.controller.HandleGamepadEvent(event, (*gamepad).Projection())
+			//if event != nil {
+			//	nbEventProcessed++
+			//}
+		default:
+
+			//if nbEventProcessed > nbMaxEventProcessed {
+			//	nbMaxEventProcessed = nbEventProcessed
+			//	println("nbMaxEventProcessed:", nbMaxEventProcessed)
+			//}
+			// avoid blocking select
+			return
+		}
 	}
 }
 
@@ -34,7 +71,7 @@ func (s *Scene) Update(elapsedBetweenUpdate time.Duration) bool {
 		dirtyScene = (*effect).Update(elapsedBetweenUpdate) || dirtyScene
 	}
 	for _, component := range s.components {
-		dirtyScene = (*component).Update(elapsedBetweenUpdate) || dirtyScene
+		dirtyScene = component.Update(elapsedBetweenUpdate) || dirtyScene
 	}
 
 	return dirtyScene
@@ -46,7 +83,7 @@ func (s *Scene) Render(canvas *canvas.Canvas) error {
 	c := s.applyEffects(canvas)
 
 	for _, component := range s.components {
-		err := (*component).Draw(*c)
+		err := component.Draw(*c)
 		if err != nil {
 			return err
 		}
