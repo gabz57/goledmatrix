@@ -182,14 +182,14 @@ func Run(gameloop func(c Canvas, done chan struct{})) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	canvas := *NewCanvas(config, &matrix)
+	canvas := *NewCanvas(config, matrix)
 	defer canvas.Close()
 
 	done := make(chan struct{})
 	// Starting game loop on a separate routine
 	go run(func(c Canvas, done chan struct{}) {
 		if config.Server {
-			Serve(&matrix)
+			Serve(matrix)
 		} else {
 			gameloop(c, done)
 		}

@@ -12,10 +12,9 @@ import (
 )
 
 type PhotoGallery struct {
-	dir     string
-	images  []*shapes.Img
-	elapsed time.Duration
-	//duration     time.Duration
+	dir          string
+	images       []*shapes.Img
+	elapsed      time.Duration
 	graphic      *Graphic
 	galleryIndex int
 	fadeInRatio  *float64
@@ -33,7 +32,6 @@ func NewPhotoGalleryComponent(_ Canvas) *PhotoGallery {
 		graphic: photoGraphic,
 		dir:     "img/Photos",
 		images:  make([]*shapes.Img, gallerySize),
-		//duration: 12 * time.Second,
 	}
 	pg.images[pg.galleryIndex] = pg.newGalleryImage()
 
@@ -98,16 +96,30 @@ func (p *PhotoGallery) nextGalleryIndex() int {
 
 func (p *PhotoGallery) buildImg(file *string) *shapes.Img {
 	targetMaxSize := 96 - rand.Intn(48)
-	img := shapes.NewImg(NewOffsetGraphic(p.graphic, nil, Point{}), file, Point{X: targetMaxSize, Y: targetMaxSize})
-	rotationAngle := float64(rand.Intn(90) - 45)
-	img.Rotate(rotationAngle)
+	maxSize := Point{X: targetMaxSize, Y: targetMaxSize}
+	return shapes.NewLazyImg(
+		NewOffsetGraphic(p.graphic, nil, Point{}),
+		file,
+		maxSize,
+		randomRotateAndMove(randomRotateAndMoveValues(image.Rectangle{Max: image.Point(maxSize)})),
+	)
+}
 
-	bounds := (*img.Images())[0].Bounds()
-	img.Graphic.SetOffset(Point{
-		X: rand.Intn(128 - bounds.Dx()),
-		Y: rand.Intn(128 - bounds.Dy()),
-	})
-	return img
+func randomRotateAndMove(rotationAngle float64, randX, randY int) func(img *shapes.Img) {
+	return func(img *shapes.Img) {
+		img.Rotate(rotationAngle)
+		img.Graphic.SetOffset(Point{
+			X: randX,
+			Y: randY,
+		})
+	}
+}
+
+func randomRotateAndMoveValues(bounds image.Rectangle) (float64, int, int) {
+	rotationAngle := float64(rand.Intn(90) - 45)
+	randX := rand.Intn(128 - bounds.Dx())
+	randY := rand.Intn(128 - bounds.Dy())
+	return rotationAngle, randX, randY
 }
 
 func (p PhotoGallery) Draw(canvas Canvas) error {
@@ -139,34 +151,33 @@ func (p PhotoGallery) Draw(canvas Canvas) error {
 	return nil
 }
 
-func drawOver(dest *image.RGBA, src *image.Image, offset Point, mask *image.Image, fadeRatio *float64) error {
+func drawOver(dest *image.RGBA, src *image.Image, offset Point, mask image.Image, fadeRatio *float64) error {
 	draw.DrawMask(
 		dest,
 		dest.Bounds().Add(image.Point(offset)),
 		*src,
 		image.Point{},
-		*prepareMask(fadeRatio, mask),
+		prepareMask(fadeRatio, mask),
 		image.Point{},
 		draw.Over,
 	)
 	return nil
 }
 
-func prepareMask(fadeRatio *float64, mask *image.Image) *image.Image {
-	if fadeRatio != nil {
-		var faded image.Image = fade(mask, *fadeRatio)
-		return &faded
+func prepareMask(fadeRatio *float64, mask image.Image) image.Image {
+	if fadeRatio != nil && mask != nil {
+		return fade(mask, *fadeRatio)
 	} else {
 		return mask
 	}
 }
 
-func fade(mask *image.Image, ratio float64) *image.RGBA {
-	var shadedMask = image.NewRGBA((*mask).Bounds())
+func fade(mask image.Image, ratio float64) *image.RGBA {
+	var shadedMask = image.NewRGBA(mask.Bounds())
 	max := shadedMask.Bounds().Max
 	for x := 0; x < max.X; x++ {
 		for y := 0; y < max.Y; y++ {
-			at := (*mask).At(x, y)
+			at := mask.At(x, y)
 			_, _, _, alpha := at.RGBA()
 			var alphaAdapted float64 = 0
 			if alpha > 0 {

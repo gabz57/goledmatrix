@@ -9,15 +9,15 @@ import (
 )
 
 type GamepadDemoController struct {
-	cross canvas.Positionable
-	move  *components.Movement
+	positionable canvas.Positionable
+	move         *components.Movement
 }
 
-func NewGamepadDemoController(bounds image.Rectangle, cross canvas.Positionable) *GamepadDemoController {
+func NewGamepadDemoController(bounds image.Rectangle, positionable canvas.Positionable) *GamepadDemoController {
 	return &GamepadDemoController{
-		cross: cross,
+		positionable: positionable,
 		move: components.NewBoundedMovement(
-			cross.GetPosition().Floating(),
+			positionable.GetPosition().Floating(),
 			canvas.FloatingPoint{},
 			nil,
 			&bounds),
@@ -28,19 +28,18 @@ func (c *GamepadDemoController) HandleGamepadEvent(event *controller.GamepadEven
 	if event.Name == "dpad" {
 		dpadMove(c.move, projection.DPadDirection(), 10.)
 	} else if event.Name == "left_stick" {
-		stickMove(c.move, projection.LeftStick, 50.)
+		stickMove(c.move, projection.LeftStick, 150.)
 	} else if event.Name == "right_stick" {
-		stickMove(c.move, projection.RightStick, 150.)
+		stickMove(c.move, projection.RightStick, 300.)
 	}
 }
 
 func (c *GamepadDemoController) Update(elapsedBetweenUpdate time.Duration) bool {
 	nextPosition, _ := c.move.NextPosition(elapsedBetweenUpdate)
 	next := nextPosition.Int()
-	current := c.cross.GetPosition()
+	current := c.positionable.GetPosition()
 	if current.X != next.X || current.Y != next.Y {
-		c.cross.SetPosition(next)
-		//f.applyNextPosition(nextPosition, nextVelocity).Int())
+		c.positionable.SetPosition(next)
 		return true
 	}
 	return false
@@ -49,7 +48,18 @@ func (c *GamepadDemoController) Update(elapsedBetweenUpdate time.Duration) bool 
 func dpadMove(move *components.Movement, direction *float64, pixelPerSecond float64) {
 	if direction != nil {
 		directionFP := components.DirectionToFloatingPoint(*direction)
-		move.SetVelocity(toVelocity(pixelPerSecond, directionFP))
+		directionFPCorrected := canvas.FloatingPoint{}
+		if directionFP.X > 0.1 {
+			directionFPCorrected.X = 1
+		} else if directionFP.X < -0.1 {
+			directionFPCorrected.X = -1
+		}
+		if directionFP.Y > 0.1 {
+			directionFPCorrected.Y = 1
+		} else if directionFP.Y < -0.1 {
+			directionFPCorrected.Y = -1
+		}
+		move.SetVelocity(toVelocity(pixelPerSecond, directionFPCorrected))
 	} else {
 		move.SetVelocity(canvas.FloatingPoint{})
 	}
@@ -67,6 +77,7 @@ func toVelocity(pixelPerSecond float64, direction canvas.FloatingPoint) canvas.F
 }
 
 func toDirection(stick controller.Stick) canvas.FloatingPoint {
+	// remove noise around (0,0)
 	stickX := int(stick.X) - 128
 	if stickX >= -10 && stickX < 10 {
 		stickX = 0

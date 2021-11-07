@@ -41,9 +41,9 @@ func NewOctoLogo(canvas Canvas, center Point, radiusExt int) *OctoLogo {
 		radiusInt: radiusInt,
 		radiusEye: int(float64(radiusExt-radiusInt) * 1 / 2),
 	}
-	logo.shape.AddDrawable(*logo.buildRing())
-	logo.shape.AddDrawable(*logo.buildEyeIn())
-	logo.shape.AddDrawable(*logo.buildEyeOut())
+	logo.shape.AddDrawable(logo.buildRing())
+	logo.shape.AddDrawable(logo.buildEyeIn())
+	logo.shape.AddDrawable(logo.buildEyeOut())
 
 	return &logo
 }
@@ -56,33 +56,30 @@ func (o *OctoLogo) Draw(canvas Canvas) error {
 	return o.shape.Draw(canvas)
 }
 
-func (o *OctoLogo) buildRing() *Drawable {
-	var ring Drawable = shapes.NewRing(
+func (o *OctoLogo) buildRing() Drawable {
+	return shapes.NewRing(
 		NewGraphic(o.shape.Graphic, NewLayout(darkBlue, nil)),
 		o.center,
 		o.radiusExt,
 		o.radiusInt,
 		true,
 	)
-	return &ring
 }
 
-func (o *OctoLogo) buildEyeIn() *Drawable {
-	var eye Drawable = shapes.NewCircle(
+func (o *OctoLogo) buildEyeIn() Drawable {
+	return shapes.NewCircle(
 		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
 		o.center.AddXY(int(float64(o.radiusExt)/3), -int(float64(o.radiusExt)/3)),
 		o.radiusEye,
 		true,
 	)
-	return &eye
 }
 
-func (o *OctoLogo) buildEyeOut() *Drawable {
-	var eye Drawable = shapes.NewCircle(
+func (o *OctoLogo) buildEyeOut() Drawable {
+	return shapes.NewCircle(
 		NewGraphic(o.shape.Graphic, NewLayout(lightBlue, nil)),
 		o.center.AddXY(o.radiusExt-o.radiusEye, -(o.radiusExt-o.radiusEye)),
 		o.radiusEye,
 		true,
 	)
-	return &eye
 }

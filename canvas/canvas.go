@@ -28,8 +28,7 @@ func Position(x, y, w int) int {
 
 type Positionable interface {
 	SetPosition(position Point)
-
-	GetPosition() *Point
+	GetPosition() Point
 }
 
 type Point image.Point
@@ -42,7 +41,7 @@ func (fp FloatingPoint) String() string {
 	return "(" + strconv.FormatFloat(fp.X, 'f', 2, 64) + "," + strconv.FormatFloat(fp.Y, 'f', 2, 64) + ")"
 }
 
-func (p *Point) Floating() FloatingPoint {
+func (p Point) Floating() FloatingPoint {
 	return FloatingPoint{
 		X: float64(p.X),
 		Y: float64(p.Y),

@@ -8,18 +8,75 @@ import (
 	"time"
 )
 
+var allEvents = []gods4.Event{
+	gods4.EventCrossPress,
+	gods4.EventCrossRelease,
+	gods4.EventCirclePress,
+	gods4.EventCircleRelease,
+	gods4.EventSquarePress,
+	gods4.EventSquareRelease,
+	gods4.EventTrianglePress,
+	gods4.EventTriangleRelease,
+	gods4.EventL1Press,
+	gods4.EventL1Release,
+	gods4.EventL2Press,
+	gods4.EventL2Release,
+	gods4.EventL3Press,
+	gods4.EventL3Release,
+	gods4.EventR1Press,
+	gods4.EventR1Release,
+	gods4.EventR2Press,
+	gods4.EventR2Release,
+	gods4.EventR3Press,
+	gods4.EventR3Release,
+	gods4.EventDPadUpPress,
+	gods4.EventDPadUpRelease,
+	gods4.EventDPadDownPress,
+	gods4.EventDPadDownRelease,
+	gods4.EventDPadLeftPress,
+	gods4.EventDPadLeftRelease,
+	gods4.EventDPadRightPress,
+	gods4.EventDPadRightRelease,
+	gods4.EventSharePress,
+	gods4.EventShareRelease,
+	gods4.EventOptionsPress,
+	gods4.EventOptionsRelease,
+	gods4.EventTouchpadSwipe,
+	gods4.EventTouchpadPress,
+	gods4.EventTouchpadRelease,
+	gods4.EventPSPress,
+	gods4.EventPSRelease,
+	gods4.EventLeftStickMove,
+	gods4.EventRightStickMove,
+	gods4.EventAccelerometerUpdate,
+	gods4.EventGyroscopeUpdate,
+	gods4.EventBatteryUpdate,
+}
+
+//var byteEvents = []gods4.Event{
+//	gods4.EventL2Press,
+//	gods4.EventL2Release,
+//	gods4.EventR2Press,
+//	gods4.EventR2Release,
+//}
+//var touchpadEvents = []gods4.Event{
+//	gods4.EventTouchpadSwipe,
+//	gods4.EventTouchpadPress,
+//	gods4.EventTouchpadRelease,
+//}
+
 type DualShock4 struct {
-	controller        *gods4.Controller
 	GamepadChannel    GamepadEventChannel
+	projection        GamepadProjection
+	controller        *gods4.Controller
 	reconnectionTimer *time.Timer
 	autoconnect       bool
-	projection        *GamepadProjection
 }
 
 func NewDualShock4() *DualShock4 {
 	return &DualShock4{
 		GamepadChannel: make(GamepadEventChannel, 1000),
-		projection:     NewGamepadProjection(),
+		projection:     *NewGamepadProjection(),
 	}
 }
 
@@ -38,7 +95,7 @@ func (ds *DualShock4) Stop() {
 	}
 	if ds.controller != nil {
 		log.Printf("* Controller #1 | %-10s | bye!\n", "Disconnect")
-		ds.controller.Disconnect()
+		_ = ds.controller.Disconnect()
 	}
 }
 
@@ -137,7 +194,7 @@ func findController() *gods4.Controller {
 }
 
 func (ds *DualShock4) Projection() *GamepadProjection {
-	return ds.projection
+	return &ds.projection
 }
 
 func (ds *DualShock4) bindToGamepadChannel() {
@@ -317,72 +374,5 @@ func (ds *DualShock4) bindToGamepadChannel() {
 			return nil
 		})
 	}
-	//
-	//for i := range nilEvents {
-	//	nilEvent := nilEvents[i]
-	//	ds.controller.On(nilEvent, func(data interface{}) error {
-	//		split := strings.Split(string(nilEvent), ".")
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], nil)
-	//		return nil
-	//	})
-	//}
-	//for i := range byteEvents {
-	//	byteEvent := byteEvents[i]
-	//	ds.controller.On(byteEvent, func(data interface{}) error {
-	//		split := strings.Split(string(byteEvent), ".")
-	//		log.Printf("* Controller #1 | %-10s | state: "+split[1]+"\n", split[0])
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], data.(byte))
-	//		return nil
-	//	})
-	//}
-	//for i := range touchpadEvents {
-	//	touchpadEvent := touchpadEvents[i]
-	//	split := strings.Split(string(touchpadEvent), ".")
-	//	ds.controller.On(touchpadEvent, func(data interface{}) error {
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], data.(Touchpad))
-	//		return nil
-	//	})
-	//}
-	//for i := range stickEvents {
-	//	stickEvent := stickEvents[i]
-	//	split := strings.Split(string(stickEvent), ".")
-	//	ds.controller.On(stickEvent, func(data interface{}) error {
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], data.(Stick))
-	//		return nil
-	//	})
-	//}
-	//for i := range accelerometerEvents {
-	//	accelerometerEvent := accelerometerEvents[i]
-	//	split := strings.Split(string(accelerometerEvent), ".")
-	//	ds.controller.On(accelerometerEvent, func(data interface{}) error {
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], data.(Accelerometer))
-	//		return nil
-	//	})
-	//}
-	//for i := range gyroscopeEvents {
-	//	gyroscopeEvent := gyroscopeEvents[i]
-	//	split := strings.Split(string(gyroscopeEvent), ".")
-	//	ds.controller.On(gyroscopeEvent, func(data interface{}) error {
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], data.(Gyroscope))
-	//		return nil
-	//	})
-	//}
-	//for i := range batteryEvents {
-	//	batteryEvent := batteryEvents[i]
-	//	split := strings.Split(string(batteryEvent), ".")
-	//	ds.controller.On(batteryEvent, func(data interface{}) error {
-	//		battery := data.(Battery)
-	//		log.Printf("* Controller #1 | %-10s | capacity: %v%%, charging: %v, cable: %v\n",
-	//			"Battery",
-	//			battery.Capacity,
-	//			battery.IsCharging,
-	//			battery.IsCableConnected,
-	//		)
-	//		ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], battery)
-	//		return nil
-	//	})
-	//}
 	println("bindToGamepadChannel DONE")
 }
-
-//

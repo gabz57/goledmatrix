@@ -9,11 +9,11 @@ import (
 
 type CanvasImpl struct {
 	w, h   int
-	matrix *Matrix
+	matrix Matrix
 	leds   []color.Color
 }
 
-func NewCanvas(config *MatrixConfig, m *Matrix) *Canvas {
+func NewCanvas(config *MatrixConfig, m Matrix) *Canvas {
 	w, h := config.Geometry()
 	var canvas Canvas
 	canvas = &CanvasImpl{
@@ -34,7 +34,7 @@ func NewSimpleCanvas(x, y int, leds *[]color.Color) Canvas {
 	return canvas
 }
 
-func (c *CanvasImpl) register(matrix *Matrix) {
+func (c *CanvasImpl) register(matrix Matrix) {
 	c.matrix = matrix
 	fmt.Println("Registered matrix !")
 }
@@ -82,7 +82,7 @@ func (c *CanvasImpl) Clear() {
 func (c *CanvasImpl) Render() error {
 	var canvas Canvas
 	canvas = c
-	err := (*c.matrix).RenderMethod(canvas)
+	err := c.matrix.RenderMethod(canvas)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (c *CanvasImpl) Close() error {
 	if err != nil {
 		//return err
 	}
-	err = (*c.matrix).Close()
+	err = c.matrix.Close()
 	if err != nil {
 		return err
 	}

@@ -14,20 +14,13 @@ type GamePadDemo struct {
 }
 
 func NewGamePadDemoComponent(canvas Canvas) *GamePadDemo {
-	var gamePadDemoGraphic = NewGraphic(nil, NewLayout(ColorRed, ColorWhite))
-	var c = GamePadDemo{
-		shape: NewCompositeDrawable(gamePadDemoGraphic),
-	}
-	c.cross = shapes.NewCross(gamePadDemoGraphic, Point{
+	c := GamePadDemo{shape: NewCompositeDrawable(NewGraphic(nil, NewLayout(ColorRed, ColorWhite)))}
+	c.cross = shapes.NewCross(c.shape.Graphic, Point{
 		X: canvas.Bounds().Max.X / 2,
 		Y: canvas.Bounds().Max.Y / 2,
 	}, 2)
-
-	c.controller = *NewGamepadDemoController(canvas.Bounds(), c.cross)
-	//var drawableCross Drawable = c.cross
-	//c.shape.AddDrawable(&drawableCross)
 	c.shape.AddDrawable(c.cross)
-
+	c.controller = *NewGamepadDemoController(canvas.Bounds(), c.cross)
 	return &c
 }
 

@@ -9,11 +9,13 @@ import (
 	"time"
 )
 
+var infoCpnt Component
+
 func Gameloop(c Canvas, done chan struct{}) {
-	//infoCpnt := infoComponent(c)
+	infoCpnt = infoComponent(c)
 	sceneDuration := 12 * time.Second
-	var fadeEffect CanvasEffect = effect.NewFadeInOutSceneEffect(&sceneDuration)
-	photoGallery := photoGalleryComponent(c)
+	effects := []CanvasEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
+	galleryScene := photoGalleryScene(c, sceneDuration).WithEffects(effects)
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c), clockComponent(c)}, sceneDuration),
@@ -24,46 +26,62 @@ func Gameloop(c Canvas, done chan struct{}) {
 		//NewScene([]Component{infoCpnt, movingDotComponent(c)}, sceneDuration),
 		//NewScene([]Component{
 		//	infoCpnt,
-		//	//bouncingDotComponent(c, 10, 90),
-		//	//bouncingDotComponent(c, 20, 90),
-		//	//bouncingDotComponent(c, 30, 90),
-		//	//bouncingDotComponent(c, 40, 90),
+		//	bouncingDotComponent(c, 10, 90),
+		//	bouncingDotComponent(c, 20, 90),
+		//	bouncingDotComponent(c, 30, 90),
+		//	bouncingDotComponent(c, 40, 90),
 		//	bouncingDotComponent(c, 50, 90),
-		//	//bouncingDotComponent(c, 60, 90),
-		//	//bouncingDotComponent(c, 70, 90),
-		//	//bouncingDotComponent(c, 80, 90),
-		//	//bouncingDotComponent(c, 90, 90),
+		//	bouncingDotComponent(c, 60, 90),
+		//	bouncingDotComponent(c, 70, 90),
+		//	bouncingDotComponent(c, 80, 90),
+		//	bouncingDotComponent(c, 90, 90),
 		//}, sceneDuration),
 		//NewScene([]Component{infoCpnt, heartComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, heartsComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, birthdayCakeComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, movingHeartsComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, happyBirthdayComponent(c)}, sceneDuration),
-		meteoLocalScene(c, sceneDuration, fadeEffect),
-		//gamepadDemo(c, fadeEffect),
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ meteoForecastComponent(c, "94016")}, sceneDuration, []CanvasEffect{fadeEffect}), // Cachan
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []CanvasEffect{fadeEffect}),
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ meteoForecastComponent(c, "57176")}, sceneDuration, []CanvasEffect{fadeEffect}), // Diebling
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []CanvasEffect{fadeEffect}),
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ meteoForecastComponent(c, "75112")}, sceneDuration, []CanvasEffect{fadeEffect}), // Paris 12 arr
-		NewSceneWithEffect([]Component{ /*infoCpnt, */ photoGallery}, sceneDuration, []CanvasEffect{fadeEffect}),
+
+		//gamepadDemoScene(c, effects),
+		meteoLocalScene(c, sceneDuration).WithEffects(effects),
+		meteoForecastScene(c, sceneDuration, "94016").WithEffects(effects), // Cachan
+		galleryScene,
+		meteoForecastScene(c, sceneDuration, "57176").WithEffects(effects), // Diebling
+		galleryScene,
+		meteoForecastScene(c, sceneDuration, "75112").WithEffects(effects), // Paris 12 arr
+		galleryScene,
+		nextAnniversariesScene(c, sceneDuration).WithEffects(effects),
+
 		//NewScene([]Component{meteoIconsComponent(c)}, sceneDuration),
 		//NewScene([]Component{meteoIcons16Component(c)}, sceneDuration),
-		//NewScene([]Component{infoCpnt, photoComponent(c)}, sceneDuration),
-		//NewSceneWithEffect([]Component{infoCpnt, nextAnniversariesComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect}),
+		//NewScene([]Component{ /*infoCpnt, */ photoComponent(c)}, sceneDuration),
 		////NewScene([]Component{infoCpnt, focusComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
 }
 
-func meteoLocalScene(c Canvas, sceneDuration time.Duration, fadeEffect CanvasEffect) *Scene {
-	return NewSceneWithEffect([]Component{ /*infoCpnt, */ meteoLocalComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect})
+func nextAnniversariesScene(c Canvas, sceneDuration time.Duration) *Scene {
+	return NewScene([]Component{infoCpnt, scenes.NewNextAnniversariesComponent(c)}, sceneDuration)
 }
 
-func gamepadDemo(c Canvas, fadeEffect CanvasEffect) *Scene {
+func photoGalleryScene(c Canvas, sceneDuration time.Duration) *Scene {
+	return NewScene([]Component{infoCpnt, scenes.NewPhotoGalleryComponent(c)}, sceneDuration)
+}
+
+func meteoForecastScene(c Canvas, sceneDuration time.Duration, insee string) *Scene {
+	return NewScene([]Component{infoCpnt, scenes.NewMeteoForecastComponent(c, insee)}, sceneDuration)
+}
+
+func meteoLocalScene(c Canvas, sceneDuration time.Duration) *Scene {
+	return NewScene([]Component{infoCpnt, scenes.NewMeteoCurrentComponent(c, "94016")}, sceneDuration)
+}
+
+const maxDuration time.Duration = 1<<63 - 1
+
+func gamepadDemoScene(c Canvas) *Scene {
 	gamepadDemoComponent := scenes.NewGamePadDemoComponent(c)
-	return NewControlledScene([]Component{ /*infoCpnt, */ gamepadDemoComponent}, []CanvasEffect{fadeEffect}, gamepadDemoComponent.Controller())
+	return NewScene([]Component{ /*infoCpnt, */ gamepadDemoComponent}, maxDuration).WithController(gamepadDemoComponent.Controller())
 }
 
 func infoComponent(c Canvas) Component {
@@ -163,11 +181,11 @@ func heartComponent(c Canvas) Component {
 }
 
 func heartsComponent(c Canvas) Component {
-	return impl.NewHearts(c, Point{}, 10)
+	return impl.NewHearts(c, Point{}, 15)
 }
 
 func movingHeartsComponent(c Canvas) Component {
-	return impl.NewMovingHearts(c, Point{}, 10)
+	return impl.NewMovingHearts(c, Point{}, 3000)
 }
 
 func happyBirthdayComponent(c Canvas) Component {
@@ -178,17 +196,6 @@ func happyBirthdayComponent(c Canvas) Component {
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 
-func gamePadDemo(c Canvas) Component {
-	return scenes.NewGamePadDemoComponent(c)
-}
-
-func meteoLocalComponent(c Canvas) Component {
-	return scenes.NewMeteoCurrentComponent(c, "94016")
-}
-
-func meteoForecastComponent(c Canvas, insee string) Component {
-	return scenes.NewMeteoForecastComponent(c, insee)
-}
 func meteoIcons16Component(c Canvas) Component {
 	return scenes.NewMeteoIcons16Component(c)
 }
@@ -199,14 +206,6 @@ func meteoIconsComponent(c Canvas) Component {
 
 func photoComponent(c Canvas) Component {
 	return scenes.NewPhotoComponent(c)
-}
-
-func photoGalleryComponent(c Canvas) Component {
-	return scenes.NewPhotoGalleryComponent(c)
-}
-
-func nextAnniversariesComponent(c Canvas) Component {
-	return scenes.NewNextAnniversariesComponent(c)
 }
 
 func focusComponent(c Canvas) Component {

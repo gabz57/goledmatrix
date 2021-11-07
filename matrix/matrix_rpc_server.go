@@ -16,7 +16,7 @@ func init() {
 }
 
 type MatrixRPCServer struct {
-	m         *Matrix
+	m         Matrix
 	c         Canvas
 	timestamp int64
 }
@@ -26,7 +26,7 @@ type GeometryReply struct{ Width, Height int }
 
 func (m *MatrixRPCServer) Geometry(_ *GeometryArgs, reply *GeometryReply) error {
 	fmt.Println("MatrixRPCServer.Geometry()")
-	w, h := (*m.m).Geometry()
+	w, h := m.m.Geometry()
 	reply.Width = w
 	reply.Height = h
 	return nil
@@ -57,17 +57,17 @@ type CloseReply struct{}
 
 func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
 	fmt.Println("MatrixRPCServer.Close()")
-	return (*m.m).Close()
+	return m.m.Close()
 }
 
-func Serve(matrix *Matrix) func(c Canvas, done chan struct{}) {
+func Serve(matrix Matrix) func(c Canvas, done chan struct{}) {
 	return func(c Canvas, done chan struct{}) {
 		serve(matrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")
 	}
 }
 
-func serve(m *Matrix, c Canvas) {
+func serve(m Matrix, c Canvas) {
 	server := MatrixRPCServer{m: m, c: c}
 	rpc.Register(&server)
 	rpc.HandleHTTP()

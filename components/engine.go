@@ -32,20 +32,10 @@ const FrameDurationInNanos = 33333333  // 30 FPS approximated in nanos
 const UpdateDurationInNanos = 10000000 // 100 updates per second (to maintain physics & time), independent from FPS
 const UpdateDuration = time.Duration(UpdateDurationInNanos)
 
-//
-//func test(gp *controller.Gamepad) {
-//	// Enable left and right rumble motors
-//	(*gp).Rumble(rumble.Both())
-//
-//	// Enable LED (yellow) with flash
-//	(*gp).Led(led.Yellow().Flash(50, 50))
-//}
-
 func (e *Engine) Run(done chan struct{}) {
 
 	e.gamepad.Start()
 	defer e.gamepad.Stop()
-	//test(&e.gamepad)
 
 	writer := uilive.New()
 	writer.Start()
@@ -76,7 +66,7 @@ LOOP:
 		previous = current
 		lag += elapsed
 
-		if e.activeScene.duration != nil && e.elapsedSinceSceneStart > *e.activeScene.duration {
+		if e.elapsedSinceSceneStart > e.activeScene.duration {
 			e.runNextScene()
 		}
 		// using lag to catch up missing updates when UI renders to slow

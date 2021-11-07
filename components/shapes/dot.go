@@ -28,6 +28,6 @@ func (d *Dot) SetPosition(position Point) {
 	d.position = position
 }
 
-func (d *Dot) GetPosition() *Point {
-	return &d.position
+func (d *Dot) GetPosition() Point {
+	return d.position
 }

@@ -28,28 +28,28 @@ func NewPanel(parent *Graphic, layout *Layout, initialPosition Point, dimensions
 	}
 
 	if border {
-		p.shape.AddDrawable(*p.buildTopLine())
-		p.shape.AddDrawable(*p.buildBottomLine())
-		p.shape.AddDrawable(*p.buildLeftLine())
-		p.shape.AddDrawable(*p.buildRightLine())
+		p.shape.AddDrawable(p.buildTopLine())
+		p.shape.AddDrawable(p.buildBottomLine())
+		p.shape.AddDrawable(p.buildLeftLine())
+		p.shape.AddDrawable(p.buildRightLine())
 	}
 
 	if fill {
 		// FIXME: adapt size when no border ??
 		var fillLayout = NewLayout(p.shape.Graphic.Layout().BackgroundColor(), nil)
-		p.shape.AddDrawable(*p.buildFillingCenter(fillLayout))
+		p.shape.AddDrawable(p.buildFillingCenter(fillLayout))
 		if cornerRadius > 0 {
-			p.shape.AddDrawable(*p.buildFillingLeft(fillLayout))
-			p.shape.AddDrawable(*p.buildFillingRight(fillLayout))
+			p.shape.AddDrawable(p.buildFillingLeft(fillLayout))
+			p.shape.AddDrawable(p.buildFillingRight(fillLayout))
 		}
 	}
 
 	if cornerRadius > 0 {
 		// FIXME: adapt circle size when no border ??
-		p.shape.AddDrawable(*p.buildTopLeftCorner())
-		p.shape.AddDrawable(*p.buildTopRightCorner())
-		p.shape.AddDrawable(*p.buildBottomLeftCorner())
-		p.shape.AddDrawable(*p.buildBottomRightCorner())
+		p.shape.AddDrawable(p.buildTopLeftCorner())
+		p.shape.AddDrawable(p.buildTopRightCorner())
+		p.shape.AddDrawable(p.buildBottomLeftCorner())
+		p.shape.AddDrawable(p.buildBottomRightCorner())
 	}
 
 	return &p
@@ -59,10 +59,9 @@ func (p *Panel) Draw(canvas Canvas) error {
 	return p.shape.Draw(canvas)
 }
 
-func (p *Panel) buildTopLine() *Drawable {
+func (p *Panel) buildTopLine() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var line Drawable
-	line = NewLine(graphic,
+	return NewLine(graphic,
 		Point{
 			X: p.cornerRadius,
 			Y: 0,
@@ -72,13 +71,11 @@ func (p *Panel) buildTopLine() *Drawable {
 			Y: 0,
 		},
 	)
-	return &line
 }
 
-func (p *Panel) buildBottomLine() *Drawable {
+func (p *Panel) buildBottomLine() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var line Drawable
-	line = NewLine(graphic,
+	return NewLine(graphic,
 		Point{
 			X: p.cornerRadius,
 			Y: p.dimensions.Y,
@@ -88,13 +85,11 @@ func (p *Panel) buildBottomLine() *Drawable {
 			Y: p.dimensions.Y,
 		},
 	)
-	return &line
 }
 
-func (p *Panel) buildLeftLine() *Drawable {
+func (p *Panel) buildLeftLine() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var line Drawable
-	line = NewLine(graphic,
+	return NewLine(graphic,
 		Point{
 			X: 0,
 			Y: p.cornerRadius,
@@ -104,13 +99,11 @@ func (p *Panel) buildLeftLine() *Drawable {
 			Y: p.dimensions.Y - p.cornerRadius,
 		},
 	)
-	return &line
 }
 
-func (p *Panel) buildRightLine() *Drawable {
+func (p *Panel) buildRightLine() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var line Drawable
-	line = NewLine(graphic,
+	return NewLine(graphic,
 		Point{
 			X: p.dimensions.X,
 			Y: p.cornerRadius,
@@ -120,85 +113,69 @@ func (p *Panel) buildRightLine() *Drawable {
 			Y: p.dimensions.Y - p.cornerRadius,
 		},
 	)
-	return &line
 }
 
-func (p *Panel) buildTopLeftCorner() *Drawable {
+func (p *Panel) buildTopLeftCorner() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var circle Drawable
-	circle = NewCircleTL(graphic, Point{
+	return NewCircleTL(graphic, Point{
 		X: p.cornerRadius,
 		Y: p.cornerRadius,
 	}, p.cornerRadius, p.fill)
-	return &circle
 }
 
-func (p *Panel) buildTopRightCorner() *Drawable {
+func (p *Panel) buildTopRightCorner() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var circle Drawable
-	circle = NewCircleTR(graphic, Point{
+	return NewCircleTR(graphic, Point{
 		X: p.dimensions.X - p.cornerRadius,
 		Y: p.cornerRadius,
 	}, p.cornerRadius, p.fill)
-	return &circle
 }
 
-func (p *Panel) buildBottomLeftCorner() *Drawable {
+func (p *Panel) buildBottomLeftCorner() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var circle Drawable
-	circle = NewCircleBL(graphic, Point{
+	return NewCircleBL(graphic, Point{
 		X: p.cornerRadius,
 		Y: p.dimensions.Y - p.cornerRadius,
 	}, p.cornerRadius, p.fill)
-	return &circle
 }
 
-func (p *Panel) buildBottomRightCorner() *Drawable {
+func (p *Panel) buildBottomRightCorner() Drawable {
 	graphic := NewGraphic(p.shape.Graphic, nil)
-	var circle Drawable
-	circle = NewCircleBR(graphic, Point{
+	return NewCircleBR(graphic, Point{
 		X: p.dimensions.X - p.cornerRadius,
 		Y: p.dimensions.Y - p.cornerRadius,
 	}, p.cornerRadius, p.fill)
-	return &circle
 }
 
-func (p *Panel) buildFillingCenter(layout *Layout) *Drawable {
-
+func (p *Panel) buildFillingCenter(layout *Layout) Drawable {
 	graphic := NewGraphic(p.shape.Graphic, layout)
-	var rectangle Drawable
-	rectangle = NewRectangle(graphic, Point{
+	return NewRectangle(graphic, Point{
 		X: p.cornerRadius + 1,
 		Y: 1,
 	}, Point{
 		X: p.dimensions.X - 2*p.cornerRadius - 2,
 		Y: p.dimensions.Y - 2,
 	}, true)
-	return &rectangle
 }
 
-func (p *Panel) buildFillingLeft(layout *Layout) *Drawable {
+func (p *Panel) buildFillingLeft(layout *Layout) Drawable {
 	graphic := NewGraphic(p.shape.Graphic, layout)
-	var rectangle Drawable
-	rectangle = NewRectangle(graphic, Point{
+	return NewRectangle(graphic, Point{
 		X: 1,
 		Y: p.cornerRadius + 1,
 	}, Point{
 		X: p.cornerRadius - 1,
 		Y: p.dimensions.Y - 2*p.cornerRadius - 2,
 	}, true)
-	return &rectangle
 }
 
-func (p *Panel) buildFillingRight(layout *Layout) *Drawable {
+func (p *Panel) buildFillingRight(layout *Layout) Drawable {
 	graphic := NewGraphic(p.shape.Graphic, layout)
-	var rectangle Drawable
-	rectangle = NewRectangle(graphic, Point{
+	return NewRectangle(graphic, Point{
 		X: p.dimensions.X - p.cornerRadius,
 		Y: p.cornerRadius + 1,
 	}, Point{
 		X: p.cornerRadius - 1,
 		Y: p.dimensions.Y - 2*p.cornerRadius - 2,
 	}, true)
-	return &rectangle
 }

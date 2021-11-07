@@ -35,6 +35,6 @@ func (c *Cross) SetPosition(position Point) {
 	c.position = position
 }
 
-func (c *Cross) GetPosition() *Point {
-	return &c.position
+func (c *Cross) GetPosition() Point {
+	return c.position
 }

@@ -24,6 +24,8 @@ type Heart struct {
 	step         float64
 }
 
+var pixels = heartPixels()
+
 func NewHeart(canvas Canvas, parent *Graphic, initialPosition Point, fadeDuration time.Duration, initialFade float64, initialFadeOut bool) *Heart {
 	var heartGraphic = NewOffsetGraphic(parent, nil, initialPosition)
 	heart := Heart{
@@ -32,7 +34,7 @@ func NewHeart(canvas Canvas, parent *Graphic, initialPosition Point, fadeDuratio
 		fadeOut:      initialFadeOut,
 		fadeDuration: fadeDuration,
 		mask:         masks.NewColorFaderMask(),
-		heart:        shapes.NewFree(heartGraphic, heartPixels()),
+		heart:        shapes.NewFree(heartGraphic, pixels),
 	}
 	heart.shape.AddDrawable(MaskDrawable(heart.mask, heart.heart))
 	// to avoid flash on first rendering

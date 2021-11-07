@@ -6,7 +6,7 @@ import (
 
 type (
 	Mask interface {
-		AdaptPixel() func(canvas Canvas, x int, y int, color *color.Color)
+		AdaptPixel() func(canvas Canvas, x int, y int, color color.Color)
 	}
 	// Canvas wrapper to replace pixels color
 	MaskAdapter struct {
@@ -16,7 +16,7 @@ type (
 )
 
 func (a MaskAdapter) Set(x, y int, ledColor color.Color) {
-	a.mask.AdaptPixel()(a.Canvas, x, y, &ledColor)
+	a.mask.AdaptPixel()(a.Canvas, x, y, ledColor)
 }
 
 func NewMaskAdapter(canvas Canvas, mask Mask) *MaskAdapter {

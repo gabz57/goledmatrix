@@ -43,35 +43,32 @@ type MeteoCurrent struct {
 }
 
 func NewMeteoCurrentComponent(_ Canvas, insee string) *MeteoCurrent {
-
-	var meteoCurrentGraphic = NewGraphic(nil, NewLayout(ColorWhite, ColorBlack))
 	font := fonts.Bdf5x7
-
-	var m = MeteoCurrent{
-		shape:              NewCompositeDrawable(meteoCurrentGraphic),
+	m := MeteoCurrent{
+		shape:              NewCompositeDrawable(NewGraphic(nil, NewLayout(ColorWhite, ColorBlack))),
 		meteoConceptClient: meteo.NewMeteoConceptClient(insee),
 		data:               nil,
 		dateTimeTextValue:  "",
 	}
-	m.cityText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 4, Y: 10}, "Météo à ...", font)
+	m.cityText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 4, Y: 10}, "Météo à ...", font)
 	m.shape.AddDrawable(m.cityText)
-	m.dateTimeText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 94, Y: 10}, m.dateTimeTextValue, font)
+	m.dateTimeText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 94, Y: 10}, m.dateTimeTextValue, font)
 	m.shape.AddDrawable(m.dateTimeText)
-	m.tempCurrentText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 10, Y: 20}, m.dateTimeTextValue, fonts.Bdf8x13)
+	m.tempCurrentText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 10, Y: 20}, m.dateTimeTextValue, fonts.Bdf8x13)
 	m.shape.AddDrawable(m.tempCurrentText)
-	m.tempMinText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 4, Y: 39}, m.dateTimeTextValue, font)
+	m.tempMinText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 4, Y: 39}, m.dateTimeTextValue, font)
 	m.shape.AddDrawable(m.tempMinText)
-	m.tempMaxText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 4, Y: 49}, m.dateTimeTextValue, font)
+	m.tempMaxText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 4, Y: 49}, m.dateTimeTextValue, font)
 	m.shape.AddDrawable(m.tempMaxText)
-	m.weatherText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 68, Y: 49}, m.dateTimeTextValue, font)
+	m.weatherText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 68, Y: 49}, m.dateTimeTextValue, font)
 	m.shape.AddDrawable(m.weatherText)
 	var imgPaths []string
 	for _, name := range imgNames {
 		imgPaths = append(imgPaths, "img/meteo/"+name+".png")
 	}
-	m.weatherIcon = shapes.NewPngFromPaths(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{X: 82, Y: 16}), Point{X: 32, Y: 32}, imgPaths...)
+	m.weatherIcon = shapes.NewPngFromPaths(NewOffsetGraphic(m.shape.Graphic, nil, Point{X: 82, Y: 16}), Point{X: 32, Y: 32}, imgPaths...)
 	m.shape.AddDrawable(m.weatherIcon)
-	m.riskText = shapes.NewText(NewOffsetGraphic(meteoCurrentGraphic, nil, Point{}), Point{X: 4, Y: 89}, m.dateTimeTextValue, font)
+	m.riskText = shapes.NewText(NewOffsetGraphic(m.shape.Graphic, nil, Point{}), Point{X: 4, Y: 89}, m.dateTimeTextValue, font)
 	m.shape.AddDrawable(m.riskText)
 	return &m
 }

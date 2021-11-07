@@ -134,8 +134,8 @@ func (i *Img) Rotate(angle float64) {
 	i.mask = rgbaMask
 }
 
-func (i *Img) GetMask() *image.Image {
-	return &i.mask
+func (i *Img) GetMask() image.Image {
+	return i.mask
 }
 
 func NewGif(graphic *Graphic, path *string, targetSize Point) *Img {
@@ -197,6 +197,31 @@ func NewPngFromPaths(graphic *Graphic, targetSize Point, paths ...string) *Img {
 		},
 		activeImage: &(images)[0],
 	}
+}
+
+func NewLazyImg(graphic *Graphic, path *string, targetSize Point, afterEffect func(*Img)) *Img {
+	images := []image.Image{image.Transparent}
+	img := Img{
+		Graphic:   graphic,
+		images:    images,
+		durations: []time.Duration{},
+		dimensions: image.Rectangle{
+			Max: image.Point(targetSize),
+		},
+		activeImage: &(images)[0],
+	}
+	go func() {
+		newImg := NewImg(graphic, path, targetSize)
+		img.images = newImg.images
+		img.durations = newImg.durations
+		img.dimensions = newImg.dimensions
+		img.activeDuration = newImg.activeDuration
+		img.updated = newImg.updated
+		img.mask = newImg.mask
+		afterEffect(&img)
+		img.activeImage = newImg.activeImage
+	}()
+	return &img
 }
 
 func NewImg(graphic *Graphic, path *string, targetSize Point) *Img {

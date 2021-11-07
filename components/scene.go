@@ -7,9 +7,13 @@ import (
 	"time"
 )
 
+type SceneController interface {
+	HandleGamepadEvent(event *controller.GamepadEvent, projection *controller.GamepadProjection)
+}
+
 type Scene struct {
 	components []Component
-	duration   *time.Duration
+	duration   time.Duration
 	effects    []CanvasEffect
 	controller SceneController
 }
@@ -17,47 +21,44 @@ type Scene struct {
 func NewScene(components []Component, duration time.Duration) *Scene {
 	return &Scene{
 		components: components,
-		duration:   &duration,
+		duration:   duration,
 	}
 }
 
-func NewControlledScene(components []Component, effects []CanvasEffect, controller SceneController) *Scene {
-	return &Scene{
-		components: components,
-		duration:   nil,
-		effects:    effects,
-		controller: controller,
-	}
+//
+//func NewControlledScene(components []Component, effects []CanvasEffect, controller SceneController) *Scene {
+//	return &Scene{
+//		components: components,
+//		duration:   nil,
+//		effects:    effects,
+//		controller: controller,
+//	}
+//}
+
+func (s *Scene) WithController(controller SceneController) *Scene {
+	s.controller = controller
+	return s
 }
 
-func NewSceneWithEffect(components []Component, duration time.Duration, effects []CanvasEffect) *Scene {
-	return &Scene{
-		components: components,
-		duration:   &duration,
-		effects:    effects,
-	}
+func (s *Scene) WithEffect(effect CanvasEffect) *Scene {
+	s.effects = append(s.effects, effect)
+	return s
 }
 
-var nbMaxEventProcessed = 0
+func (s *Scene) WithEffects(effects []CanvasEffect) *Scene {
+	s.effects = effects
+	return s
+}
 
 func (s *Scene) Control(gamepad *controller.Gamepad) {
 	if s.controller == nil {
 		return
 	}
-	//var nbEventProcessed = 0
 	for {
 		select {
 		case event := <-(*(*gamepad).EventChannel()):
 			s.controller.HandleGamepadEvent(event, (*gamepad).Projection())
-			//if event != nil {
-			//	nbEventProcessed++
-			//}
 		default:
-
-			//if nbEventProcessed > nbMaxEventProcessed {
-			//	nbMaxEventProcessed = nbEventProcessed
-			//	println("nbMaxEventProcessed:", nbMaxEventProcessed)
-			//}
 			// avoid blocking select
 			return
 		}
@@ -80,33 +81,28 @@ func (s *Scene) Update(elapsedBetweenUpdate time.Duration) bool {
 func (s *Scene) Render(canvas canvas.Canvas) error {
 	canvas.Clear()
 
-	c := s.applyEffects(canvas)
+	canvas = s.wrapWithEffects(canvas)
 
 	for _, component := range s.components {
-		err := component.Draw(c)
+		err := component.Draw(canvas)
 		if err != nil {
 			return err
 		}
 	}
 
-	return c.Render()
+	return canvas.Render()
 }
 
-func (s *Scene) applyEffects(canvas canvas.Canvas) canvas.Canvas {
-	var c = canvas
+func (s *Scene) wrapWithEffects(canvas canvas.Canvas) canvas.Canvas {
 	for _, effect := range s.effects {
-		c = wrap(c, effect)
+		canvas = NewPixelCanvasAdapter(canvas, effect)
 	}
-	return c
-}
-
-func wrap(c canvas.Canvas, effect CanvasEffect) canvas.Canvas {
-	return NewPixelCanvasAdapter(c, effect)
+	return canvas
 }
 
 type CanvasEffect interface {
 	Update(elapsedBetweenUpdate time.Duration) bool
-	AdaptPixel() func(canvas canvas.Canvas, x, y int, ledColor *color.Color)
+	AdaptPixel() func(canvas canvas.Canvas, x, y int, ledColor color.Color)
 }
 
 type PixelAdapter interface {
@@ -119,7 +115,7 @@ type CanvasPixelAdapter struct {
 }
 
 func (cpa CanvasPixelAdapter) Set(x, y int, ledColor color.Color) {
-	cpa.effect.AdaptPixel()(cpa.Canvas, x, y, &ledColor)
+	cpa.effect.AdaptPixel()(cpa.Canvas, x, y, ledColor)
 }
 
 func NewPixelCanvasAdapter(canvas canvas.Canvas, effect CanvasEffect) *CanvasPixelAdapter {

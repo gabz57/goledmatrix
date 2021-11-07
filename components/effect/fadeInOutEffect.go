@@ -8,7 +8,7 @@ import (
 
 type FadeInOutSceneEffect struct {
 	fade          float64
-	sceneDuration *time.Duration
+	sceneDuration time.Duration
 	elapsed       time.Duration
 	fadeInEnd     time.Duration
 	fadeOutStart  time.Duration
@@ -16,15 +16,15 @@ type FadeInOutSceneEffect struct {
 
 func (fe *FadeInOutSceneEffect) Update(elapsedBetweenUpdate time.Duration) bool {
 	fe.elapsed += elapsedBetweenUpdate
-	if fe.elapsed >= *fe.sceneDuration {
+	if fe.elapsed >= fe.sceneDuration {
 		fe.elapsed = 0
 	}
 	return fe.updateFadeValue()
 }
 
-func (fe *FadeInOutSceneEffect) AdaptPixel() func(canvas canvas.Canvas, x int, y int, color *color.Color) {
-	return func(canvas canvas.Canvas, x int, y int, colorPt *color.Color) {
-		r, g, b, a := (*colorPt).RGBA()
+func (fe *FadeInOutSceneEffect) AdaptPixel() func(canvas canvas.Canvas, x int, y int, color color.Color) {
+	return func(canvas canvas.Canvas, x int, y int, colorPt color.Color) {
+		r, g, b, a := colorPt.RGBA()
 		canvas.Set(x, y, color.RGBA{
 			R: uint8((1 - fe.fade) * float64(uint8(r))),
 			G: uint8((1 - fe.fade) * float64(uint8(g))),
@@ -49,14 +49,14 @@ func (fe *FadeInOutSceneEffect) computeNextFadeValue() float64 {
 	if fe.elapsed < fe.fadeInEnd {
 		nextFade = float64(fe.fadeInEnd.Nanoseconds()-fe.elapsed.Nanoseconds()) / float64(fe.fadeInEnd.Nanoseconds())
 	} else if fe.elapsed > fe.fadeOutStart {
-		nextFade = float64(fe.elapsed.Nanoseconds()-fe.fadeOutStart.Nanoseconds()) / float64((*fe.sceneDuration).Nanoseconds()-fe.fadeOutStart.Nanoseconds())
+		nextFade = float64(fe.elapsed.Nanoseconds()-fe.fadeOutStart.Nanoseconds()) / float64((fe.sceneDuration).Nanoseconds()-fe.fadeOutStart.Nanoseconds())
 	} else {
 		nextFade = 0
 	}
 	return nextFade
 }
 
-func NewFadeInOutSceneEffect(sceneDuration *time.Duration) *FadeInOutSceneEffect {
+func NewFadeInOutSceneEffect(sceneDuration time.Duration) *FadeInOutSceneEffect {
 	return &FadeInOutSceneEffect{
 		fade:          1,
 		sceneDuration: sceneDuration,

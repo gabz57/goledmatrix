@@ -83,11 +83,5 @@ func MaskDrawable(mask Mask, drawable Drawable) Drawable {
 
 // override Drawable.Draw method to perform indirection with mask
 func (md MaskedDrawable) Draw(canvas Canvas) error {
-	var c = wrapMask(md.mask, canvas)
-	return md.drawable.Draw(c)
-}
-
-func wrapMask(mask Mask, c Canvas) Canvas {
-	var canvas Canvas = NewMaskAdapter(c, mask)
-	return canvas
+	return md.drawable.Draw(NewMaskAdapter(canvas, md.mask))
 }

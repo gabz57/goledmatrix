@@ -71,6 +71,12 @@ func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 		meteoConceptClient: meteo.NewMeteoConceptClient(insee),
 		data:               nil,
 		dateTimeTextValue:  "",
+		dateText:           make([]*shapes.ScrollingText, nbDays),
+		weatherText:        make([]*shapes.ScrollingText, nbDays),
+		weatherIcon:        make([]*shapes.Img, nbDays),
+		tempMinText:        make([]*shapes.Text, nbDays),
+		tempMaxText:        make([]*shapes.Text, nbDays),
+		separator:          make([]*shapes.Line, nbDays-1),
 	}
 
 	m.cityText = shapes.NewScrollingText(meteoForecastGraphic, canvas, "Prévisions à ...", font, Point{X: 2, Y: 0}, image.Rect(0, 0, 88, 7), 12*time.Second)
@@ -78,13 +84,6 @@ func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 
 	m.dateTimeText = shapes.NewScrollingText(meteoForecastGraphic, canvas, m.dateTimeTextValue, font, Point{X: 95, Y: 0}, image.Rect(0, 0, 31, 7), 12*time.Second)
 	m.shape.AddDrawable(m.dateTimeText)
-
-	m.dateText = make([]*shapes.ScrollingText, nbDays)
-	m.weatherText = make([]*shapes.ScrollingText, nbDays)
-	m.weatherIcon = make([]*shapes.Img, nbDays)
-	m.tempMinText = make([]*shapes.Text, nbDays)
-	m.tempMaxText = make([]*shapes.Text, nbDays)
-	m.separator = make([]*shapes.Line, nbDays-1)
 
 	graphics := NewOffsetGraphic(meteoForecastGraphic, nil, Point{Y: 10})
 	var offset = 18

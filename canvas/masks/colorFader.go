@@ -25,9 +25,9 @@ func (c *ColorFaderCanvasMask) SetFade(fade float64) {
 	}
 }
 
-func (c *ColorFaderCanvasMask) AdaptPixel() func(canvas Canvas, x int, y int, color *color.Color) {
-	return func(canvas Canvas, x int, y int, ledColor *color.Color) {
-		r, g, b, a := (*ledColor).RGBA()
+func (c *ColorFaderCanvasMask) AdaptPixel() func(canvas Canvas, x int, y int, color color.Color) {
+	return func(canvas Canvas, x int, y int, ledColor color.Color) {
+		r, g, b, a := ledColor.RGBA()
 		canvas.Set(x, y, color.RGBA{
 			R: uint8((1 - c.fade) * float64(uint8(r))),
 			G: uint8((1 - c.fade) * float64(uint8(g))),
