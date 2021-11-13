@@ -7,6 +7,7 @@ import (
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"github.com/gabz57/goledmatrix/fonts"
 	"github.com/paulbellamy/ratecounter"
+	"image/color"
 	"time"
 )
 
@@ -87,7 +88,7 @@ func (i *Info) updateTxt() string {
 
 func (i *Info) buildTimeText() *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, color.Transparent)),
 		Point{
 			X: 1,
 			Y: 0,
@@ -98,7 +99,7 @@ func (i *Info) buildTimeText() *shapes.Text {
 }
 func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, color.Transparent)),
 		Point{
 			X: c.Bounds().Max.X - 35,
 			Y: c.Bounds().Max.Y - 7,
@@ -110,7 +111,7 @@ func (i *Info) buildUpdateText(c Canvas) *shapes.Text {
 
 func (i *Info) buildFPSText(c Canvas) *shapes.Text {
 	return shapes.NewText(
-		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, ColorBlack)),
+		NewGraphic(i.shape.Graphic, NewLayout(ColorGreen, color.Transparent)),
 		Point{
 			X: 0,
 			Y: c.Bounds().Max.Y - 7,

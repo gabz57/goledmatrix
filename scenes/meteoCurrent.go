@@ -7,6 +7,7 @@ import (
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"github.com/gabz57/goledmatrix/fonts"
 	"github.com/gabz57/goledmatrix/meteo"
+	"image/color"
 	"strconv"
 	"strings"
 	"time"
@@ -45,7 +46,7 @@ type MeteoCurrent struct {
 func NewMeteoCurrentComponent(_ Canvas, insee string) *MeteoCurrent {
 	font := fonts.Bdf5x7
 	m := MeteoCurrent{
-		shape:              NewCompositeDrawable(NewGraphic(nil, NewLayout(ColorWhite, ColorBlack))),
+		shape:              NewCompositeDrawable(NewGraphic(nil, NewLayout(ColorWhite, color.Transparent))),
 		meteoConceptClient: meteo.NewMeteoConceptClient(insee),
 		data:               nil,
 		dateTimeTextValue:  "",

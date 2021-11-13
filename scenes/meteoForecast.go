@@ -7,6 +7,7 @@ import (
 	"github.com/gabz57/goledmatrix/fonts"
 	"github.com/gabz57/goledmatrix/meteo"
 	"image"
+	"image/color"
 	"strconv"
 	"strings"
 	"time"
@@ -62,7 +63,7 @@ var imgNames = []string{
 
 func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 
-	var meteoForecastGraphic = NewOffsetGraphic(nil, NewLayout(ColorWhite, ColorBlack), Point{Y: 6})
+	var meteoForecastGraphic = NewOffsetGraphic(nil, NewLayout(ColorWhite, color.Transparent), Point{Y: 6})
 	font := fonts.Bdf5x7
 	fontSmall := fonts.Bdf4x6
 

@@ -103,6 +103,25 @@ func (m *MatrixEmulator) RenderMethod(c Canvas) error {
 	return nil
 }
 
+func (m *MatrixEmulator) drawBackground(sz size.Event) {
+	/*// Fill entire background with BLACK.
+	m.w.Fill(sz.Bounds(), color.Black, screen.Src)
+	// Fill matrix display rectangle with the gutter color.
+	m.w.Fill(m.matrixWithMarginsRect(), m.GutterColor, screen.Src)
+
+	pixelPlusGutter := m.PixelPitch + m.Gutter
+	for col := -1; col < m.Width; col++ {
+		x := (col * pixelPlusGutter) + m.Margin + m.PixelPitch
+		y := m.Margin
+		m.w.Fill(image.Rect(x, y, x+m.Gutter, (m.Height)*pixelPlusGutter+m.Margin+m.Gutter), color.Black, screen.Src)
+	}
+	for row := -1; row < m.Height; row++ {
+		x := m.Margin
+		y := (row * pixelPlusGutter) + m.Margin + m.PixelPitch
+		m.w.Fill(image.Rect(x, y, (m.Width)*pixelPlusGutter+m.Margin+m.Gutter, y+m.Gutter), color.Black, screen.Src)
+	}*/
+}
+
 // Render update the display with the data from the canvas content
 func (m *MatrixEmulator) Render(canvas Canvas) error {
 	if m.w != nil {
@@ -110,6 +129,21 @@ func (m *MatrixEmulator) Render(canvas Canvas) error {
 		buffer, err := m.s.NewBuffer(matrixRectangle.Max)
 		if err != nil {
 			return err
+		}
+
+		draw.Draw(buffer.RGBA(), buffer.Bounds(), image.NewUniform(color.Black), image.Point{}, draw.Src)
+		// Fill matrix display rectangle with the gutter color.
+		draw.Draw(buffer.RGBA(), matrixRectangle, image.NewUniform(m.GutterColor), image.Point{}, screen.Src)
+		pixelPlusGutter := m.PixelPitch + m.Gutter
+		for col := -1; col < m.Width; col++ {
+			x := (col * pixelPlusGutter) + m.Margin + m.PixelPitch
+			y := m.Margin
+			draw.Draw(buffer.RGBA(), image.Rect(x, y, x+m.Gutter, (m.Height)*pixelPlusGutter+m.Margin+m.Gutter), image.NewUniform(color.Black), image.Point{}, screen.Src)
+		}
+		for row := -1; row < m.Height; row++ {
+			x := m.Margin
+			y := (row * pixelPlusGutter) + m.Margin + m.PixelPitch
+			draw.Draw(buffer.RGBA(), image.Rect(x, y, (m.Width)*pixelPlusGutter+m.Margin+m.Gutter, y+m.Gutter), image.NewUniform(color.Black), image.Point{}, screen.Src)
 		}
 
 		var ledColor color.Color
@@ -146,25 +180,6 @@ func (m *MatrixEmulator) ledRect(col int, row int) image.Rectangle {
 	return image.Rect(x, y, x+m.PixelPitch, y+m.PixelPitch)
 }
 
-func (m *MatrixEmulator) drawBackground(sz size.Event) {
-	// Fill entire background with BLACK.
-	m.w.Fill(sz.Bounds(), color.Black, screen.Src)
-	// Fill matrix display rectangle with the gutter color.
-	m.w.Fill(m.matrixWithMarginsRect(), m.GutterColor, screen.Src)
-
-	pixelPlusGutter := m.PixelPitch + m.Gutter
-	for col := -1; col < m.Width; col++ {
-		x := (col * pixelPlusGutter) + m.Margin + m.PixelPitch
-		y := m.Margin
-		m.w.Fill(image.Rect(x, y, x+m.Gutter, (m.Height)*pixelPlusGutter+m.Margin+m.Gutter), color.Black, screen.Src)
-	}
-	for row := -1; row < m.Height; row++ {
-		x := m.Margin
-		y := (row * pixelPlusGutter) + m.Margin + m.PixelPitch
-		m.w.Fill(image.Rect(x, y, (m.Width)*pixelPlusGutter+m.Margin+m.Gutter, y+m.Gutter), color.Black, screen.Src)
-	}
-}
-
 // calculateGutterForViewableArea As the name states, calculates the size of the gutter for a given viewable area.
 // It's easier to understand the geometry of the matrix on screen when put in terms of the gutter,
 // hence the shift toward calculating the gutter size.
@@ -187,8 +202,8 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 			//dims := m.matrixWithMarginsRect()
 			m.w, err = s.NewWindow(&screen.NewWindowOptions{
 				Title:  windowTitle,
-				Width:  1551,
-				Height: 1551,
+				Width:  786,
+				Height: 786,
 				//Width:  dims.Max.X,
 				//Height: dims.Max.Y,
 			})
