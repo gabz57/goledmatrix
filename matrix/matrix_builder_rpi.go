@@ -1,5 +1,5 @@
-//go:build darwin
-// +build darwin
+//go:build !darwin
+// +build !darwin
 
 package matrix
 
@@ -18,8 +18,7 @@ func BuildMatrix(config *MatrixConfig) (Matrix, error) {
 		if config.Emulator == true {
 			return NewMatrixEmulator(config)
 		} else {
-			// No hardware usable here :(
-			return NewMatrixEmulator(config)
+			return NewRGBLedMatrix(config)
 		}
 	}
 }

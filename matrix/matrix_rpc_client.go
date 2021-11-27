@@ -86,6 +86,6 @@ func (m *MatrixRpcClient) MainThread(_ Canvas, done chan struct{}) {
 	}
 }
 
-func (m *MatrixRpcClient) Send(_ interface{}) {
+func (m *MatrixRpcClient) send(_ interface{}) {
 	// implemented only in emulator which handle data asynchronously
 }

@@ -60,7 +60,7 @@ func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
 	return m.m.Close()
 }
 
-func Serve(matrix Matrix) func(c Canvas, done chan struct{}) {
+func RpcServe(matrix Matrix) func(c Canvas, done chan struct{}) {
 	return func(c Canvas, done chan struct{}) {
 		serve(matrix, c) // Blocking
 		fmt.Println("RPC Server Stopped")

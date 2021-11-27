@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/kpeu3i/gods4"
 	"log"
-	"strings"
 	"time"
 )
 
@@ -75,7 +74,7 @@ type DualShock4 struct {
 
 func NewDualShock4() *DualShock4 {
 	return &DualShock4{
-		GamepadChannel: make(GamepadEventChannel, 1000),
+		GamepadChannel: make(GamepadEventChannel, GamepadEventChannelSize),
 		projection:     *NewGamepadProjection(),
 	}
 }
@@ -115,17 +114,14 @@ func (ds *DualShock4) Stop() {
 //}
 
 func (ds *DualShock4) autoConnect() {
-	fmt.Println("autoConnect: Auto Connecting...")
 	if !ds.performConnection() {
 		ds.autoconnect = true
 		go func() {
 			fmt.Println("autoConnect: Start loop")
 			for ds.autoconnect {
-				fmt.Println("autoConnect: Will try in a moment")
-				ds.reconnectionTimer = time.NewTimer(time.Second)
+				ds.reconnectionTimer = time.NewTimer(200 * time.Millisecond)
 				select {
 				case <-ds.reconnectionTimer.C:
-					fmt.Println("autoConnect: Trying to connect")
 					if ds.performConnection() {
 						ds.autoconnect = false
 					}
@@ -167,18 +163,6 @@ func (ds *DualShock4) connect(controller *gods4.Controller) bool {
 	ds.controller = controller
 
 	log.Printf("* Controller #1 | %-10s | name: %s, connection: %s\n", "Connect", ds.controller, ds.controller.ConnectionType())
-	//
-	//// Disconnect controller when a program is terminated
-	//signals := make(chan os.Signal, 1)
-	//signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-	//go func() {
-	//	<-signals
-	//	err := ds.disconnect()
-	//	if err != nil {
-	//		//panic(err)
-	//	}
-	//	log.Printf("* Controller #1 | %-10s | bye!\n", "Disconnect")
-	//}()
 	log.Println("* Controller #1 CONNECTED")
 	return true
 }
@@ -202,121 +186,126 @@ func (ds *DualShock4) bindToGamepadChannel() {
 
 	for i := range allEvents {
 		event := allEvents[i]
-		split := strings.Split(string(event), ".")
 		ds.controller.On(event, func(data interface{}) error {
 			switch event {
 			case gods4.EventCrossPress:
 				ds.projection.Cross = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Cross)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeCross, Press, ds.projection.Cross)
 			case gods4.EventCrossRelease:
 				ds.projection.Cross = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Cross)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeCross, Release, ds.projection.Cross)
 			case gods4.EventCirclePress:
 				ds.projection.Circle = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Circle)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeCircle, Press, ds.projection.Circle)
 			case gods4.EventCircleRelease:
 				ds.projection.Circle = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Circle)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeCircle, Release, ds.projection.Circle)
 			case gods4.EventSquarePress:
 				ds.projection.Square = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Square)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeSquare, Press, ds.projection.Square)
 			case gods4.EventSquareRelease:
 				ds.projection.Square = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Square)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeSquare, Release, ds.projection.Square)
 			case gods4.EventTrianglePress:
 				ds.projection.Triangle = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Triangle)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeTriangle, Press, ds.projection.Triangle)
 			case gods4.EventTriangleRelease:
 				ds.projection.Triangle = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Triangle)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeTriangle, Release, ds.projection.Triangle)
 			case gods4.EventL1Press:
 				ds.projection.L1 = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L1)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL1, Press, ds.projection.L1)
 			case gods4.EventL1Release:
 				ds.projection.L1 = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L1)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL1, Release, ds.projection.L1)
 			case gods4.EventL2Press:
 				ds.projection.L2 = data.(byte)
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L2)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL2, Press, ds.projection.L2)
 			case gods4.EventL2Release:
 				ds.projection.L2 = 0
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L2)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL2, Release, ds.projection.L2)
 			case gods4.EventL3Press:
 				ds.projection.L3 = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L3)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL3, Press, ds.projection.L3)
 			case gods4.EventL3Release:
 				ds.projection.L3 = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.L3)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeL3, Release, ds.projection.L3)
 			case gods4.EventR1Press:
 				ds.projection.R1 = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R1)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR1, Press, ds.projection.R1)
 			case gods4.EventR1Release:
 				ds.projection.R1 = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R1)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR1, Release, ds.projection.R1)
 			case gods4.EventR2Press:
 				ds.projection.R2 = data.(byte)
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R2)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR2, Press, ds.projection.R2)
 			case gods4.EventR2Release:
 				ds.projection.R2 = 0
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R2)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR2, Release, ds.projection.R2)
 			case gods4.EventR3Press:
 				ds.projection.R3 = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R3)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR3, Press, ds.projection.R3)
 			case gods4.EventR3Release:
 				ds.projection.R3 = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.R3)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeR3, Release, ds.projection.R3)
 			case gods4.EventDPadUpPress:
 				ds.projection.DPadUp = true
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadUp)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadUp, Press, ds.projection.DPadUp)
 			case gods4.EventDPadUpRelease:
 				ds.projection.DPadUp = false
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadUp)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadUp, Release, ds.projection.DPadUp)
 			case gods4.EventDPadDownPress:
 				ds.projection.DPadDown = true
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadDown)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadDown, Press, ds.projection.DPadDown)
 			case gods4.EventDPadDownRelease:
 				ds.projection.DPadDown = false
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadDown)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadDown, Release, ds.projection.DPadDown)
 			case gods4.EventDPadLeftPress:
 				ds.projection.DPadLeft = true
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadLeft)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadLeft, Press, ds.projection.DPadLeft)
 			case gods4.EventDPadLeftRelease:
 				ds.projection.DPadLeft = false
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadLeft)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadLeft, Release, ds.projection.DPadLeft)
 			case gods4.EventDPadRightPress:
 				ds.projection.DPadRight = true
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadRight)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadRight, Press, ds.projection.DPadRight)
 			case gods4.EventDPadRightRelease:
 				ds.projection.DPadRight = false
 				ds.projection.updateDpadDirection()
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.DPadRight)
-				ds.GamepadChannel <- NewGamepadEvent("dpad", "direction", ds.projection.DPadDirection())
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeDPadRight, Release, ds.projection.DPadRight)
 			case gods4.EventSharePress:
 				ds.projection.Share = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Share)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeShare, Press, ds.projection.Share)
 			case gods4.EventShareRelease:
 				ds.projection.Share = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Share)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeShare, Release, ds.projection.Share)
 			case gods4.EventOptionsPress:
 				ds.projection.Options = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Options)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeOptions, Press, ds.projection.Options)
 			case gods4.EventOptionsRelease:
 				ds.projection.Options = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Options)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeOptions, Release, ds.projection.Options)
+			case gods4.EventPSPress:
+				ds.projection.Ps = true
+				ds.GamepadChannel <- NewGamepadEvent(EventTypePs, Press, ds.projection.Ps)
+			case gods4.EventPSRelease:
+				ds.projection.Ps = false
+				ds.GamepadChannel <- NewGamepadEvent(EventTypePs, Release, ds.projection.Ps)
+			case gods4.EventLeftStickMove:
+				stick := data.(gods4.Stick)
+				ds.projection.LeftStick = Stick{X: stick.X, Y: stick.Y}
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeLeftStick, Move, ds.projection.LeftStick)
+			case gods4.EventRightStickMove:
+				stick := data.(gods4.Stick)
+				ds.projection.RightStick = Stick{X: stick.X, Y: stick.Y}
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeRightStick, Move, ds.projection.RightStick)
 			case gods4.EventTouchpadSwipe:
 				touchpad := data.(gods4.Touchpad)
 				touch0 := touchpad.Swipe[0]
@@ -333,35 +322,21 @@ func (ds *DualShock4) bindToGamepadChannel() {
 						Y:        touch1.Y,
 					},
 				}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Touchpad.Swipe)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeTouchpad, Swipe, ds.projection.Touchpad.Swipe)
 			case gods4.EventTouchpadPress:
 				ds.projection.Touchpad.Press = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Touchpad.Press)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeTouchpad, Press, ds.projection.Touchpad.Press)
 			case gods4.EventTouchpadRelease:
 				ds.projection.Touchpad.Press = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Touchpad.Press)
-			case gods4.EventPSPress:
-				ds.projection.Ps = true
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Ps)
-			case gods4.EventPSRelease:
-				ds.projection.Ps = false
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Ps)
-			case gods4.EventLeftStickMove:
-				stick := data.(gods4.Stick)
-				ds.projection.LeftStick = Stick{X: stick.X, Y: stick.Y}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.LeftStick)
-			case gods4.EventRightStickMove:
-				stick := data.(gods4.Stick)
-				ds.projection.RightStick = Stick{X: stick.X, Y: stick.Y}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.RightStick)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeTouchpad, Release, ds.projection.Touchpad.Press)
 			case gods4.EventAccelerometerUpdate:
 				acc := data.(gods4.Accelerometer)
 				ds.projection.Accelerometer = Accelerometer{X: acc.X, Y: acc.Y, Z: acc.Z}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Accelerometer)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeAccelerometer, Update, ds.projection.Accelerometer)
 			case gods4.EventGyroscopeUpdate:
 				gyro := data.(gods4.Gyroscope)
 				ds.projection.Gyroscope = Gyroscope{Roll: gyro.Roll, Yaw: gyro.Yaw, Pitch: gyro.Pitch}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Gyroscope)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeGyroscope, Update, ds.projection.Gyroscope)
 			case gods4.EventBatteryUpdate:
 				battery := data.(gods4.Battery)
 				ds.projection.Battery = Battery{
@@ -369,7 +344,7 @@ func (ds *DualShock4) bindToGamepadChannel() {
 					IsCharging:       battery.IsCharging,
 					IsCableConnected: battery.IsCableConnected,
 				}
-				ds.GamepadChannel <- NewGamepadEvent(split[0], split[1], ds.projection.Battery)
+				ds.GamepadChannel <- NewGamepadEvent(EventTypeBattery, Update, ds.projection.Battery)
 			}
 			return nil
 		})

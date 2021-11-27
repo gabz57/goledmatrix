@@ -1,3 +1,6 @@
+//go:build darwin
+// +build darwin
+
 package matrix
 
 import (
@@ -6,9 +9,9 @@ import (
 	"fmt"
 	"github.com/faiface/mainthread"
 	. "github.com/gabz57/goledmatrix/canvas"
-	"image/color"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -28,7 +31,7 @@ type Matrix interface {
 
 	MainThread(canvas Canvas, done chan struct{})
 	// extension method to delay Render in UI thread via UI custom event,
-	Send(event interface{})
+	send(event interface{})
 }
 
 type ScanMode int8
@@ -157,19 +160,25 @@ type MatrixConfig struct {
 	IpAddress string
 }
 
-func (conf *MatrixConfig) Geometry() (width, height int) {
-	var mapper string
-	mapper = conf.LedPixelMapper
-	if strings.Contains(mapper, "U-mapper") {
-		return conf.Cols * conf.ChainLength / 2, conf.Rows * conf.Parallel * 2
+func validateGeometry(config *MatrixConfig, remoteMatrix Matrix) error {
+	width, height := config.Geometry()
+	clientW, clientH := remoteMatrix.Geometry()
+	if width != clientW {
+		return errors.New("incorrect WIDTH detected between local (" + strconv.Itoa(width) + ") and received from remote (" + strconv.Itoa(clientW) + ")")
 	}
-	return conf.Cols * conf.ChainLength, conf.Rows * conf.Parallel
+	if height != clientH {
+		return errors.New("incorrect HEIGHT detected between local (" + strconv.Itoa(height) + ") and received from remote (" + strconv.Itoa(clientH) + ")")
+	}
+	return nil
 }
 
-// UploadEvent signals that the shared pix slice should be uploaded to the
-// screen.Texture via the screen.Buffer.
-type UploadEvent struct {
-	leds []color.Color
+func (mc *MatrixConfig) Geometry() (width, height int) {
+	var mapper string
+	mapper = mc.LedPixelMapper
+	if strings.Contains(mapper, "U-mapper") {
+		return mc.Cols * mc.ChainLength / 2, mc.Rows * mc.Parallel * 2
+	}
+	return mc.Cols * mc.ChainLength, mc.Rows * mc.Parallel
 }
 
 func Run(gameloop func(c Canvas, done chan struct{})) {
@@ -182,29 +191,25 @@ func Run(gameloop func(c Canvas, done chan struct{})) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	canvas := *NewCanvas(config, matrix)
-	defer canvas.Close()
+	canvas := NewCanvas(config, matrix)
 
 	done := make(chan struct{})
 	// Starting game loop on a separate routine
 	go run(func(c Canvas, done chan struct{}) {
 		if config.Server {
-			Serve(matrix)
+			RpcServe(matrix)
 		} else {
 			gameloop(c, done)
 		}
+		err := canvas.Close()
+		if err != nil {
+			panic(err)
+		}
 	}, canvas, done)
-
-	//// Disconnect controller when a program is terminated
-	//signals := make(chan os.Signal, 1)
-	//signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-	//go func() {
-	//	<-signals
-	//	done <- struct{}{}
-	//}()
 
 	fmt.Println("matrix.MainThread()")
 	matrix.MainThread(canvas, done)
+	fmt.Println("matrix.MainThread() DONE")
 }
 
 func run(gameloop func(c Canvas, done chan struct{}), canvas Canvas, done chan struct{}) {

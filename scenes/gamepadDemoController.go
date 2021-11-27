@@ -25,11 +25,11 @@ func NewGamepadDemoController(bounds image.Rectangle, positionable canvas.Positi
 }
 
 func (c *GamepadDemoController) HandleGamepadEvent(event *controller.GamepadEvent, projection *controller.GamepadProjection) {
-	if event.Name == "dpad" {
+	if event.IsDPad() {
 		dpadMove(c.move, projection.DPadDirection(), 10.)
-	} else if event.Name == "left_stick" {
+	} else if event.Name == controller.EventTypeLeftStick {
 		stickMove(c.move, projection.LeftStick, 150.)
-	} else if event.Name == "right_stick" {
+	} else if event.Name == controller.EventTypeRightStick {
 		stickMove(c.move, projection.RightStick, 300.)
 	}
 }

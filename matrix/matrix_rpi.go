@@ -1,3 +1,6 @@
+//go:build !darwin
+// +build !darwin
+
 package matrix
 
 /*
@@ -43,31 +46,31 @@ import (
 	"unsafe"
 )
 
-func (c *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
+func (mc *MatrixConfig) toC() *C.struct_RGBLedMatrixOptions {
 	o := &C.struct_RGBLedMatrixOptions{}
-	o.rows = C.int(c.Rows)
-	o.cols = C.int(c.Cols)
-	o.chain_length = C.int(c.ChainLength)
-	o.parallel = C.int(c.Parallel)
-	o.pwm_bits = C.int(c.PWMBits)
-	o.pwm_lsb_nanoseconds = C.int(c.PWMLSBNanoseconds)
-	o.brightness = C.int(c.Brightness)
-	o.scan_mode = C.int(c.ScanMode)
-	o.hardware_mapping = C.CString(c.HardwareMapping)
-	o.pixel_mapper_config = C.CString(c.LedPixelMapper)
-	if c.ShowRefreshRate == true {
+	o.rows = C.int(mc.Rows)
+	o.cols = C.int(mc.Cols)
+	o.chain_length = C.int(mc.ChainLength)
+	o.parallel = C.int(mc.Parallel)
+	o.pwm_bits = C.int(mc.PWMBits)
+	o.pwm_lsb_nanoseconds = C.int(mc.PWMLSBNanoseconds)
+	o.brightness = C.int(mc.Brightness)
+	o.scan_mode = C.int(mc.ScanMode)
+	o.hardware_mapping = C.CString(mc.HardwareMapping)
+	o.pixel_mapper_config = C.CString(mc.LedPixelMapper)
+	if mc.ShowRefreshRate == true {
 		C.set_show_refresh_rate(o, C.int(1))
 	} else {
 		C.set_show_refresh_rate(o, C.int(0))
 	}
 
-	if c.DisableHardwarePulsing == true {
+	if mc.DisableHardwarePulsing == true {
 		C.set_disable_hardware_pulsing(o, C.int(1))
 	} else {
 		C.set_disable_hardware_pulsing(o, C.int(0))
 	}
 
-	if c.InverseColors == true {
+	if mc.InverseColors == true {
 		C.set_inverse_colors(o, C.int(1))
 	} else {
 		C.set_inverse_colors(o, C.int(0))

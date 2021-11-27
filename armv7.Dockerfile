@@ -11,9 +11,6 @@ ENV GOPATH $HOME/go
 ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
 
 COPY ./. /go/src/github.com/gabz57/goledmatrix
-# overwrite BuildMatrix method with Hardware binding
-COPY ./matrix/matrix_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_rpi.go
-COPY ./matrix/matrix_builder_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_builder.go
 
 ## To drive hardware matrix via GPIO on RPi
 ## fetch origial C library via Git submodule & build it

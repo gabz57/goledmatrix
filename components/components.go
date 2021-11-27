@@ -38,6 +38,9 @@ type Layout struct {
 func (l *Layout) Color() color.Color {
 	return l.color
 }
+func (l *Layout) SetColor(color color.Color) {
+	l.color = color
+}
 
 func (l *Layout) BackgroundColor() color.Color {
 	if l.backgroundColor != nil {

@@ -18,6 +18,14 @@ import (
 const DefaultPixelPitch = 12
 const windowTitle = "RGB led matrix emulator (shiny)"
 
+type StopEvent struct{}
+
+// UploadEvent signals that the shared pix slice should be uploaded to the
+// screen.Texture via the screen.Buffer.
+type UploadEvent struct {
+	leds []color.Color
+}
+
 type MatrixEmulator struct {
 	config                  *MatrixConfig
 	PixelPitch              int
@@ -97,29 +105,10 @@ func (m *MatrixEmulator) Geometry() (width, height int) {
 }
 
 func (m *MatrixEmulator) RenderMethod(c Canvas) error {
-	m.Send(UploadEvent{
+	m.send(UploadEvent{
 		leds: *c.GetLeds(),
 	})
 	return nil
-}
-
-func (m *MatrixEmulator) drawBackground(sz size.Event) {
-	/*// Fill entire background with BLACK.
-	m.w.Fill(sz.Bounds(), color.Black, screen.Src)
-	// Fill matrix display rectangle with the gutter color.
-	m.w.Fill(m.matrixWithMarginsRect(), m.GutterColor, screen.Src)
-
-	pixelPlusGutter := m.PixelPitch + m.Gutter
-	for col := -1; col < m.Width; col++ {
-		x := (col * pixelPlusGutter) + m.Margin + m.PixelPitch
-		y := m.Margin
-		m.w.Fill(image.Rect(x, y, x+m.Gutter, (m.Height)*pixelPlusGutter+m.Margin+m.Gutter), color.Black, screen.Src)
-	}
-	for row := -1; row < m.Height; row++ {
-		x := m.Margin
-		y := (row * pixelPlusGutter) + m.Margin + m.PixelPitch
-		m.w.Fill(image.Rect(x, y, (m.Width)*pixelPlusGutter+m.Margin+m.Gutter, y+m.Gutter), color.Black, screen.Src)
-	}*/
 }
 
 // Render update the display with the data from the canvas content
@@ -163,6 +152,7 @@ func (m *MatrixEmulator) Render(canvas Canvas) error {
 }
 
 func (m *MatrixEmulator) Close() error {
+	m.send(StopEvent{})
 	return nil
 }
 
@@ -216,11 +206,11 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 			var sz size.Event
 		LOOP:
 			for {
-				select {
-				case <-done:
-					break LOOP
-				default:
-				}
+				//select {
+				//case <-done:
+				//	break LOOP
+				//default:
+				//}
 				event := m.w.NextEvent()
 				//format := "got %#v\n"
 				//if _, ok := event.(fmt.Stringer); ok {
@@ -235,11 +225,11 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 						break LOOP
 					}
 				case paint.Event:
-					fmt.Println("event : paint.Event")
 					m.isReady = true
+				case StopEvent:
+					break LOOP
 				case UploadEvent:
 					if m.isReady {
-						m.drawBackground(sz)
 						max := canvas.Bounds().Max
 						err = m.Render(NewSimpleCanvas(
 							max.X,
@@ -258,9 +248,8 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 						break LOOP
 					}
 				case error:
-					//fmt.Println("event : error")
-					fmt.Fprintln(os.Stderr, m)
-					//default:
+					_, _ = fmt.Fprintln(os.Stderr, m)
+				default:
 				}
 			}
 			fmt.Println("screen loop END")
@@ -268,7 +257,7 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 	})
 }
 
-func (m *MatrixEmulator) Send(event interface{}) {
+func (m *MatrixEmulator) send(event interface{}) {
 	if m.w != nil {
 		m.w.Send(event)
 	}

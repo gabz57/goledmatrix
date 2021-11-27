@@ -24,9 +24,6 @@ ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
 
 COPY --from=cbuilder /c/rpi-rgb-led-matrix /go/src/github.com/gabz57/goledmatrix/vendor/rpi-rgb-led-matrix
 COPY ./. /go/src/github.com/gabz57/goledmatrix/
-# overwrite BuildMatrix method with Hardware binding
-COPY ./matrix/matrix_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_rpi.go
-COPY ./matrix/matrix_builder_rpi /go/src/github.com/gabz57/goledmatrix/matrix/matrix_builder.go
 
 ## build Go application
 WORKDIR /go/src/github.com/gabz57/goledmatrix

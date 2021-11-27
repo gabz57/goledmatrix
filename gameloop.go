@@ -3,7 +3,6 @@ package main
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
-	"github.com/gabz57/goledmatrix/components/effect"
 	"github.com/gabz57/goledmatrix/components/impl"
 	"github.com/gabz57/goledmatrix/scenes"
 	"time"
@@ -14,8 +13,8 @@ var infoCpnt Component
 func Gameloop(c Canvas, done chan struct{}) {
 	infoCpnt = infoComponent(c)
 	sceneDuration := 12 * time.Second
-	effects := []CanvasEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
-	galleryScene := photoGalleryScene(c, sceneDuration).WithEffects(effects)
+	//effects := []CanvasEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
+	//galleryScene := photoGalleryScene(c, sceneDuration).WithEffects(effects)
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c), clockComponent(c)}, sceneDuration),
@@ -39,19 +38,20 @@ func Gameloop(c Canvas, done chan struct{}) {
 		//NewScene([]Component{infoCpnt, heartComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, heartsComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, birthdayCakeComponent(c)}, sceneDuration),
-		//NewScene([]Component{infoCpnt, movingHeartsComponent(c)}, sceneDuration),
+		NewScene([]Component{infoCpnt, movingHeartsComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, happyBirthdayComponent(c)}, sceneDuration),
 
 		//gamepadDemoScene(c, effects),
-		meteoLocalScene(c, sceneDuration).WithEffects(effects),
-		meteoForecastScene(c, sceneDuration, "94016").WithEffects(effects), // Cachan
-		galleryScene,
-		meteoForecastScene(c, sceneDuration, "57176").WithEffects(effects), // Diebling
-		galleryScene,
-		meteoForecastScene(c, sceneDuration, "75112").WithEffects(effects), // Paris 12 arr
-		galleryScene,
-		nextAnniversariesScene(c, sceneDuration).WithEffects(effects),
-
+		/*
+			meteoLocalScene(c, sceneDuration).WithEffects(effects),
+			meteoForecastScene(c, sceneDuration, "94016").WithEffects(effects), // Cachan
+			galleryScene,
+			meteoForecastScene(c, sceneDuration, "57176").WithEffects(effects), // Diebling
+			galleryScene,
+			meteoForecastScene(c, sceneDuration, "75112").WithEffects(effects), // Paris 12 arr
+			galleryScene,
+			nextAnniversariesScene(c, sceneDuration).WithEffects(effects),
+		*/
 		//NewScene([]Component{meteoIconsComponent(c)}, sceneDuration),
 		//NewScene([]Component{meteoIcons16Component(c)}, sceneDuration),
 		//NewScene([]Component{ /*infoCpnt, */ photoComponent(c)}, sceneDuration),

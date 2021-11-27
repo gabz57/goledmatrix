@@ -42,6 +42,16 @@ func (t *Text) Draw(canvas Canvas) error {
 	return nil
 }
 
+func (t *Text) SetOffset(offset Point) {
+	t.Graphic.SetOffset(offset)
+	t.computePixels()
+}
+
+func (t *Text) SetColor(color color.Color) {
+	t.Layout().SetColor(color)
+	t.computePixels()
+}
+
 func (t *Text) SetText(txt string) {
 	t.txt = txt
 	t.computeBounds()

@@ -1,7 +1,6 @@
 package matrix
 
 import (
-	"fmt"
 	. "github.com/gabz57/goledmatrix/canvas"
 	"image"
 	"image/color"
@@ -13,30 +12,22 @@ type CanvasImpl struct {
 	leds   []color.Color
 }
 
-func NewCanvas(config *MatrixConfig, m Matrix) *Canvas {
+func NewCanvas(config *MatrixConfig, m Matrix) Canvas {
 	w, h := config.Geometry()
-	var canvas Canvas
-	canvas = &CanvasImpl{
+	return &CanvasImpl{
 		w:      w,
 		h:      h,
 		leds:   make([]color.Color, w*h),
 		matrix: m,
 	}
-	return &canvas
 }
 
 func NewSimpleCanvas(x, y int, leds *[]color.Color) Canvas {
-	var canvas Canvas = &CanvasImpl{
+	return &CanvasImpl{
 		w:    x,
 		h:    y,
 		leds: *leds,
 	}
-	return canvas
-}
-
-func (c *CanvasImpl) register(matrix Matrix) {
-	c.matrix = matrix
-	fmt.Println("Registered matrix !")
 }
 
 // ColorModel returns the canvas' color model, always color.RGBAModel
@@ -80,21 +71,15 @@ func (c *CanvasImpl) Clear() {
 }
 
 func (c *CanvasImpl) Render() error {
-	var canvas Canvas
-	canvas = c
-	err := c.matrix.RenderMethod(canvas)
-	if err != nil {
-		return err
-	}
-	return nil
+	return c.matrix.RenderMethod(c)
 }
 
-// Close clears the canvas and closes all the matrix
+// Close clears the canvas and closes the matrix
 func (c *CanvasImpl) Close() error {
 	c.Clear()
 	err := c.Render()
 	if err != nil {
-		//return err
+		return err
 	}
 	err = c.matrix.Close()
 	if err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gabz57/goledmatrix/matrix"
+	"github.com/gabz57/goledmatrix/scenes/morpion"
 )
 
 func main() {
@@ -9,7 +10,8 @@ func main() {
 }
 
 func goLedApplication() {
-	matrix.Run(Gameloop)
+	//matrix.Run(Gameloop)
+	matrix.Run(morpion.Gameloop)
 }
 
 //
