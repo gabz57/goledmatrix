@@ -3,9 +3,9 @@ package scenes
 import (
 	"errors"
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/fonts"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
-	"github.com/gabz57/goledmatrix/fonts"
 	"github.com/gabz57/goledmatrix/meteo"
 	"image/color"
 	"strconv"

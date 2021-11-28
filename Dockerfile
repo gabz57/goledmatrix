@@ -32,7 +32,7 @@ RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN pip3 install gpiozero
 ## TODO ? COPY --from=builder # compiled C library
 COPY --from=builder /out/example /usr/bin/goledmatrix
-COPY ./fonts /usr/bin/fonts
+COPY canvas/fonts /usr/bin/canvas/fonts
 COPY ./img /usr/bin/img
 COPY ./resetmatrix.py .
 

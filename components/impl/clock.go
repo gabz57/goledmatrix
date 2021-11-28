@@ -2,10 +2,10 @@ package impl
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
-	"github.com/gabz57/goledmatrix/canvas/masks"
+	"github.com/gabz57/goledmatrix/canvas/effect"
+	"github.com/gabz57/goledmatrix/canvas/fonts"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/shapes"
-	"github.com/gabz57/goledmatrix/fonts"
 	"image/color"
 	"time"
 )
@@ -24,15 +24,15 @@ type Clock struct {
 	rotatingMinuteDot   *shapes.Dot
 	rotatingSeconds     []*shapes.Dot
 	rotatingSecondIndex int
-	rotatingSecondMasks []*masks.ColorFaderCanvasMask
+	rotatingSecondMasks []*effect.ColorFaderEffect
 
 	location *time.Location
 }
 
 func NewClock(canvas Canvas, center Point, radius int) Component {
 	location, _ := time.LoadLocation("Europe/Paris")
-	var shadedColorCanvasMask = masks.NewShadedColorCanvasMask(canvas.Bounds())
-	var canvasMask Mask = shadedColorCanvasMask
+	var shadedColorCanvasMask = effect.NewShadedColorMask(canvas.Bounds())
+	var canvasMask effect.Effect = shadedColorCanvasMask
 
 	c := Clock{
 		now:                 time.Now(),
@@ -41,7 +41,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 		shape:               NewCompositeDrawable(NewGraphic(nil, nil)),
 		location:            location,
 		rotatingSeconds:     make([]*shapes.Dot, nbRotatingSeconds),
-		rotatingSecondMasks: make([]*masks.ColorFaderCanvasMask, nbRotatingSeconds),
+		rotatingSecondMasks: make([]*effect.ColorFaderEffect, nbRotatingSeconds),
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
@@ -56,7 +56,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	hour, min, sec := now.Clock()
 	for i := 0; i < nbRotatingSeconds; i++ {
 		c.rotatingSeconds[i] = c.buildRotatingSecond(sec)
-		c.rotatingSecondMasks[i] = masks.NewColorFaderMask()
+		c.rotatingSecondMasks[i] = effect.NewColorFaderMask()
 		c.rotatingSecondMasks[i].SetFade(float64(nbRotatingSeconds-i) / float64(nbRotatingSeconds))
 		c.shape.AddDrawable(MaskDrawable(c.rotatingSecondMasks[i], c.rotatingSeconds[i]))
 		//c.shape.AddDrawable(&drawableSecond)

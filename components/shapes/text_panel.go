@@ -2,8 +2,8 @@ package shapes
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/fonts"
 	. "github.com/gabz57/goledmatrix/components"
-	"github.com/gabz57/goledmatrix/fonts"
 	"image/color"
 	"time"
 )

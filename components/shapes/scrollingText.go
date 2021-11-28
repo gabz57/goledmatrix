@@ -2,16 +2,16 @@ package shapes
 
 import (
 	"github.com/gabz57/goledmatrix/canvas"
-	"github.com/gabz57/goledmatrix/canvas/masks"
+	"github.com/gabz57/goledmatrix/canvas/effect"
+	"github.com/gabz57/goledmatrix/canvas/fonts"
 	"github.com/gabz57/goledmatrix/components"
-	"github.com/gabz57/goledmatrix/fonts"
 	"image"
 	"time"
 )
 
 type ScrollingText struct {
 	visibleArea image.Rectangle
-	visibleMask masks.VisibleMask
+	visibleMask effect.VisibleMask
 	text        Text
 	delay       time.Duration
 	duration    time.Duration
@@ -27,7 +27,7 @@ func NewScrollingText(graphic *components.Graphic, c canvas.Canvas, txt string, 
 	}).Add(image.Point(graphic.ComputedOffset()))
 	st := ScrollingText{
 		visibleArea: visible,
-		visibleMask: *masks.NewVisibleMask(visible),
+		visibleMask: *effect.NewVisibleMask(visible),
 		text:        *NewText(graphic, position, txt, f),
 		duration:    duration,
 		delay:       time.Duration(float64(duration.Nanoseconds()) * 0.15),

@@ -2,9 +2,9 @@ package shapes
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/fonts"
+	"github.com/gabz57/goledmatrix/canvas/matrix"
 	. "github.com/gabz57/goledmatrix/components"
-	"github.com/gabz57/goledmatrix/fonts"
-	"github.com/gabz57/goledmatrix/matrix"
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 	"image"

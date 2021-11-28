@@ -4,44 +4,57 @@ import (
 	"github.com/gabz57/goledmatrix/canvas"
 )
 
-type DisablableDrawable struct {
+type disablableDrawable struct {
 	Drawable
 	Enabled bool
 }
 
-func NewDrawable(drawable Drawable) *DisablableDrawable {
-	return &DisablableDrawable{
-		Drawable: drawable,
-		Enabled:  true,
-	}
-}
-
 type CompositeDrawable struct {
 	Graphic   *Graphic
-	Drawables []*DisablableDrawable
+	Drawables []*disablableDrawable
 }
 
 func NewCompositeDrawable(graphic *Graphic) *CompositeDrawable {
 	return &CompositeDrawable{
 		Graphic:   graphic,
-		Drawables: []*DisablableDrawable{},
+		Drawables: []*disablableDrawable{},
 	}
 }
 
 func (cd *CompositeDrawable) AddDrawable(drawable Drawable) {
-	cd.Drawables = append(cd.Drawables, NewDrawable(drawable))
+	cd.Drawables = append(cd.Drawables, &disablableDrawable{
+		Drawable: drawable,
+		Enabled:  true,
+	})
 }
 
 func (cd *CompositeDrawable) AddDrawables(drawables ...Drawable) {
 	for _, drawable := range drawables {
-		cd.Drawables = append(cd.Drawables, NewDrawable(drawable))
+		cd.AddDrawable(drawable)
 	}
 }
 
 func (cd *CompositeDrawable) RemoveDrawable(d Drawable) {
 	for index, drawable := range cd.Drawables {
-		if drawable == d {
+		if drawable.Drawable == d {
 			cd.Drawables = append(cd.Drawables[:index], cd.Drawables[index+1:]...)
+			return
+		}
+	}
+}
+
+func (cd *CompositeDrawable) EnableDrawable(drawable Drawable) {
+	for _, disablable := range cd.Drawables {
+		if disablable.Drawable == drawable {
+			disablable.Enabled = true
+			return
+		}
+	}
+}
+func (cd *CompositeDrawable) DisableDrawable(drawable Drawable) {
+	for _, disablable := range cd.Drawables {
+		if disablable.Drawable == drawable {
+			disablable.Enabled = false
 			return
 		}
 	}
