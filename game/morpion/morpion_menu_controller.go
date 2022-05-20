@@ -17,16 +17,40 @@ func newMainMenuControllerComponent(entity *MainMenuEntity) *MainMenuControllerC
 	}
 }
 
+func (mmcc *MainMenuControllerComponent) ConsumeKeyboardEvents(events *[]controller.KeyboardEvent, projection controller.KeyboardProjection) {
+	for _, event := range *events {
+		//actionTxt := "press"
+		//if event.Action == controller.ReleaseKey {
+		//	actionTxt = "release"
+		//}
+		//fmt.Println("Keyboard event", event.Data, " ", actionTxt)
+
+		if event.Action == controller.PressKey {
+			if event.Data == "up" {
+				mmcc.AddAction(mmcc.mainMenuEntity.focusPreviousOption)
+			}
+			if event.Data == "down" {
+				mmcc.AddAction(mmcc.mainMenuEntity.focusNextOption)
+			}
+			if event.Data == " " || event.Data == "enter" {
+				mmcc.AddAction(mmcc.mainMenuEntity.selectCurrentOption)
+			}
+		}
+	}
+}
+
 func (mmcc *MainMenuControllerComponent) ConsumeGamepadEvents(events *[]controller.GamepadEvent, projection controller.GamepadProjection) {
 	for _, event := range *events {
-		if event.Name == controller.EventTypeDPadUp && event.Action == controller.Press {
-			mmcc.AddAction(mmcc.mainMenuEntity.focusPreviousOption)
-		}
-		if event.Name == controller.EventTypeDPadDown && event.Action == controller.Press {
-			mmcc.AddAction(mmcc.mainMenuEntity.focusNextOption)
-		}
-		if event.Name == controller.EventTypeCross && event.Action == controller.Press {
-			mmcc.AddAction(mmcc.mainMenuEntity.selectCurrentOption)
+		if event.Action == controller.Press {
+			if event.Name == controller.EventTypeDPadUp {
+				mmcc.AddAction(mmcc.mainMenuEntity.focusPreviousOption)
+			}
+			if event.Name == controller.EventTypeDPadDown {
+				mmcc.AddAction(mmcc.mainMenuEntity.focusNextOption)
+			}
+			if event.Name == controller.EventTypeCross {
+				mmcc.AddAction(mmcc.mainMenuEntity.selectCurrentOption)
+			}
 		}
 	}
 }

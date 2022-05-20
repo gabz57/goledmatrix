@@ -1,6 +1,3 @@
-//go:build darwin
-// +build darwin
-
 package matrix
 
 import (
@@ -9,6 +6,7 @@ import (
 	"fmt"
 	"github.com/faiface/mainthread"
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/controller"
 	"log"
 	"os"
 	"strconv"
@@ -180,7 +178,7 @@ func (mc *MatrixConfig) Geometry() (width, height int) {
 	return mc.Cols * mc.ChainLength, mc.Rows * mc.Parallel
 }
 
-func Run(gameloop func(c Canvas, done chan struct{})) {
+func Run(gameloop func(_ Canvas, _ chan struct{}, _ *controller.KeyboardEventChannel)) {
 	fmt.Println("Running...")
 	config, err := ReadConfigFlags()
 	if err != nil {
@@ -193,31 +191,42 @@ func Run(gameloop func(c Canvas, done chan struct{})) {
 	canvas := NewCanvas(config, matrix)
 
 	done := make(chan struct{})
+
 	// Starting game loop on a separate routine
-	go run(func(c Canvas, done chan struct{}) {
+	go run(func(c Canvas, done chan struct{}, kbEventChannel *controller.KeyboardEventChannel) {
 		if config.Server {
 			RpcServe(matrix)
 		} else {
-			gameloop(c, done)
+			// modify method interface to pass keyboard channel in gameloop
+			gameloop(c, done, kbEventChannel)
 		}
 		err := canvas.Close()
 		if err != nil {
 			panic(err)
 		}
-	}, canvas, done)
+	}, canvas, done, emulatorKeyboardChannel(matrix))
 
 	fmt.Println("matrix.MainThread()")
 	matrix.MainThread(canvas, done)
 	fmt.Println("matrix.MainThread() DONE")
 }
 
-func run(gameloop func(c Canvas, done chan struct{}), canvas Canvas, done chan struct{}) {
+func emulatorKeyboardChannel(matrix Matrix) *controller.KeyboardEventChannel {
+	var keyboardChannel *controller.KeyboardEventChannel
+	emu, ok := matrix.(*MatrixEmulator)
+	if ok {
+		keyboardChannel = &emu.emulatorKeyboardChannel
+	}
+	return keyboardChannel
+}
+
+func run(gameloop func(c Canvas, done chan struct{}, keyboardChannel *controller.KeyboardEventChannel), canvas Canvas, done chan struct{}, keyboardChannel *controller.KeyboardEventChannel) {
 	func() {
 		// avoid drawing to early as emulator might not be ready, eventually fixed
 		//<-time.After(10 * time.Millisecond)
 
 		fmt.Println("Gameloop STARTED")
-		gameloop(canvas, done)
+		gameloop(canvas, done, keyboardChannel)
 		fmt.Println("Gameloop END")
 		done <- struct{}{}
 	}()

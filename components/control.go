@@ -7,5 +7,5 @@ package components
 //}
 
 //type Controllable interface {
-//	Control(gamepad *controller.Gamepad)
+//	GamepadControl(gamepad *controller.Gamepad)
 //}

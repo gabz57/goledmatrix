@@ -10,6 +10,7 @@ import (
 
 type SceneController interface {
 	HandleGamepadEvent(event *controller.GamepadEvent, projection *controller.GamepadProjection)
+	HandleKeyboardEvent(event *controller.KeyboardEvent, projection *controller.KeyboardProjection)
 }
 
 type Scene struct {
@@ -43,7 +44,7 @@ func (s *Scene) WithEffects(effects []effect.DynamicEffect) *Scene {
 	return s
 }
 
-func (s *Scene) Control(gamepad *controller.Gamepad) {
+func (s *Scene) GamepadControl(gamepad *controller.Gamepad) {
 	if s.controller == nil {
 		return
 	}
@@ -51,6 +52,21 @@ func (s *Scene) Control(gamepad *controller.Gamepad) {
 		select {
 		case event := <-(*(*gamepad).EventChannel()):
 			s.controller.HandleGamepadEvent(event, (*gamepad).Projection())
+		default:
+			// avoid blocking select
+			return
+		}
+	}
+}
+
+func (s *Scene) KeyboardControl(keyboard *controller.Keyboard) {
+	if s.controller == nil {
+		return
+	}
+	for {
+		select {
+		case event := <-(*(*keyboard).EventChannel()):
+			s.controller.HandleKeyboardEvent(event, (*keyboard).Projection())
 		default:
 			// avoid blocking select
 			return

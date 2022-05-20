@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"github.com/faiface/mainthread"
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/controller"
 	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/screen"
+	"golang.org/x/mobile/event/key"
 	"golang.org/x/mobile/event/lifecycle"
 	"golang.org/x/mobile/event/paint"
 	"golang.org/x/mobile/event/size"
@@ -36,6 +38,8 @@ type MatrixEmulator struct {
 	PixelPitchToGutterRatio int
 	Margin                  int
 
+	emulatorKeyboardChannel controller.KeyboardEventChannel
+
 	s       screen.Screen
 	w       screen.Window
 	isReady bool
@@ -51,6 +55,7 @@ func NewEmulator(config *MatrixConfig) (Matrix, error) {
 		GutterColor:             color.Gray{Y: 20},
 		PixelPitchToGutterRatio: 2,
 		Margin:                  10,
+		emulatorKeyboardChannel: make(controller.KeyboardEventChannel, 1000),
 	}
 	e.updatePixelPitchForGutter(DefaultPixelPitch / e.PixelPitchToGutterRatio)
 	return e, nil
@@ -203,11 +208,6 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 				//default:
 				//}
 				event := m.w.NextEvent()
-				//format := "got %#v\n"
-				//if _, ok := event.(fmt.Stringer); ok {
-				//	format = "got %v\n"
-				//}
-				//fmt.Printf(format, event)
 
 				switch evn := event.(type) {
 				case lifecycle.Event:
@@ -238,6 +238,16 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 						fmt.Println("event : size.Event > closing window >> leaving UI loop")
 						break LOOP
 					}
+				case key.Event:
+					//format := "got %#v\n"
+					//if _, ok := event.(fmt.Stringer); ok {
+					//	format = "got %v\n"
+					//}
+					//fmt.Printf(format, event)
+					keyboardEvent := convertKeyboardEvent(evn)
+					if keyboardEvent != nil {
+						m.emulatorKeyboardChannel <- keyboardEvent
+					}
 				case error:
 					_, _ = fmt.Fprintln(os.Stderr, m)
 				default:
@@ -246,6 +256,47 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 			fmt.Println("screen loop END")
 		})
 	})
+}
+
+func convertKeyboardEvent(e key.Event) *controller.KeyboardEvent {
+	var keyboardEvent *controller.KeyboardEvent
+	//if e.Rune >= 0 {
+	//	fmt.Sprintf("key.Event{%q (%v), %v, %v}", e.Rune, e.Code, e.Modifiers, e.Direction)
+	//}
+	//return fmt.Sprintf("key.Event{(%v), %v, %v}", e.Code, e.Modifiers, e.Direction)
+	if e.Modifiers == key.ModControl && e.Code == key.CodeC {
+		fmt.Println("Exiting...")
+		os.Exit(0)
+	}
+	//r := event.Rune
+	action := controller.PressKey
+	if e.Direction == key.DirRelease {
+		action = controller.ReleaseKey
+	}
+	if e.Code >= key.CodeA && e.Code <= key.Code0 || e.Code >= key.CodeHyphenMinus && e.Code <= key.CodeSlash {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, fmt.Sprint(e.Rune))
+	} else if e.Code == key.CodeReturnEnter {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "enter")
+	} else if e.Code == key.CodeEscape {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "esc")
+	} else if e.Code == key.CodeDeleteBackspace {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "deleteBackward")
+		//} else if code == key.CodeTab {
+		//	keyboardEvent =
+	} else if e.Code == key.CodeSpacebar {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, " ")
+	} else if e.Code == key.CodeRightArrow {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "right")
+	} else if e.Code == key.CodeLeftArrow {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "left")
+	} else if e.Code == key.CodeDownArrow {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "down")
+	} else if e.Code == key.CodeUpArrow {
+		keyboardEvent = controller.NewKeyboardEvent(controller.KeyEventTypeChar, action, "up")
+	} else {
+		keyboardEvent = nil
+	}
+	return keyboardEvent
 }
 
 func (m *MatrixEmulator) send(event interface{}) {

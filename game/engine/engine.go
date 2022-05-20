@@ -3,6 +3,7 @@ package engine
 import (
 	"fmt"
 	"github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/controller"
 	"time"
 )
 
@@ -30,10 +31,10 @@ type EntityBucket struct {
 	GraphicComponents    []GraphicComponent
 }
 
-func NewGameEngine(canvas canvas.Canvas) *Engine {
+func NewGameEngine(canvas canvas.Canvas, keyboardEventChannel *controller.KeyboardEventChannel) *Engine {
 	return &Engine{
 		entityBuckets:    []EntityBucket{{}},
-		controllerEngine: *NewControllerEngine(),
+		controllerEngine: *NewControllerEngine(keyboardEventChannel),
 		animationEngine:  *NewAnimationEngine(),
 		physicsEngine:    *NewPhysicsEngine(),
 		collisionEngine:  *NewCollisionEngine(),
@@ -92,6 +93,7 @@ LOOP:
 
 		// using lag to catch up missing updates when UI renders to slow
 		for lag >= updateDuration {
+			e.controllerEngine.ConsumeKeyboardEvents(updateDuration)
 			e.controllerEngine.ConsumeGamepadEvents(updateDuration)
 			e.controllerEngine.ProcessActions(e, updateDuration)
 			for _, bucket := range e.entityBuckets {

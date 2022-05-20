@@ -17,6 +17,14 @@ func newMorpionScoresControllerComponent(entity *MorpionScoresEntity) *MorpionSc
 	}
 }
 
+func (mscc *MorpionScoresControllerComponent) ConsumeKeyboardEvents(events *[]controller.KeyboardEvent, projection controller.KeyboardProjection) {
+	for _, event := range *events {
+		if event.Action == controller.PressKey {
+			mscc.AddAction(mscc.morpionScoresEntity.showMenu)
+		}
+	}
+}
+
 func (mscc *MorpionScoresControllerComponent) ConsumeGamepadEvents(events *[]controller.GamepadEvent, projection controller.GamepadProjection) {
 	for _, event := range *events {
 		if event.Action == controller.Press {

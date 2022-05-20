@@ -16,6 +16,7 @@ type (
 		activeScene            *Scene
 		elapsedSinceSceneStart time.Duration
 		gamepad                controller.Gamepad
+		keyboard               controller.Keyboard
 	}
 )
 
@@ -25,6 +26,7 @@ func NewEngine(canvas canvas.Canvas, scenes []*Scene) Engine {
 		scenes:      scenes,
 		activeScene: scenes[0],
 		gamepad:     controller.NewDualShock4(),
+		keyboard:    controller.NewKeyboardHard(nil),
 	}
 }
 
@@ -33,6 +35,9 @@ const UpdateDurationInNanos = 10000000 // 100 updates per second (to maintain ph
 const UpdateDuration = time.Duration(UpdateDurationInNanos)
 
 func (e *Engine) Run(done chan struct{}) {
+
+	e.keyboard.Start()
+	defer e.gamepad.Stop()
 
 	e.gamepad.Start()
 	defer e.gamepad.Stop()
@@ -99,7 +104,8 @@ LOOP:
 
 // pipe user input events to be handled in respective component(s)
 func (e *Engine) processInput() {
-	e.activeScene.Control(&e.gamepad)
+	e.activeScene.GamepadControl(&e.gamepad)
+	e.activeScene.KeyboardControl(&e.keyboard)
 }
 
 func (e *Engine) updateGame(elapsedBetweenUpdate time.Duration) bool {

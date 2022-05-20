@@ -1,6 +1,6 @@
 ######################################
 # Build C lib for linux/arm64 platform
-FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64 AS cbuilder
+FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64-lts AS cbuilder
 
 ## To drive hardware matrix via GPIO on RPi
 ## fetch origial C library via Git submodule & build it
@@ -14,7 +14,7 @@ RUN make -C ./lib
 
 #################
 # Building GO app
-FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64 AS gobuilder
+FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64-lts AS gobuilder
 RUN wget https://dl.google.com/go/go1.16.3.linux-arm64.tar.gz
 RUN tar -xvf go1.16.3.linux-arm64.tar.gz
 RUN mv go /usr/local
@@ -31,8 +31,12 @@ RUN CGO_ENABLED=1 GOOS=linux GOARCH=arm64 go build -o /out/goledmatrix-bin .
 
 ###############
 # Running stage
-FROM arm64v8/python:3.9.2-slim-buster AS bin
+FROM arm64v8/python:3.9.12-slim-buster AS bin
+
+RUN apt-get update && apt-get install -y bluez dbus bluetooth
+
 RUN pip3 install gpiozero
+
 COPY canvas/fonts /usr/bin/canvas/fonts
 COPY ./img /usr/bin/img
 COPY ./resetmatrix.py .

@@ -4,8 +4,8 @@
 package matrix
 
 /*
-#cgo CFLAGS: -std=c99 -I${SRCDIR}/../vendor/rpi-rgb-led-matrix/include -DSHOW_REFRESH_RATE
-#cgo LDFLAGS: -lrgbmatrix -L${SRCDIR}/../vendor/rpi-rgb-led-matrix/lib -lstdc++ -lm
+#cgo CFLAGS: -std=c99 -I${SRCDIR}/../../vendor/rpi-rgb-led-matrix/include -DSHOW_REFRESH_RATE
+#cgo LDFLAGS: -lrgbmatrix -L${SRCDIR}/../../vendor/rpi-rgb-led-matrix/lib -lstdc++ -lm
 #include <led-matrix-c.h>
 
 void led_matrix_swap(struct RGBLedMatrix *matrix, struct LedCanvas *offscreen_canvas,
@@ -87,6 +87,10 @@ type MatrixHardware struct {
 	matrix *C.struct_RGBLedMatrix
 	buffer *C.struct_LedCanvas
 	writer uilive.Writer
+}
+
+func (m *MatrixHardware) send(_ interface{}) {
+	// implemented only in emulator which handle data asynchronously
 }
 
 // NewRGBLedMatrix returns a new matrix using the given size and config

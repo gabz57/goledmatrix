@@ -24,6 +24,10 @@ func NewGamepadDemoController(bounds image.Rectangle, positionable canvas.Positi
 	}
 }
 
+func (c *GamepadDemoController) HandleKeyboardEvent(event *controller.KeyboardEvent, projection *controller.KeyboardProjection) {
+
+}
+
 func (c *GamepadDemoController) HandleGamepadEvent(event *controller.GamepadEvent, projection *controller.GamepadProjection) {
 	if event.IsDPad() {
 		dpadMove(c.move, projection.DPadDirection(), 10.)

@@ -10,7 +10,7 @@ type (
 	EntityRef int
 	Entity    interface {
 		Parent() EntityRef
-		// Update consumes controller events & set directions/velocity
+		// Update consumes controller gamepadEvents & set directions/velocity
 		Update(engine *Engine, dt time.Duration) bool
 		// FinalUpdate apply computed positions to entities, if any
 		FinalUpdate(dt time.Duration) bool

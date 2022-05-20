@@ -154,10 +154,12 @@ func (ds *DualShock4) listen() {
 
 func (ds *DualShock4) connect(controller *gods4.Controller) bool {
 	if controller == nil {
+		log.Println("No controller found, skip connect")
 		return false
 	}
 	err := controller.Connect()
 	if err != nil {
+		log.Println("Cannot connect controller", err)
 		return false
 	}
 	ds.controller = controller
