@@ -15,12 +15,7 @@ RUN make -C ./lib
 #################
 # Building GO app
 FROM --platform=${BUILDPLATFORM} dockcross/linux-arm64-lts AS gobuilder
-RUN wget https://dl.google.com/go/go1.16.3.linux-arm64.tar.gz
-RUN tar -xvf go1.16.3.linux-arm64.tar.gz
-RUN mv go /usr/local
-ENV GOROOT /usr/local/go
-ENV GOPATH $HOME/go
-ENV PATH $GOPATH/bin:$GOROOT/bin:$PATH
+RUN apt-get update && apt-get install -y golang
 
 COPY --from=cbuilder /c/rpi-rgb-led-matrix /go/src/github.com/gabz57/goledmatrix/vendor/rpi-rgb-led-matrix
 COPY ./. /go/src/github.com/gabz57/goledmatrix/

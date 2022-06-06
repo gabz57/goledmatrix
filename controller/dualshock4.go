@@ -2,7 +2,7 @@ package controller
 
 import (
 	"fmt"
-	"github.com/kpeu3i/gods4"
+	"github.com/gabz57/goledmatrix/gods4"
 	"log"
 	"time"
 )
