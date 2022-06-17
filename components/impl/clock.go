@@ -17,7 +17,6 @@ type Clock struct {
 	now                 time.Time
 	center              Point
 	radius              int
-	text                *shapes.Text
 	rotatingHour        *shapes.Line
 	rotatingHourDot     *shapes.Dot
 	rotatingMinute      *shapes.Line
@@ -25,6 +24,7 @@ type Clock struct {
 	rotatingSeconds     []*shapes.Dot
 	rotatingSecondIndex int
 	rotatingSecondMasks []*effect.ColorFaderEffect
+	//text                *shapes.Text
 
 	location *time.Location
 }
@@ -45,7 +45,7 @@ func NewClock(canvas Canvas, center Point, radius int) Component {
 	}
 
 	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, -radius/2), "Hello"))
-	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-9, radius/2-6), "Mirakl"))
+	c.shape.AddDrawable(c.buildStaticText(center.AddXY(-6, radius/2-6), "You"))
 
 	c.shape.AddDrawables(MaskDrawable(canvasMask, c.buildStaticContourCircle()))
 	c.shape.AddDrawable(c.buildStaticCenter())

@@ -7,6 +7,7 @@ import (
 	"github.com/gabz57/goledmatrix/components/shapes"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -25,12 +26,13 @@ func (p Person) nbDaysBeforeAnniversary() int {
 }
 
 var persons = []Person{
-	newPerson("Tatiana", 18, time.April, 1986),
+	//newPerson("Tatiana", 18, time.April, 1986),
 	newPerson("Maman", 11, time.November, 1959),
 	newPerson("Papa", 6, time.January, 1960),
 	newPerson("Marion", 22, time.April, 1991),
-	newPerson("Bloublou", 5, time.February, 2021),
+	//newPerson("Bloublou", 5, time.February, 2021),
 	newPerson("Thomas", 2, time.April, 1988),
+	newPerson("Aminata", 9, time.April, 1988),
 }
 
 // ByNextAnniversary implements sort.Interface based on the Birthday field.
@@ -97,9 +99,9 @@ func NewNextAnniversariesComponent(canvas Canvas) *NextAnniversaries {
 	return &na
 }
 
-func (na NextAnniversaries) Update(elapsedBetweenUpdate time.Duration) bool {
+func (na *NextAnniversaries) Update(elapsedBetweenUpdate time.Duration) bool {
 	date := formatDate(time.Now())
-	if na.currentDate != date {
+	if strings.Compare(na.currentDate, date) != 0 {
 		na.currentDate = date
 		sort.Sort(ByNextAnniversary(na.persons))
 

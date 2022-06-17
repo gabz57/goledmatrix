@@ -76,7 +76,12 @@ func NewMeteoCurrentComponent(_ Canvas, insee string) *MeteoCurrent {
 
 func (m *MeteoCurrent) Update(_ time.Duration) bool {
 	dataUpdated := m.updateData()
-	dataUpdated = m.updateDatetime() || dataUpdated
+	datetimeUpdated := m.updateDatetime()
+	dataUpdated = datetimeUpdated || dataUpdated
+
+	if datetimeUpdated {
+		m.dateTimeText.SetText(m.dateTimeTextValue)
+	}
 
 	if dataUpdated {
 		m.updateTextContent()
@@ -98,7 +103,6 @@ func (m *MeteoCurrent) updateData() bool {
 }
 
 func (m *MeteoCurrent) updateTextContent() {
-	m.dateTimeText.SetText(m.dateTimeTextValue)
 	if m.data != nil {
 		m.cityText.SetText("Météo à " + m.data.city)
 		m.tempCurrentText.SetText(strconv.Itoa(m.data.current) + "°C")

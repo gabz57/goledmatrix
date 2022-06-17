@@ -53,6 +53,9 @@ func (t *Text) SetColor(color color.Color) {
 }
 
 func (t *Text) SetText(txt string) {
+	if t.txt == txt {
+		return
+	}
 	t.txt = txt
 	t.computeBounds()
 	t.computePixels()

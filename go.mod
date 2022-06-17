@@ -1,6 +1,6 @@
 module github.com/gabz57/goledmatrix
 
-go 1.17
+go 1.15
 
 require (
 	github.com/anthonynsimon/bild v0.13.0

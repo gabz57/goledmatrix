@@ -121,17 +121,16 @@ func NewMeteoForecastComponent(canvas Canvas, insee string) *MeteoForecast {
 
 func (m *MeteoForecast) Update(elapsedBetweenUpdate time.Duration) bool {
 	updatedDateTime := m.updateDatetime()
-	updatedMeteo := m.updateMeteoData()
-	updated := updatedDateTime || updatedMeteo
-
 	if updatedDateTime {
 		m.updateDateTextContent()
 	}
 
+	updatedMeteo := m.updateMeteoData()
 	if updatedMeteo {
 		m.updateMeteoIconContent()
 		m.updateMeteoTextContent()
 	}
+	updated := updatedDateTime || updatedMeteo
 
 	updated = m.cityText.Update(elapsedBetweenUpdate) || updated
 	updated = m.dateTimeText.Update(elapsedBetweenUpdate) || updated
@@ -183,7 +182,7 @@ func (m *MeteoForecast) updateMeteoTextContent() {
 
 func (m *MeteoForecast) updateDatetime() bool {
 	var formatted = formatDateTime(time.Now())
-	if formatted != m.dateTimeTextValue {
+	if strings.Compare(formatted, m.dateTimeTextValue) != 0 {
 		m.dateTimeTextValue = formatted
 		return true
 	}
@@ -230,12 +229,12 @@ func (mf *MeteoForecastData) differs(data *MeteoForecastData) bool {
 	return false
 }
 
-func (mfdd MeteoForecastDailyData) differs(data MeteoForecastDailyData) bool {
-	return mfdd.date != data.date ||
+func (mfdd *MeteoForecastDailyData) differs(data MeteoForecastDailyData) bool {
+	return mfdd.date.YearDay() != data.date.YearDay() ||
 		mfdd.max != data.max ||
 		mfdd.min != data.min ||
 		mfdd.weather != data.weather ||
-		mfdd.weatherLabel != data.weatherLabel
+		strings.Compare(mfdd.weatherLabel, data.weatherLabel) != 0
 }
 
 func (m *MeteoForecast) Draw(canvas Canvas) error {

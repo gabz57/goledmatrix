@@ -2,22 +2,29 @@ package scenes
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/effect"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/impl"
+	"github.com/gabz57/goledmatrix/controller"
 	"time"
 )
 
 var infoCpnt Component
 
-func Gameloop(c Canvas, done chan struct{}) {
-	infoCpnt = infoComponent(c)
-	sceneDuration := 12 * time.Second
-	//effects := []CanvasEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
+func Gameloop(c Canvas, done chan struct{}, keyboardChannel *controller.KeyboardEventChannel) {
+	infoCpnt = infoComponent(c, false)
+	sceneDuration := 30 * time.Second
+	shortSceneDuration := 15 * time.Second
+	effects := []effect.DynamicEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
 	//galleryScene := photoGalleryScene(c, sceneDuration).WithEffects(effects)
 	engine := NewEngine(c, []*Scene{
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c)}, sceneDuration),
 		//NewScene([]Component{infoCpnt, octoLogoComponent(c), clockComponent(c)}, sceneDuration),
-		//NewSceneWithEffect([]Component{ /*infoCpnt, */ clockComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect}),
+		fadingLinesScene(c, sceneDuration).WithEffects(effects),
+		fadingDotsScene(c, sceneDuration, 100).WithEffects(effects),
+		fadingDotsScene(c, sceneDuration, 1000).WithEffects(effects),
+		NewScene([]Component{infoCpnt, clockComponent(c)}, sceneDuration),
+		//NewScene([]Component{ /*infoCpnt, */ clockComponent(c)}, sceneDuration).WithEffects(effects),
 		//NewSceneWithEffect([]Component{infoCpnt, photoGalleryComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect}),
 		//NewScene([]Component{infoCpnt, beanComponent(c)}, sceneDuration),
 		//NewScene([]Component{marioComponent(c), infoCpnt}, sceneDuration),
@@ -41,16 +48,20 @@ func Gameloop(c Canvas, done chan struct{}) {
 		//NewScene([]Component{infoCpnt, happyBirthdayComponent(c)}, sceneDuration),
 
 		//gamepadDemoScene(c, effects),
-		/*
-			meteoLocalScene(c, sceneDuration).WithEffects(effects),
-			meteoForecastScene(c, sceneDuration, "94016").WithEffects(effects), // Cachan
-			galleryScene,
-			meteoForecastScene(c, sceneDuration, "57176").WithEffects(effects), // Diebling
-			galleryScene,
-			meteoForecastScene(c, sceneDuration, "75112").WithEffects(effects), // Paris 12 arr
-			galleryScene,
-			nextAnniversariesScene(c, sceneDuration).WithEffects(effects),
-		*/
+
+		//meteoLocalScene(c, shortSceneDuration),
+		//meteoLocalScene(c, shortSceneDuration).WithEffects(effects),
+		//meteoForecastScene(c, shortSceneDuration, "94016"), // Cachan
+		meteoForecastScene(c, shortSceneDuration, "94016").WithEffects(effects), // Cachan
+		//galleryScene,
+		//meteoForecastScene(c, shortSceneDuration, "57176"), // Diebling
+		meteoForecastScene(c, shortSceneDuration, "57176").WithEffects(effects), // Diebling
+		//galleryScene,
+		//meteoForecastScene(c, shortSceneDuration, "75112").WithEffects(effects), // Paris 12 arr
+		//galleryScene,
+		//nextAnniversariesScene(c, shortSceneDuration),
+		nextAnniversariesScene(c, shortSceneDuration).WithEffects(effects),
+
 		//NewScene([]Component{meteoIconsComponent(c)}, sceneDuration),
 		//NewScene([]Component{meteoIcons16Component(c)}, sceneDuration),
 		//NewScene([]Component{ /*infoCpnt, */ photoComponent(c)}, sceneDuration),
@@ -58,6 +69,14 @@ func Gameloop(c Canvas, done chan struct{}) {
 		//NewScene([]Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
+}
+
+func fadingLinesScene(c Canvas, sceneDuration time.Duration) *Scene {
+	return NewScene([]Component{impl.NewFadingLines(c, Point{}, 15)}, sceneDuration)
+}
+
+func fadingDotsScene(c Canvas, sceneDuration time.Duration, nbDots int) *Scene {
+	return NewScene([]Component{impl.NewFadingDots(c, Point{}, nbDots, nil)}, sceneDuration)
 }
 
 func nextAnniversariesScene(c Canvas, sceneDuration time.Duration) *Scene {
@@ -83,8 +102,8 @@ func gamepadDemoScene(c Canvas) *Scene {
 	return NewScene([]Component{ /*infoCpnt, */ gamepadDemoComponent}, maxDuration).WithController(gamepadDemoComponent.Controller())
 }
 
-func infoComponent(c Canvas) Component {
-	return impl.NewInfo(c)
+func infoComponent(c Canvas, enabled bool) Component {
+	return impl.NewInfo(c, enabled)
 }
 
 func octoLogoComponent(c Canvas) Component {
@@ -184,7 +203,7 @@ func heartsComponent(c Canvas) Component {
 }
 
 func movingHeartsComponent(c Canvas) Component {
-	return impl.NewMovingHearts(c, Point{}, 3000)
+	return impl.NewMovingHearts(c, Point{}, 30)
 }
 
 func happyBirthdayComponent(c Canvas) Component {
@@ -195,13 +214,13 @@ func happyBirthdayComponent(c Canvas) Component {
 //////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////
 
-func meteoIcons16Component(c Canvas) Component {
-	return NewMeteoIcons16Component(c)
-}
+//func meteoIcons16Component(c Canvas) Component {
+//	return NewMeteoIcons16Component(c)
+//}
 
-func meteoIconsComponent(c Canvas) Component {
-	return NewMeteoIconsComponent(c)
-}
+//func meteoIconsComponent(c Canvas) Component {
+//	return NewMeteoIconsComponent(c)
+//}
 
 func photoComponent(c Canvas) Component {
 	return NewPhotoComponent(c)

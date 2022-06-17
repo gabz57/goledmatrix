@@ -21,11 +21,12 @@ type Info struct {
 	updateCounter ratecounter.RateCounter
 	drawCounter   ratecounter.RateCounter
 	location      *time.Location
+	enabled       bool
 }
 
 var infoGraphic = NewGraphic(nil, nil)
 
-func NewInfo(c Canvas) *Info {
+func NewInfo(c Canvas, enabled bool) *Info {
 	location, _ := time.LoadLocation("Europe/Paris")
 
 	i := Info{
@@ -35,6 +36,7 @@ func NewInfo(c Canvas) *Info {
 		updateCounter: *ratecounter.NewRateCounter(1 * time.Second),
 		drawCounter:   *ratecounter.NewRateCounter(1 * time.Second),
 		location:      location,
+		enabled:       enabled,
 	}
 
 	i.timeText = i.buildTimeText()
@@ -69,7 +71,10 @@ func (i *Info) Update(elapsedBetweenUpdate time.Duration) bool {
 
 func (i *Info) Draw(canvas Canvas) error {
 	defer i.drawCounter.Incr(1)
-	return i.shape.Draw(canvas)
+	if i.enabled {
+		return i.shape.Draw(canvas)
+	}
+	return nil
 }
 
 func (i *Info) fpsTxt() string {

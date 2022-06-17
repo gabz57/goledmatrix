@@ -36,8 +36,8 @@ const UpdateDuration = time.Duration(UpdateDurationInNanos)
 
 func (e *Engine) Run(done chan struct{}) {
 
-	e.keyboard.Start()
-	defer e.gamepad.Stop()
+	//e.keyboard.Start()
+	//defer e.keyboard.Stop()
 
 	e.gamepad.Start()
 	defer e.gamepad.Stop()

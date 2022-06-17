@@ -90,6 +90,7 @@ func ReadConfigFlags() (*MatrixConfig, error) {
 	config.Parallel = *parallel
 	config.ChainLength = *chain
 	config.Brightness = *brightness
+	config.PWMBits = 9
 	config.HardwareMapping = *hardware_mapping
 	config.ShowRefreshRate = *show_refresh
 	config.InverseColors = *inverse_colors
