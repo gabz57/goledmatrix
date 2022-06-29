@@ -90,7 +90,7 @@ func ReadConfigFlags() (*MatrixConfig, error) {
 	config.Parallel = *parallel
 	config.ChainLength = *chain
 	config.Brightness = *brightness
-	config.PWMBits = 9
+	config.PWMBits = 8
 	config.HardwareMapping = *hardware_mapping
 	config.ShowRefreshRate = *show_refresh
 	config.InverseColors = *inverse_colors
@@ -196,7 +196,7 @@ func Run(gameloop func(_ Canvas, _ chan struct{}, _ *controller.KeyboardEventCha
 	// Starting game loop on a separate routine
 	go run(func(c Canvas, done chan struct{}, kbEventChannel *controller.KeyboardEventChannel) {
 		if config.Server {
-			RpcServe(matrix)
+			RpcServe(matrix)(c, done)
 		} else {
 			// modify method interface to pass keyboard channel in gameloop
 			gameloop(c, done, kbEventChannel)

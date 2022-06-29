@@ -25,5 +25,11 @@ ledmatrix64/push:
 	--tag gabz57/goledmatrix:rpi64 \
 	--push
 
+ledmatrix64/pushserver:
+	@docker buildx build . -f arm64.Dockerfile \
+	--platform linux/arm64 \
+	--tag gabz57/goledmatrix:rpi64-server \
+	--push
+
 # docker buildx build . -f arm64.Dockerfile --platform linux/arm64 --tag gabz57/goledmatrix:rpi64 --output bin/64/
 # docker buildx build . -f arm64.Dockerfile --platform linux/arm64 --tag gabz57/goledmatrix:rpi64 --push

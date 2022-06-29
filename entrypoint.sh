@@ -46,7 +46,11 @@
 #echo -n "Waiting 5s ..."
 #sleep 5
 #
-echo -n "Running matrix..."
+echo -n "Reset matrix..."
 python3 resetmatrix.py
+
+echo -n "Running matrix..."
 cd /usr/bin/
+
+export MATRIX_SERVER="${SERVER:-0}"
 ./goledmatrix
