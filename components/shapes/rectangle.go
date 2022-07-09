@@ -52,3 +52,11 @@ func (r *Rectangle) Draw(canvas Canvas) error {
 
 	return nil
 }
+
+func (r *Rectangle) SetMin(min Point) {
+	r.min = min
+}
+
+func (r *Rectangle) SetMax(max Point) {
+	r.max = max
+}

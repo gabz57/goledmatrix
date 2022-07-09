@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="26285317-4b1f-4c36-9622-bf7a31e85286" name="Changes" comment="server &amp; client mode">
+      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/impl/dsp.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/impl/dspFrequencyBar.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/arm64.Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/armv7.Dockerfile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/shapes/rectangle.go" beforeDir="false" afterPath="$PROJECT_DIR$/components/shapes/rectangle.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/utils.go" beforeDir="false" afterPath="$PROJECT_DIR$/components/utils.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/readme.md" beforeDir="false" afterPath="$PROJECT_DIR$/readme.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scenes/demo.go" beforeDir="false" afterPath="$PROJECT_DIR$/scenes/demo.go" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.18.3" />
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GoLibraries">
+    <option name="indexEntireGoPath" value="true" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2AIuKLNSdQE76Bn5DIjUq8vfRIZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.format.on.save.advertiser.fired&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;configurable..is.expanded&quot;: &quot;true&quot;,
+    &quot;configurable.GoLibrariesConfigurable.is.expanded&quot;: &quot;true&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/arnaud.schwartz/IdeaProjects/goledmatrix&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;terminal&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="GoMoveDeclarationDialog.RECENT_KEY">
+      <recent name="$PROJECT_DIR$/components/impl" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/components/impl" />
+      <recent name="$PROJECT_DIR$/components" />
+      <recent name="$PROJECT_DIR$/vendor/github.com/karalabe/hid" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Makefile Target.ledmatrix64/build">
+    <configuration name="Client" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="goledmatrix" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="MATRIX_EMULATOR" value="1" />
+        <env name="MATRIX_CLIENT" value="1" />
+        <env name="MATRIX_ADDRESS" value="192.168.1.14" />
+      </envs>
+      <kind value="PACKAGE" />
+      <package value="github.com/gabz57/goledmatrix" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Emulator" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="goledmatrix" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="MATRIX_EMULATOR" value="1" />
+      </envs>
+      <kind value="PACKAGE" />
+      <package value="github.com/gabz57/goledmatrix" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Server (test)" type="GoApplicationRunConfiguration" factoryName="Go Application">
+      <module name="goledmatrix" />
+      <working_directory value="$PROJECT_DIR$" />
+      <envs>
+        <env name="MATRIX_SERVER" value="1" />
+      </envs>
+      <kind value="PACKAGE" />
+      <package value="github.com/gabz57/goledmatrix" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="ledmatrix64/build" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="ledmatrix64/build" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <configuration name="ledmatrix64/push" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="ledmatrix64/push" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Go Build.Client" />
+      <item itemvalue="Go Build.Emulator" />
+      <item itemvalue="Go Build.Server (test)" />
+      <item itemvalue="Makefile Target.ledmatrix64/build" />
+      <item itemvalue="Makefile Target.ledmatrix64/push" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="26285317-4b1f-4c36-9622-bf7a31e85286" name="Changes" comment="" />
+      <created>1654709356287</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1654709356287</updated>
+      <workItem from="1654709360154" duration="1453000" />
+      <workItem from="1654711020188" duration="22976000" />
+      <workItem from="1655138872491" duration="20495000" />
+      <workItem from="1655319115175" duration="100805000" />
+      <workItem from="1657231581595" duration="4000" />
+      <workItem from="1657307989825" duration="5416000" />
+    </task>
+    <task id="LOCAL-00001" summary="fading dots &amp; lines, other fixes and updates">
+      <created>1655467902358</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1655467902361</updated>
+    </task>
+    <task id="LOCAL-00002" summary="server &amp; client mode">
+      <created>1656499384159</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1656499384159</updated>
+    </task>
+    <task id="LOCAL-00003" summary="bluetooth experiments">
+      <created>1656499407145</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1656499407145</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ID_ORDER">
+      <list>
+        <option value="Default.Root" />
+        <option value="Default.Author" />
+        <option value="Default.Date" />
+        <option value="Default.Subject" />
+        <option value="Space.CommitStatus" />
+      </list>
+    </option>
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fading dots &amp; lines, other fixes and updates" />
+    <MESSAGE value="server &amp; client mode" />
+    <MESSAGE value="bluetooth experiments" />
+    <option name="LAST_COMMIT_MESSAGE" value="bluetooth experiments" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/components/shapes/text.go</url>
+          <line>45</line>
+          <option name="timeStamp" value="16" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/components/shapes/text.go</url>
+          <line>50</line>
+          <option name="timeStamp" value="19" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/canvas/matrix/matrix_builder_rpi.go</url>
+          <line>6</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/components/impl/dspFrequencyBar.go</url>
+          <line>43</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
+          <url>file://$PROJECT_DIR$/components/impl/dsp.go</url>
+          <line>144</line>
+          <option name="timeStamp" value="51" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
+  </component>
+</project>

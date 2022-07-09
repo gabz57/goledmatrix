@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gabz57/goledmatrix/canvas/matrix"
+	"github.com/gabz57/goledmatrix/game"
 	"github.com/gabz57/goledmatrix/scenes"
 )
 
@@ -10,8 +11,12 @@ func main() {
 }
 
 func goLedApplication() {
-	matrix.Run(scenes.Gameloop)
-	//matrix.Run(game.Morpion)
+	playGame := false
+	if playGame {
+		matrix.Run(game.Morpion)
+	} else {
+		matrix.Run(scenes.Gameloop)
+	}
 }
 
 //

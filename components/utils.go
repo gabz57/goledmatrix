@@ -128,3 +128,42 @@ func OneOrMinusOne() float64 {
 	}
 	return 1
 }
+
+// 0 ≤ hue < 360, 0 ≤ saturation ≤ 1 and 0 ≤ value ≤ 1
+func HsvToRgb(hue, saturation, value float64) (r, g, b int) {
+	C := value * saturation
+	X := C * (1 - math.Abs(math.Mod(hue/60, 2)-1))
+	m := value - C
+	var rb, gb, bb float64
+	if hue <= 60 {
+		rb = C
+		gb = X
+		bb = 0
+	} else if hue <= 120 {
+		rb = X
+		gb = C
+		bb = 0
+	} else if hue <= 180 {
+		rb = 0
+		gb = C
+		bb = X
+	} else if hue <= 240 {
+		rb = 0
+		gb = X
+		bb = C
+	} else if hue <= 300 {
+		rb = X
+		gb = 0
+		bb = C
+	} else if hue <= 360 {
+		rb = C
+		gb = 0
+		bb = X
+	} else {
+		panic(nil)
+	}
+	r = int((rb + m) * 255)
+	g = int((gb + m) * 255)
+	b = int((bb + m) * 255)
+	return
+}
