@@ -94,6 +94,12 @@ $ docker stop CONTAINER
 $ docker rmi gabz57/goledmatrix:rpi64
 ```
 
+## Demo !
+
+Displaying audio frequencies (from laptop microphone)
+
+https://user-images.githubusercontent.com/3730276/179513887-a3f979a3-a2d1-4764-8f10-85715c25532f.mov
+
 ## Try your own code
 
 See `/demo directory for a few examples
