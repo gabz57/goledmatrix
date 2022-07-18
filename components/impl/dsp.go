@@ -19,11 +19,24 @@ var frequencies = []float64{
 	10000, 14000, 20000,
 }
 
-const NB_FREQUENCIES = 20 // len(frequencies) - 1
+//// centered on voice frequencies
+//var frequencies = []float64{
+//	400, 500, 630, 800,
+//	1000, 1250, 1400, 1600,
+//	2000, 2400, 3000, 4000,
+//}
+
 const MAX_HEIGHT = 64
 const BAR_WIDTH = 4
 const BAR_SPACING = 0
-const TOTAL_DSP_WIDTH = NB_FREQUENCIES * (1 + BAR_WIDTH + 2*BAR_SPACING)
+
+func NbFrequencies() int {
+	return len(frequencies) - 1
+}
+
+func TotalDspWidth() int {
+	return NbFrequencies() * (1 + BAR_WIDTH + 2*BAR_SPACING)
+}
 
 type Dsp struct {
 	shape         *CompositeDrawable
@@ -32,17 +45,18 @@ type Dsp struct {
 
 func NewDsp(c Canvas) Component {
 	graphic := NewOffsetGraphic(nil, nil, Point{
-		X: (c.Bounds().Max.X - TOTAL_DSP_WIDTH) / 2,
+		X: (c.Bounds().Max.X - TotalDspWidth()) / 2,
 		Y: 0,
 	})
+	nbFrequencies := NbFrequencies()
 	dsp := Dsp{
 		shape:         NewCompositeDrawable(graphic),
-		frequencyBars: make([]*frequencyBar, NB_FREQUENCIES),
+		frequencyBars: make([]*frequencyBar, nbFrequencies),
 	}
 
 	barGraphic := NewGraphic(graphic, NewLayout(ColorWhite, ColorWhite))
-	for i := 0; i <= NB_FREQUENCIES; i++ {
-		if i < NB_FREQUENCIES {
+	for i := 0; i <= nbFrequencies; i++ {
+		if i < nbFrequencies {
 			dsp.frequencyBars[i] = dsp.buildFrequencyBar(barGraphic, i)
 			dsp.shape.AddDrawable(dsp.frequencyBars[i])
 		}
@@ -52,7 +66,7 @@ func NewDsp(c Canvas) Component {
 }
 
 func (dsp *Dsp) buildFrequencyBar(graphic *Graphic, i int) *frequencyBar {
-	r, g, b := HsvToRgb(float64(i)/NB_FREQUENCIES*360, 1, 1)
+	r, g, b := HsvToRgb(float64(i)/float64(NbFrequencies())*360, 1, 1)
 
 	return newFrequencyBar(graphic, Point{
 		X: i*(1+BAR_WIDTH+2*BAR_SPACING) + BAR_SPACING + 1,
