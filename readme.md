@@ -100,6 +100,14 @@ Displaying audio frequencies (from laptop microphone)
 
 https://user-images.githubusercontent.com/3730276/179513887-a3f979a3-a2d1-4764-8f10-85715c25532f.mov
 
+Fadings randomly colored dots
+
+https://user-images.githubusercontent.com/3730276/179515562-23323623-9f0b-4cd0-aa39-615a35fdc24a.mov
+
+Clock
+
+https://user-images.githubusercontent.com/3730276/179516728-51b4286a-f51f-459e-9189-743ca0a58675.mov
+
 ## Try your own code
 
 See `/demo directory for a few examples
