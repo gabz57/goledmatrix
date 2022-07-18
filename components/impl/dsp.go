@@ -3,7 +3,6 @@ package impl
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
 	. "github.com/gabz57/goledmatrix/components"
-	"github.com/gabz57/goledmatrix/components/shapes"
 	"github.com/gordonklaus/portaudio"
 	"github.com/mjibson/go-dsp/spectral"
 	"image/color"
@@ -27,10 +26,8 @@ const BAR_SPACING = 0
 const TOTAL_DSP_WIDTH = NB_FREQUENCIES * (1 + BAR_WIDTH + 2*BAR_SPACING)
 
 type Dsp struct {
-	shape          *CompositeDrawable
-	horizontalLine *shapes.Line
-	verticalLines  []*shapes.Line
-	frequencyBars  []*frequencyBar
+	shape         *CompositeDrawable
+	frequencyBars []*frequencyBar
 }
 
 func NewDsp(c Canvas) Component {
@@ -39,19 +36,12 @@ func NewDsp(c Canvas) Component {
 		Y: 0,
 	})
 	dsp := Dsp{
-		shape:          NewCompositeDrawable(graphic),
-		horizontalLine: nil,
-		verticalLines:  make([]*shapes.Line, NB_FREQUENCIES+1),
-		frequencyBars:  make([]*frequencyBar, NB_FREQUENCIES),
+		shape:         NewCompositeDrawable(graphic),
+		frequencyBars: make([]*frequencyBar, NB_FREQUENCIES),
 	}
-
-	//dsp.horizontalLine = dsp.buildHorizontalLine(graphic)
-	//dsp.shape.AddDrawable(dsp.horizontalLine)
 
 	barGraphic := NewGraphic(graphic, NewLayout(ColorWhite, ColorWhite))
 	for i := 0; i <= NB_FREQUENCIES; i++ {
-		//dsp.verticalLines[i] = dsp.buildVerticalLine(graphic, i)
-		//dsp.shape.AddDrawable(dsp.verticalLines[i])
 		if i < NB_FREQUENCIES {
 			dsp.frequencyBars[i] = dsp.buildFrequencyBar(barGraphic, i)
 			dsp.shape.AddDrawable(dsp.frequencyBars[i])
@@ -61,31 +51,6 @@ func NewDsp(c Canvas) Component {
 	return &dsp
 }
 
-func (dsp *Dsp) buildHorizontalLine(graphic *Graphic) *shapes.Line {
-	return shapes.NewLine(graphic,
-		Point{
-			X: 0,
-			Y: MAX_HEIGHT,
-		},
-		Point{
-			X: TOTAL_DSP_WIDTH,
-			Y: MAX_HEIGHT,
-		},
-	)
-}
-
-func (dsp *Dsp) buildVerticalLine(graphic *Graphic, i int) *shapes.Line {
-	return shapes.NewLine(graphic,
-		Point{
-			X: i * (1 + BAR_WIDTH + 2*BAR_SPACING),
-			Y: 0,
-		},
-		Point{
-			X: i * (1 + BAR_WIDTH + 2*BAR_SPACING),
-			Y: MAX_HEIGHT,
-		},
-	)
-}
 func (dsp *Dsp) buildFrequencyBar(graphic *Graphic, i int) *frequencyBar {
 	r, g, b := HsvToRgb(float64(i)/NB_FREQUENCIES*360, 1, 1)
 
