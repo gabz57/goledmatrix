@@ -27,11 +27,19 @@ func NewRpcClient(config *MatrixConfig) (Matrix, error) {
 		return nil, err
 	}
 
-	return &MatrixRpcClient{
+	client := MatrixRpcClient{
 		config:            config,
 		client:            rpcClient,
 		lastFrameDuration: 0 * time.Nanosecond,
-	}, nil
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	if err = validateGeometry(config, &client); err != nil {
+		return nil, err
+	}
+	return &client, nil
 }
 
 func (m *MatrixRpcClient) Config() *MatrixConfig {
@@ -90,7 +98,7 @@ func (m *MatrixRpcClient) doRender(canvas Canvas) error {
 
 func toRpcPixels(canvas Canvas) []RpcPixel {
 	width := canvas.Bounds().Max.X
-	pixels := make([]RpcPixel, canvas.Bounds().Max.X*canvas.Bounds().Max.X)
+	pixels := make([]RpcPixel, canvas.Bounds().Max.X*canvas.Bounds().Max.Y)
 	index := 0
 	for i, c := range *canvas.GetLeds() {
 		if c != nil && !isBlack(c) {
