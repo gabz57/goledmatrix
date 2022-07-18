@@ -1,10 +1,10 @@
 package fonts
 
 import (
-	"fmt"
 	"github.com/zachomedia/go-bdf"
 	"golang.org/x/image/font"
 	"io/ioutil"
+	"log"
 )
 
 type MatrixFont struct {
@@ -41,16 +41,16 @@ var (
 var lazyBdfFonts = make(map[MatrixFont]*bdf.Font)
 
 func loadFnt(matrixFont MatrixFont) (*bdf.Font, error) {
-	fmt.Println("Loading Font " + matrixFont.FileName)
+	log.Println("Loading Font " + matrixFont.FileName)
 
 	fontBytes, err := ioutil.ReadFile("canvas/fonts/" + matrixFont.FileName)
 	if err != nil {
-		fmt.Println("Failed to read Font file " + matrixFont.FileName)
+		log.Println("Failed to read Font file " + matrixFont.FileName)
 		return nil, err
 	}
 	fontPtr, err := bdf.Parse(fontBytes)
 	if err != nil {
-		fmt.Println("Failed to parse Font bytes " + matrixFont.FileName)
+		log.Println("Failed to parse Font bytes " + matrixFont.FileName)
 		return nil, err
 	}
 	return fontPtr, nil

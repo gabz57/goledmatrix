@@ -2,9 +2,9 @@ package matrix
 
 import (
 	"encoding/gob"
-	"fmt"
 	. "github.com/gabz57/goledmatrix/canvas"
 	"image/color"
+	"log"
 	"net/rpc"
 	"strconv"
 	"time"
@@ -67,12 +67,12 @@ func (m *MatrixRpcClient) Render(canvas Canvas) error {
 		start := time.Now()
 		err := m.doRender(canvas)
 		duration := time.Now().Sub(start)
-		fmt.Println("rpc render took " + strconv.FormatInt(duration.Milliseconds(), 10) + "ms")
+		log.Println("rpc render took " + strconv.FormatInt(duration.Milliseconds(), 10) + "ms")
 		m.lastFrameDuration = duration
 		return err
 
 	} else {
-		fmt.Println("rpc render skipped")
+		log.Println("rpc render skipped")
 
 		m.lastFrameDuration = 0 * time.Nanosecond
 		return nil

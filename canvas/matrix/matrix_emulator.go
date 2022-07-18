@@ -14,6 +14,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"log"
 	"os"
 )
 
@@ -46,7 +47,7 @@ type MatrixEmulator struct {
 }
 
 func NewEmulator(config *MatrixConfig) (Matrix, error) {
-	fmt.Println("NewEmulator")
+	log.Println("NewEmulator")
 	w, h := config.Geometry()
 	e := &MatrixEmulator{
 		config:                  config,
@@ -181,7 +182,7 @@ func (m *MatrixEmulator) calculateGutterForViewableArea(size image.Point) int {
 func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 	mainthread.Call(func() {
 		driver.Main(func(s screen.Screen) {
-			fmt.Println("emulator.MainThread")
+			log.Println("emulator.MainThread")
 			var err error
 			m.s = s
 			// Calculate initial window size based on whatever our gutter/pixel pitch currently is.
@@ -235,7 +236,7 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 					sz = evn
 					m.updatePixelPitchForGutter(m.calculateGutterForViewableArea(sz.Size()))
 					if evn.WidthPx == 0 && evn.HeightPx == 0 {
-						fmt.Println("event : size.Event > closing window >> leaving UI loop")
+						log.Println("event : size.Event > closing window >> leaving UI loop")
 						break LOOP
 					}
 				case key.Event:
@@ -253,7 +254,7 @@ func (m *MatrixEmulator) MainThread(canvas Canvas, done chan struct{}) {
 				default:
 				}
 			}
-			fmt.Println("screen loop END")
+			log.Println("screen loop END")
 		})
 	})
 }
@@ -265,7 +266,7 @@ func convertKeyboardEvent(e key.Event) *controller.KeyboardEvent {
 	//}
 	//return fmt.Sprintf("key.Event{(%v), %v, %v}", e.Code, e.Modifiers, e.Direction)
 	if e.Modifiers == key.ModControl && e.Code == key.CodeC {
-		fmt.Println("Exiting...")
+		log.Println("Exiting...")
 		os.Exit(0)
 	}
 	//r := event.Rune

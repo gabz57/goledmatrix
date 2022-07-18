@@ -3,7 +3,6 @@ package matrix
 import (
 	"errors"
 	"flag"
-	"fmt"
 	"github.com/faiface/mainthread"
 	. "github.com/gabz57/goledmatrix/canvas"
 	"github.com/gabz57/goledmatrix/controller"
@@ -180,7 +179,7 @@ func (mc *MatrixConfig) Geometry() (width, height int) {
 }
 
 func Run(gameloop func(_ Canvas, _ chan struct{}, _ *controller.KeyboardEventChannel)) {
-	fmt.Println("Running...")
+	log.Println("Running...")
 	config, err := ReadConfigFlags()
 	if err != nil {
 		log.Fatal(err)
@@ -196,6 +195,7 @@ func Run(gameloop func(_ Canvas, _ chan struct{}, _ *controller.KeyboardEventCha
 	// Starting game loop on a separate routine
 	go run(func(c Canvas, done chan struct{}, kbEventChannel *controller.KeyboardEventChannel) {
 		if config.Server {
+			// Only listen to matrix received by rpc (Ctrl+C to stop)
 			RpcServe(matrix)(c, done)
 		} else {
 			// modify method interface to pass keyboard channel in gameloop
@@ -207,9 +207,9 @@ func Run(gameloop func(_ Canvas, _ chan struct{}, _ *controller.KeyboardEventCha
 		}
 	}, canvas, done, emulatorKeyboardChannel(matrix))
 
-	fmt.Println("matrix.MainThread()")
+	log.Println("Starting LedMatrix")
 	matrix.MainThread(canvas, done)
-	fmt.Println("matrix.MainThread() DONE")
+	log.Println("LedMatrix Stopped")
 }
 
 func emulatorKeyboardChannel(matrix Matrix) *controller.KeyboardEventChannel {
@@ -226,9 +226,9 @@ func run(gameloop func(c Canvas, done chan struct{}, keyboardChannel *controller
 		// avoid drawing to early as emulator might not be ready, eventually fixed
 		//<-time.After(10 * time.Millisecond)
 
-		fmt.Println("Gameloop STARTED")
+		log.Println("Gameloop STARTED")
 		gameloop(canvas, done, keyboardChannel)
-		fmt.Println("Gameloop END")
+		log.Println("Gameloop END")
 		done <- struct{}{}
 	}()
 }

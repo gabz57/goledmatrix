@@ -1,9 +1,9 @@
 package engine
 
 import (
-	"fmt"
 	"github.com/gabz57/goledmatrix/canvas"
 	"github.com/gabz57/goledmatrix/controller"
+	"log"
 	"time"
 )
 
@@ -73,16 +73,16 @@ func (e *Engine) runGameLoop(done chan struct{}) {
 
 	previous := time.Now()
 	lag := time.Duration(0)
-	fmt.Println("Starting Canvas Engine !")
+	log.Println("Starting Canvas Engine !")
 	dirty := true
 LOOP:
 	for {
 		select {
 		case <-e.gameDone:
-			fmt.Println("Game asked game loop BREAK")
+			log.Println("Game asked game loop BREAK")
 			break LOOP
 		case <-done:
-			fmt.Println("Context asked for game loop BREAK")
+			log.Println("Context asked for game loop BREAK")
 			break LOOP
 		default:
 		}
@@ -117,7 +117,7 @@ LOOP:
 		case <-time.After(frameDurationInNanos - time.Now().Sub(current)):
 		}
 	}
-	fmt.Println("engine loop END")
+	log.Println("engine loop END")
 }
 
 func (e *Engine) UpdateBucket(bucket *EntityBucket, dt time.Duration) bool {

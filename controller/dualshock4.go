@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/gabz57/goledmatrix/gods4"
 	"log"
 	"time"
@@ -117,7 +116,7 @@ func (ds *DualShock4) autoConnect() {
 	if !ds.performConnection() {
 		ds.autoconnect = true
 		go func() {
-			fmt.Println("autoConnect: Start loop")
+			log.Println("Looking for DualShock4 controller (USB or bluetooth)")
 			for ds.autoconnect {
 				ds.reconnectionTimer = time.NewTimer(200 * time.Millisecond)
 				select {
@@ -127,7 +126,7 @@ func (ds *DualShock4) autoConnect() {
 					}
 				}
 			}
-			fmt.Println("autoConnect: Stop loop")
+			log.Println("DualShock4 detection stopped")
 		}()
 	}
 }
@@ -142,9 +141,9 @@ func (ds *DualShock4) performConnection() bool {
 }
 
 func (ds *DualShock4) listen() {
-	fmt.Println("Start listening")
+	log.Println("Start listening")
 	err := ds.controller.Listen() // BLOCKING CALL
-	fmt.Println("Stopped listening")
+	log.Println("Stopped listening")
 
 	if err != nil {
 		println(err)

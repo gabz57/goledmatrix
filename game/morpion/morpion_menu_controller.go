@@ -23,7 +23,7 @@ func (mmcc *MainMenuControllerComponent) ConsumeKeyboardEvents(events *[]control
 		//if event.Action == controller.ReleaseKey {
 		//	actionTxt = "release"
 		//}
-		//fmt.Println("Keyboard event", event.Data, " ", actionTxt)
+		//log.Println("Keyboard event", event.Data, " ", actionTxt)
 
 		if event.Action == controller.PressKey {
 			if event.Data == "up" {

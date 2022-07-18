@@ -2,9 +2,9 @@ package meteo
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 )
@@ -211,7 +211,7 @@ func (m *MeteoConceptClient) ForecastNextHours() (*ForecastHourResponse, error) 
 }
 
 func (m *MeteoConceptClient) getForecastNextHoursResponse() (*ForecastHourResponse, error) {
-	fmt.Println("getForecastNextHours ...")
+	log.Println("getForecastNextHours ...")
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.meteo-concept.com/api/forecast/nextHours?token="+API_TOKEN+"&insee="+m.insee+"&hourly=true", nil)
 	if err != nil {
@@ -258,7 +258,7 @@ func (m *MeteoConceptClient) ForecastDaily() (*ForecastDayResponse, error) {
 }
 
 func (m *MeteoConceptClient) getForecastDailyResponse() (*ForecastDayResponse, error) {
-	fmt.Println("getForecastDaily ", m.insee)
+	log.Println("getForecastDaily ", m.insee)
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://api.meteo-concept.com/api/forecast/daily?token="+API_TOKEN+"&insee="+m.insee, nil)
 	if err != nil {

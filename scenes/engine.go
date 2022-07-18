@@ -1,11 +1,11 @@
 package scenes
 
 import (
-	"fmt"
 	"github.com/gabz57/goledmatrix/canvas"
 	"github.com/gabz57/goledmatrix/controller"
 	"github.com/gosuri/uilive"
 	"github.com/paulbellamy/ratecounter"
+	"log"
 	"time"
 )
 
@@ -50,7 +50,7 @@ func (e *Engine) Run(done chan struct{}) {
 
 	previous := time.Now()
 	lag := time.Duration(0)
-	fmt.Println("Starting Canvas Engine !")
+	log.Println("Starting Canvas Engine !")
 	dirty := true
 
 LOOP:
@@ -60,7 +60,7 @@ LOOP:
 
 		select {
 		case <-done:
-			fmt.Println("engine loop BREAK")
+			log.Println("engine loop BREAK")
 			break LOOP
 			//TODO: plug user event
 			//case e:= <-ui.event;// e.processInput()
@@ -99,7 +99,7 @@ LOOP:
 		case <-time.After(FrameDurationInNanos - time.Now().Sub(current)):
 		}
 	}
-	fmt.Println("engine loop END")
+	log.Println("engine loop END")
 }
 
 // pipe user input events to be handled in respective component(s)

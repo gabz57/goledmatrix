@@ -2,7 +2,6 @@ package matrix
 
 import (
 	"encoding/gob"
-	"fmt"
 	. "github.com/gabz57/goledmatrix/canvas"
 	"image/color"
 	"log"
@@ -25,7 +24,7 @@ type GeometryArgs struct{}
 type GeometryReply struct{ Width, Height int }
 
 func (m *MatrixRPCServer) Geometry(_ *GeometryArgs, reply *GeometryReply) error {
-	fmt.Println("MatrixRPCServer.Geometry()")
+	log.Println("MatrixRPCServer.Geometry()")
 	w, h := m.m.Geometry()
 	reply.Width = w
 	reply.Height = h
@@ -56,14 +55,14 @@ type CloseArgs struct{}
 type CloseReply struct{}
 
 func (m *MatrixRPCServer) Close(_ *CloseArgs, _ *CloseReply) error {
-	fmt.Println("MatrixRPCServer.Close()")
+	log.Println("MatrixRPCServer.Close()")
 	return m.m.Close()
 }
 
 func RpcServe(matrix Matrix) func(c Canvas, done chan struct{}) {
 	return func(c Canvas, done chan struct{}) {
 		serve(matrix, c) // Blocking
-		fmt.Println("RPC Server Stopped")
+		log.Println("RPC Server Stopped")
 	}
 }
 
@@ -75,6 +74,6 @@ func serve(m Matrix, c Canvas) {
 	if e != nil {
 		log.Fatal("listen error:", e)
 	}
-	fmt.Println("Serving... @ " + l.Addr().String())
+	log.Println("Serving... @ " + l.Addr().String())
 	http.Serve(l, nil)
 }

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"fmt"
 	"github.com/nsf/termbox-go"
+	"log"
 	"os"
 	"strconv"
 )
@@ -51,12 +51,12 @@ func (kbh *KeyboardHard) Stop() {
 
 func (kbh *KeyboardHard) listen() {
 
-	fmt.Println("Press ESC button or Ctrl-C to exit this program")
-	fmt.Println("Press any key to see their ASCII code follow by Enter")
+	log.Println("Press ESC button or Ctrl-C to exit this program")
+	log.Println("Press any key to see their ASCII code follow by Enter")
 
 	err := termbox.Init()
 	if err != nil {
-		fmt.Println("termbox.Init() failed, keyboardHardware not available", err)
+		log.Println("termbox.Init() failed, keyboardHardware not available", err)
 		return
 	}
 	defer termbox.Close()
@@ -66,7 +66,7 @@ func (kbh *KeyboardHard) listen() {
 		case termbox.EventKey:
 			switch ev.Key {
 			case termbox.KeyCtrlC:
-				fmt.Println("Exiting...")
+				log.Println("Exiting...")
 				os.Exit(0)
 			case termbox.KeyEsc:
 				kbh.KeyboardChannel <- NewKeyboardEvent(KeyEventTypeChar, PressKey, "esc")

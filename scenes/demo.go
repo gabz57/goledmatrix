@@ -2,6 +2,7 @@ package scenes
 
 import (
 	. "github.com/gabz57/goledmatrix/canvas"
+	"github.com/gabz57/goledmatrix/canvas/effect"
 	. "github.com/gabz57/goledmatrix/components"
 	"github.com/gabz57/goledmatrix/components/impl"
 	"github.com/gabz57/goledmatrix/controller"
@@ -10,63 +11,64 @@ import (
 
 var infoCpnt Component
 
-func Gameloop(c Canvas, done chan struct{}, keyboardChannel *controller.KeyboardEventChannel) {
+var sceneDuration = 30 * time.Second
+var shortSceneDuration = 15 * time.Second
+var effects = []effect.DynamicEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
+
+func Demos(c Canvas, done chan struct{}, keyboardChannel *controller.KeyboardEventChannel) {
 	infoCpnt = infoComponent(c, false)
-	sceneDuration := 30 * time.Second
-	//shortSceneDuration := 15 * time.Second
-	//effects := []effect.DynamicEffect{effect.NewFadeInOutSceneEffect(sceneDuration)}
 	//galleryScene := photoGalleryScene(c, sceneDuration).WithEffects(effects)
 	engine := NewEngine(c, []*Scene{
-		////NewScene([]Component{infoCpnt, octoLogoComponent(c)}, sceneDuration),
-		////NewScene([]Component{infoCpnt, octoLogoComponent(c), clockComponent(c)}, sceneDuration),
-		//fadingLinesScene(c, sceneDuration).WithEffects(effects),
-		//fadingDotsScene(c, sceneDuration, 100).WithEffects(effects),
-		//fadingDotsScene(c, sceneDuration, 1000).WithEffects(effects),
+		//NewScene([]Component{infoCpnt, octoLogoComponent(c)}, sceneDuration),
+		//NewScene([]Component{infoCpnt, octoLogoComponent(c), clockComponent(c)}, sceneDuration),
+		fadingLinesScene(c, sceneDuration).WithEffects(effects),
+		fadingDotsScene(c, sceneDuration, 100).WithEffects(effects),
+		fadingDotsScene(c, sceneDuration, 1000), //.WithEffects(effects),
 		NewScene([]Component{infoCpnt, dspComponent(c)}, sceneDuration),
-		//NewScene([]Component{infoCpnt, clockComponent(c)}, sceneDuration),
-		////NewScene([]Component{ /*infoCpnt, */ clockComponent(c)}, sceneDuration).WithEffects(effects),
-		////NewSceneWithEffect([]Component{infoCpnt, photoGalleryComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect}),
-		////NewScene([]Component{infoCpnt, beanComponent(c)}, sceneDuration),
-		////NewScene([]Component{marioComponent(c), infoCpnt}, sceneDuration),
-		////NewScene([]Component{infoCpnt, movingDotComponent(c)}, sceneDuration),
-		////NewScene([]Component{
-		////	infoCpnt,
-		////	bouncingDotComponent(c, 10, 90),
-		////	bouncingDotComponent(c, 20, 90),
-		////	bouncingDotComponent(c, 30, 90),
-		////	bouncingDotComponent(c, 40, 90),
-		////	bouncingDotComponent(c, 50, 90),
-		////	bouncingDotComponent(c, 60, 90),
-		////	bouncingDotComponent(c, 70, 90),
-		////	bouncingDotComponent(c, 80, 90),
-		////	bouncingDotComponent(c, 90, 90),
-		////}, sceneDuration),
-		////NewScene([]Component{infoCpnt, heartComponent(c)}, sceneDuration),
-		////NewScene([]Component{infoCpnt, heartsComponent(c)}, sceneDuration),
-		////NewScene([]Component{infoCpnt, birthdayCakeComponent(c)}, sceneDuration),
-		//NewScene([]Component{infoCpnt, movingHeartsComponent(c)}, sceneDuration),
-		////NewScene([]Component{infoCpnt, happyBirthdayComponent(c)}, sceneDuration),
-		//
-		////gamepadDemoScene(c, effects),
-		//
-		////meteoLocalScene(c, shortSceneDuration),
-		////meteoLocalScene(c, shortSceneDuration).WithEffects(effects),
-		////meteoForecastScene(c, shortSceneDuration, "94016"), // Cachan
-		//meteoForecastScene(c, shortSceneDuration, "94016").WithEffects(effects), // Cachan
-		////galleryScene,
-		////meteoForecastScene(c, shortSceneDuration, "57176"), // Diebling
-		//meteoForecastScene(c, shortSceneDuration, "57176").WithEffects(effects), // Diebling
-		////galleryScene,
-		////meteoForecastScene(c, shortSceneDuration, "75112").WithEffects(effects), // Paris 12 arr
-		////galleryScene,
-		////nextAnniversariesScene(c, shortSceneDuration),
-		//nextAnniversariesScene(c, shortSceneDuration).WithEffects(effects),
-		//
-		////NewScene([]Component{meteoIconsComponent(c)}, sceneDuration),
-		////NewScene([]Component{meteoIcons16Component(c)}, sceneDuration),
-		////NewScene([]Component{ /*infoCpnt, */ photoComponent(c)}, sceneDuration),
-		//////NewScene([]Component{infoCpnt, focusComponent(c)}, sceneDuration),
-		////NewScene([]Component{infoCpnt}, sceneDuration),
+		NewScene([]Component{infoCpnt, clockComponent(c)}, sceneDuration),
+		//NewScene([]Component{ /*infoCpnt, */ clockComponent(c)}, sceneDuration).WithEffects(effects),
+		//NewSceneWithEffect([]Component{infoCpnt, photoGalleryComponent(c)}, sceneDuration, []CanvasEffect{fadeEffect}),
+		//NewScene([]Component{infoCpnt, beanComponent(c)}, sceneDuration),
+		//NewScene([]Component{marioComponent(c), infoCpnt}, sceneDuration),
+		//NewScene([]Component{infoCpnt, movingDotComponent(c)}, sceneDuration),
+		//NewScene([]Component{
+		//	infoCpnt,
+		//	bouncingDotComponent(c, 10, 90),
+		//	bouncingDotComponent(c, 20, 90),
+		//	bouncingDotComponent(c, 30, 90),
+		//	bouncingDotComponent(c, 40, 90),
+		//	bouncingDotComponent(c, 50, 90),
+		//	bouncingDotComponent(c, 60, 90),
+		//	bouncingDotComponent(c, 70, 90),
+		//	bouncingDotComponent(c, 80, 90),
+		//	bouncingDotComponent(c, 90, 90),
+		//}, sceneDuration),
+		//NewScene([]Component{infoCpnt, heartComponent(c)}, sceneDuration),
+		//NewScene([]Component{infoCpnt, heartsComponent(c)}, sceneDuration),
+		//NewScene([]Component{infoCpnt, birthdayCakeComponent(c)}, sceneDuration),
+		NewScene([]Component{infoCpnt, movingHeartsComponent(c)}, sceneDuration),
+		//NewScene([]Component{infoCpnt, happyBirthdayComponent(c)}, sceneDuration),
+
+		//gamepadDemoScene(c, effects),
+
+		//meteoLocalScene(c, shortSceneDuration),
+		//meteoLocalScene(c, shortSceneDuration).WithEffects(effects),
+		//meteoForecastScene(c, shortSceneDuration, "94016"), // Cachan
+		meteoForecastScene(c, shortSceneDuration, "94016").WithEffects(effects), // Cachan
+		//galleryScene,
+		//meteoForecastScene(c, shortSceneDuration, "57176"), // Diebling
+		meteoForecastScene(c, shortSceneDuration, "57176").WithEffects(effects), // Diebling
+		//galleryScene,
+		//meteoForecastScene(c, shortSceneDuration, "75112").WithEffects(effects), // Paris 12 arr
+		//galleryScene,
+		//nextAnniversariesScene(c, shortSceneDuration),
+		nextAnniversariesScene(c, shortSceneDuration).WithEffects(effects),
+
+		//NewScene([]Component{meteoIconsComponent(c)}, sceneDuration),
+		//NewScene([]Component{meteoIcons16Component(c)}, sceneDuration),
+		//NewScene([]Component{ /*infoCpnt, */ photoComponent(c)}, sceneDuration),
+		////NewScene([]Component{infoCpnt, focusComponent(c)}, sceneDuration),
+		//NewScene([]Component{infoCpnt}, sceneDuration),
 	})
 	engine.Run(done)
 }
